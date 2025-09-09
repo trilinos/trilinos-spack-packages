@@ -1,0 +1,36 @@
+#Package Name: Teuchos
+#Directory: packages/teuchos
+#Type: PT
+    #Required Teuchos subpackages
+    cmake_options.append(-DTeuchos_ENABLE_TeuchosCore=ON)
+    cmake_options.append(-DTrilinos_ENABLE_TeuchosCore=ON)
+
+    cmake_options.append(-DTeuchos_ENABLE_TeuchosParser=ON)
+    cmake_options.append(-DTrilinos_ENABLE_TeuchosParser=ON)
+
+    cmake_options.append(-DTeuchos_ENABLE_TeuchosParameterList=ON)
+    cmake_options.append(-DTrilinos_ENABLE_TeuchosParameterList=ON)
+
+    cmake_options.append(-DTeuchos_ENABLE_TeuchosComm=ON)
+    cmake_options.append(-DTrilinos_ENABLE_TeuchosComm=ON)
+
+    cmake_options.append(-DTeuchos_ENABLE_TeuchosNumerics=ON)
+    cmake_options.append(-DTrilinos_ENABLE_TeuchosNumerics=ON)
+
+    cmake_options.append(-DTeuchos_ENABLE_TeuchosRemainder=ON)
+    cmake_options.append(-DTrilinos_ENABLE_TeuchosRemainder=ON)
+
+    ### Optional Teuchos subpackages ###
+    variant(teuchoskokkoscompat, default=ON)
+    when(+teuchoskokkoscompat):
+        cmake_options.append(-DTeuchos_ENABLE_TeuchosKokkosCompat=ON)
+        cmake_options.append(-DTrilinos_ENABLE_TeuchosKokkosCompat=ON)
+
+    variant(teuchoskokkoscomm, default=ON)
+    when(+teuchoskokkoscomm):
+        cmake_options.append(-DTeuchos_ENABLE_TeuchosKokkosComm=ON)
+        cmake_options.append(-DTrilinos_ENABLE_TeuchosKokkosComm=ON)
+
+    when +all_optional_dependencies:
+    variant(teuchoskokkoscompat, default=ON)
+    variant(teuchoskokkoscomm, default=ON)
