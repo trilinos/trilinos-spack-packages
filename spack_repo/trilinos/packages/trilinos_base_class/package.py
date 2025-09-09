@@ -82,7 +82,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
     trilinos_variant("openmp", default=False, description="use openmp")
     trilinos_variant("explicit-instantiation", default=True, description="use explicit instantiation")
-    trilinos_variant("all-optional-packages", default=False, description="Enable all optional packages")
+    trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
     depends_on("blas")

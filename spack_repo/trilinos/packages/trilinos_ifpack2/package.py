@@ -42,6 +42,7 @@ class TrilinosIfpack2(TrilinosBaseClass):
         args = [
         "-DTrilinos_ENABLE_Ifpack2=ON",
         "-DTrilinos_ENABLE_Tpetra=ON",
+        "-DIfpack2_ENABLE_Tpetra=ON"
         "-DTPL_ENABLE_Belos=ON",
         "-DTPL_ENABLE_Teuchos=ON",
         "-DTPL_ENABLE_Galeri=ON",
