@@ -27,17 +27,22 @@ class TrilinosZoltan2(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Variants automatically generated from optional subpackages ###
-    variant(sphynx, default=True, description='Enable Zoltan2Sphynx')
+    variant('sphynx', default=True, description='Enable Zoltan2Sphynx')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-tpetra)
+    depends_on_trilinos_package(trilinos-xpetra)
+    depends_on_trilinos_package(trilinos-zoltan)
 
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
-        generated_cmake_options.append(-DTrilinos_ENABLE_Zoltan2Core=ON)
+        generated_cmake_options.append('-DTrilinos_ENABLE_Zoltan2Core=ON')
 
         generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_Zoltan2Sphynx', sphynx))
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

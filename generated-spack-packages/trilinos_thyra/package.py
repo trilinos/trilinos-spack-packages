@@ -27,21 +27,24 @@ class TrilinosThyra(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Variants automatically generated from optional subpackages ###
-    variant(epetraadapters, default=True, description='Enable ThyraEpetraAdapters')
-    variant(epetraextadapters, default=True, description='Enable ThyraEpetraExtAdapters')
-    variant(tpetraadapters, default=True, description='Enable ThyraTpetraAdapters')
+    variant('epetraadapters', default=True, description='Enable ThyraEpetraAdapters')
+    variant('epetraextadapters', default=True, description='Enable ThyraEpetraExtAdapters')
+    variant('tpetraadapters', default=True, description='Enable ThyraTpetraAdapters')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-rtop)
 
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
-        generated_cmake_options.append(-DTrilinos_ENABLE_ThyraCore=ON)
+        generated_cmake_options.append('-DTrilinos_ENABLE_ThyraCore=ON')
 
         generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_ThyraEpetraAdapters', epetraadapters))
         generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_ThyraEpetraExtAdapters', epetraextadapters))
         generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_ThyraTpetraAdapters', tpetraadapters))
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

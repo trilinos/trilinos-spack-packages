@@ -27,7 +27,18 @@ class TrilinosPercept(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(opennurbs, default=True, description='Enable tpl')
+    variant('opennurbs', default=True, description='Enable tpl')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-intrepid2)
+    depends_on_trilinos_package(trilinos-seacasioss)
+    depends_on_trilinos_package(trilinos-stkutil)
+    depends_on_trilinos_package(trilinos-stkio)
+    depends_on_trilinos_package(trilinos-stkmesh)
+    depends_on_trilinos_package(trilinos-stkexpr-eval)
+    depends_on_trilinos_package(trilinos-stksearch)
+    depends_on_trilinos_package(trilinos-stktransfer)
+    depends_on_trilinos_package(trilinos-zoltan)
 
     ### Optional TPLs automatically generated ###
     depends_on(opennurbs, when='+opennurbs')
@@ -37,7 +48,7 @@ class TrilinosPercept(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

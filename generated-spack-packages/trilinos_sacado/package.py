@@ -26,12 +26,19 @@ class TrilinosSacado(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-kokkos', default=True, description='Enable Kokkos support')
+    variant('trilinos-teuchos-core', default=True, description='Enable TeuchosCore support')
+    variant('trilinos-teuchos-numerics', default=True, description='Enable TeuchosNumerics support')
+    variant('trilinos-teuchos-comm', default=True, description='Enable TeuchosComm support')
+    variant('trilinos-teuchos-kokkos-comm', default=True, description='Enable TeuchosKokkosComm support')
+
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

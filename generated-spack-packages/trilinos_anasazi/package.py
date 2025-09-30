@@ -27,8 +27,19 @@ class TrilinosAnasazi(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(mpi, default=True, description='Enable tpl')
-    variant(tbb, default=True, description='Enable tpl')
+    variant('mpi', default=True, description='Enable tpl')
+    variant('tbb', default=True, description='Enable tpl')
+
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-tpetra', default=True, description='Enable Tpetra support')
+    variant('trilinos-epetra', default=True, description='Enable Epetra support')
+    variant('trilinos-epetra-ext', default=True, description='Enable EpetraExt support')
+    variant('trilinos-thyra-core', default=True, description='Enable ThyraCore support')
+    variant('trilinos-thyra-epetra-adapters', default=True, description='Enable ThyraEpetraAdapters support')
+    variant('trilinos-belos', default=True, description='Enable Belos support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
 
     ### Optional TPLs automatically generated ###
     depends_on(mpi, when='+mpi')
@@ -39,7 +50,7 @@ class TrilinosAnasazi(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

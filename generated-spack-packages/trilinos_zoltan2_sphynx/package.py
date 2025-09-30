@@ -26,12 +26,22 @@ class TrilinosZoltan2Sphynx(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-mue-lu', default=True, description='Enable MueLu support')
+    variant('trilinos-galeri', default=True, description='Enable Galeri support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-anasazi)
+    depends_on_trilinos_package(trilinos-belos)
+    depends_on_trilinos_package(trilinos-ifpack2)
+    depends_on_trilinos_package(trilinos-zoltan2-core)
+
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

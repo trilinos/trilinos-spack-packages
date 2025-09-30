@@ -27,10 +27,10 @@ class TrilinosKokkos(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(pthread, default=True, description='Enable tpl')
-    variant(cuda, default=True, description='Enable tpl')
-    variant(hwloc, default=True, description='Enable tpl')
-    variant(dllib, default=True, description='Enable tpl')
+    variant('pthread', default=True, description='Enable tpl')
+    variant('cuda', default=True, description='Enable tpl')
+    variant('hwloc', default=True, description='Enable tpl')
+    variant('dllib', default=True, description='Enable tpl')
 
     ### Optional TPLs automatically generated ###
     depends_on(pthread, when='+pthread')
@@ -43,7 +43,7 @@ class TrilinosKokkos(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

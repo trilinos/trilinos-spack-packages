@@ -26,28 +26,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
-    ### Variants automatically generated from optional subpackages ###
-    variant(kokkoscompat, default=True, description='Enable TeuchosKokkosCompat')
-    variant(kokkoscomm, default=True, description='Enable TeuchosKokkosComm')
+    ### Variants automatically generated from optional subpackages of Teuchos ###
+    variant('kokkoscomm', default=True, description='Enable TeuchosKokkosComm')
+    variant('kokkoscompat', default=True, description='Enable TeuchosKokkosCompat')
 
-    def generated_trilinos_package_cmake_args(self):
-        # auto generated cmake arguments
-        generated_cmake_options = []
-        generated_cmake_options.append(-DTrilinos_ENABLE_TeuchosCore=ON)
-        generated_cmake_options.append(-DTrilinos_ENABLE_TeuchosParser=ON)
-        generated_cmake_options.append(-DTrilinos_ENABLE_TeuchosParameterList=ON)
-        generated_cmake_options.append(-DTrilinos_ENABLE_TeuchosComm=ON)
-        generated_cmake_options.append(-DTrilinos_ENABLE_TeuchosNumerics=ON)
-        generated_cmake_options.append(-DTrilinos_ENABLE_TeuchosRemainder=ON)
-
-        generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_TeuchosKokkosCompat', kokkoscompat))
-        generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_TeuchosKokkosComm', kokkoscomm))
-
-        return generated_cmake_options
-   
-    def cmake_args(self):
-        args = []
-        args.extend(self.generated_trilinos_base_cmake_args())
-        args.extend(self.trilinos_package_cmake_args())
-        return args
-        

@@ -27,10 +27,10 @@ class TrilinosShyLunode(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Variants automatically generated from optional subpackages ###
-    variant(hts, default=True, description='Enable ShyLU_NodeHTS')
-    variant(tacho, default=True, description='Enable ShyLU_NodeTacho')
-    variant(basker, default=True, description='Enable ShyLU_NodeBasker')
-    variant(fastilu, default=True, description='Enable ShyLU_NodeFastILU')
+    variant('hts', default=True, description='Enable ShyLU_NodeHTS')
+    variant('tacho', default=True, description='Enable ShyLU_NodeTacho')
+    variant('basker', default=True, description='Enable ShyLU_NodeBasker')
+    variant('fastilu', default=True, description='Enable ShyLU_NodeFastILU')
 
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
@@ -41,7 +41,7 @@ class TrilinosShyLunode(TrilinosBaseClass):
         generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_ShyLU_NodeFastILU', fastilu))
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

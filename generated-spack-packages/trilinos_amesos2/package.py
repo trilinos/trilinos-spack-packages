@@ -27,21 +27,33 @@ class TrilinosAmesos2(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(mpi, default=True, description='Enable tpl')
-    variant(superlu, default=True, description='Enable tpl')
-    variant(superlumt, default=True, description='Enable tpl')
-    variant(superludist, default=True, description='Enable tpl')
-    variant(lapack, default=True, description='Enable tpl')
-    variant(umfpack, default=True, description='Enable tpl')
-    variant(pardiso_mkl, default=True, description='Enable tpl')
-    variant(css_mkl, default=True, description='Enable tpl')
-    variant(parmetis, default=True, description='Enable tpl')
-    variant(metis, default=True, description='Enable tpl')
-    variant(cholmod, default=True, description='Enable tpl')
-    variant(mumps, default=True, description='Enable tpl')
-    variant(strumpack, default=True, description='Enable tpl')
-    variant(cusparse, default=True, description='Enable tpl')
-    variant(cusolver, default=True, description='Enable tpl')
+    variant('mpi', default=True, description='Enable tpl')
+    variant('superlu', default=True, description='Enable tpl')
+    variant('superlumt', default=True, description='Enable tpl')
+    variant('superludist', default=True, description='Enable tpl')
+    variant('lapack', default=True, description='Enable tpl')
+    variant('umfpack', default=True, description='Enable tpl')
+    variant('pardiso_mkl', default=True, description='Enable tpl')
+    variant('css_mkl', default=True, description='Enable tpl')
+    variant('parmetis', default=True, description='Enable tpl')
+    variant('metis', default=True, description='Enable tpl')
+    variant('cholmod', default=True, description='Enable tpl')
+    variant('mumps', default=True, description='Enable tpl')
+    variant('strumpack', default=True, description='Enable tpl')
+    variant('cusparse', default=True, description='Enable tpl')
+    variant('cusolver', default=True, description='Enable tpl')
+
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-epetra', default=True, description='Enable Epetra support')
+    variant('trilinos-epetra-ext', default=True, description='Enable EpetraExt support')
+    variant('trilinos-shylu_-node-basker', default=True, description='Enable ShyLU_NodeBasker support')
+    variant('trilinos-shylu_-node-tacho', default=True, description='Enable ShyLU_NodeTacho support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
+    depends_on_trilinos_package(trilinos-tpetra)
+    depends_on_trilinos_package(trilinos-trilinos-ss)
+    depends_on_trilinos_package(trilinos-kokkos)
 
     ### Optional TPLs automatically generated ###
     depends_on(mpi, when='+mpi')
@@ -65,7 +77,7 @@ class TrilinosAmesos2(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

@@ -27,11 +27,18 @@ class TrilinosEpetraExt(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(hdf5, default=True, description='Enable tpl')
-    variant(umfpack, default=True, description='Enable tpl')
-    variant(amd, default=True, description='Enable tpl')
-    variant(petsc, default=True, description='Enable tpl')
-    variant(hypre, default=True, description='Enable tpl')
+    variant('hdf5', default=True, description='Enable tpl')
+    variant('umfpack', default=True, description='Enable tpl')
+    variant('amd', default=True, description='Enable tpl')
+    variant('petsc', default=True, description='Enable tpl')
+    variant('hypre', default=True, description='Enable tpl')
+
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-triutils', default=True, description='Enable Triutils support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
+    depends_on_trilinos_package(trilinos-epetra)
 
     ### Optional TPLs automatically generated ###
     depends_on(hdf5, when='+hdf5')
@@ -45,7 +52,7 @@ class TrilinosEpetraExt(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

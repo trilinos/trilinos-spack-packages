@@ -27,17 +27,22 @@ class TrilinosTpetra(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Variants automatically generated from optional subpackages ###
-    variant(tsqr, default=True, description='Enable TpetraTSQR')
+    variant('tsqr', default=True, description='Enable TpetraTSQR')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
+    depends_on_trilinos_package(trilinos-kokkos)
+    depends_on_trilinos_package(trilinos-kokkos-kernels)
 
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
-        generated_cmake_options.append(-DTrilinos_ENABLE_TpetraCore=ON)
+        generated_cmake_options.append('-DTrilinos_ENABLE_TpetraCore=ON')
 
         generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_TpetraTSQR', tsqr))
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

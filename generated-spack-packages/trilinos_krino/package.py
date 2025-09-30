@@ -27,9 +27,24 @@ class TrilinosKrino(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(mpi, default=True, description='Enable tpl')
-    variant(parmetis, default=True, description='Enable tpl')
-    variant(yamlcpp, default=True, description='Enable tpl')
+    variant('mpi', default=True, description='Enable tpl')
+    variant('parmetis', default=True, description='Enable tpl')
+    variant('yamlcpp', default=True, description='Enable tpl')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-seacasioss)
+    depends_on_trilinos_package(trilinos-seacasexodus)
+    depends_on_trilinos_package(trilinos-stkbalance)
+    depends_on_trilinos_package(trilinos-stkexpr-eval)
+    depends_on_trilinos_package(trilinos-stkmath)
+    depends_on_trilinos_package(trilinos-stkio)
+    depends_on_trilinos_package(trilinos-stksearch)
+    depends_on_trilinos_package(trilinos-stktopology)
+    depends_on_trilinos_package(trilinos-stkutil)
+    depends_on_trilinos_package(trilinos-stktools)
+    depends_on_trilinos_package(trilinos-stkemend)
+    depends_on_trilinos_package(trilinos-intrepid2)
+    depends_on_trilinos_package(trilinos-sacado)
 
     ### Required TPLs automatically generated ###
     depends_on(boost)
@@ -44,7 +59,7 @@ class TrilinosKrino(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

@@ -27,13 +27,13 @@ class TrilinosZoltan(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(mpi, default=True, description='Enable tpl')
-    variant(metis, default=True, description='Enable tpl')
-    variant(parmetis, default=True, description='Enable tpl')
-    variant(patoh, default=True, description='Enable tpl')
-    variant(scotch, default=True, description='Enable tpl')
-    variant(zlib, default=True, description='Enable tpl')
-    variant(ovis, default=True, description='Enable tpl')
+    variant('mpi', default=True, description='Enable tpl')
+    variant('metis', default=True, description='Enable tpl')
+    variant('parmetis', default=True, description='Enable tpl')
+    variant('patoh', default=True, description='Enable tpl')
+    variant('scotch', default=True, description='Enable tpl')
+    variant('zlib', default=True, description='Enable tpl')
+    variant('ovis', default=True, description='Enable tpl')
 
     ### Optional TPLs automatically generated ###
     depends_on(mpi, when='+mpi')
@@ -49,7 +49,7 @@ class TrilinosZoltan(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

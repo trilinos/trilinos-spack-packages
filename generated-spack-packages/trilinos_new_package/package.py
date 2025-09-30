@@ -14,7 +14,7 @@ from ..trilinos_base_class.package import depends_on_trilinos_package
 from ..trilinos_base_class.package import trilinos_variant
 from ..trilinos_base_class.package import list_of_trilinos_variants
 
-class TrilinosMiniTensor(TrilinosBaseClass):
+class TrilinosNewPackage(TrilinosBaseClass):
     """The Trilinos Project is an effort to develop algorithms and enabling
     technologies within an object-oriented software framework for the solution
     of large-scale, complex multi-physics engineering and scientific problems.
@@ -26,11 +26,11 @@ class TrilinosMiniTensor(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-teuchos', default=True, description='Enable Teuchos support')
+
     ### Required Trilinos packages ###
-    depends_on_trilinos_package(trilinos-teuchos-core)
-    depends_on_trilinos_package(trilinos-kokkos)
-    depends_on_trilinos_package(trilinos-kokkos-kernels)
-    depends_on_trilinos_package(trilinos-sacado)
+    depends_on_trilinos_package(trilinos-epetra)
 
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments

@@ -27,18 +27,26 @@ class TrilinosAmesos(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(superludist, default=True, description='Enable tpl')
-    variant(parmetis, default=True, description='Enable tpl')
-    variant(umfpack, default=True, description='Enable tpl')
-    variant(superlu, default=True, description='Enable tpl')
-    variant(blacs, default=True, description='Enable tpl')
-    variant(scalapack, default=True, description='Enable tpl')
-    variant(mumps, default=True, description='Enable tpl')
-    variant(taucs, default=True, description='Enable tpl')
-    variant(css_mkl, default=True, description='Enable tpl')
-    variant(pardiso_mkl, default=True, description='Enable tpl')
-    variant(pardiso, default=True, description='Enable tpl')
-    variant(csparse, default=True, description='Enable tpl')
+    variant('superludist', default=True, description='Enable tpl')
+    variant('parmetis', default=True, description='Enable tpl')
+    variant('umfpack', default=True, description='Enable tpl')
+    variant('superlu', default=True, description='Enable tpl')
+    variant('blacs', default=True, description='Enable tpl')
+    variant('scalapack', default=True, description='Enable tpl')
+    variant('mumps', default=True, description='Enable tpl')
+    variant('taucs', default=True, description='Enable tpl')
+    variant('css_mkl', default=True, description='Enable tpl')
+    variant('pardiso_mkl', default=True, description='Enable tpl')
+    variant('pardiso', default=True, description='Enable tpl')
+    variant('csparse', default=True, description='Enable tpl')
+
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-epetra-ext', default=True, description='Enable EpetraExt support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
+    depends_on_trilinos_package(trilinos-epetra)
+    depends_on_trilinos_package(trilinos-trilinos-ss)
 
     ### Optional TPLs automatically generated ###
     depends_on(superludist, when='+superludist')
@@ -59,7 +67,7 @@ class TrilinosAmesos(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

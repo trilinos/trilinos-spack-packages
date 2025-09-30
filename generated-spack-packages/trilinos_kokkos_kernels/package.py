@@ -27,19 +27,22 @@ class TrilinosKokkosKernels(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(quadmath, default=True, description='Enable tpl')
-    variant(mkl, default=True, description='Enable tpl')
-    variant(blas, default=True, description='Enable tpl')
-    variant(lapack, default=True, description='Enable tpl')
-    variant(metis, default=True, description='Enable tpl')
-    variant(superlu, default=True, description='Enable tpl')
-    variant(cholmod, default=True, description='Enable tpl')
-    variant(cublas, default=True, description='Enable tpl')
-    variant(cusparse, default=True, description='Enable tpl')
-    variant(cusolver, default=True, description='Enable tpl')
-    variant(rocblas, default=True, description='Enable tpl')
-    variant(rocsparse, default=True, description='Enable tpl')
-    variant(rocsolver, default=True, description='Enable tpl')
+    variant('quadmath', default=True, description='Enable tpl')
+    variant('mkl', default=True, description='Enable tpl')
+    variant('blas', default=True, description='Enable tpl')
+    variant('lapack', default=True, description='Enable tpl')
+    variant('metis', default=True, description='Enable tpl')
+    variant('superlu', default=True, description='Enable tpl')
+    variant('cholmod', default=True, description='Enable tpl')
+    variant('cublas', default=True, description='Enable tpl')
+    variant('cusparse', default=True, description='Enable tpl')
+    variant('cusolver', default=True, description='Enable tpl')
+    variant('rocblas', default=True, description='Enable tpl')
+    variant('rocsparse', default=True, description='Enable tpl')
+    variant('rocsolver', default=True, description='Enable tpl')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-kokkos)
 
     ### Optional TPLs automatically generated ###
     depends_on(quadmath, when='+quadmath')
@@ -61,7 +64,7 @@ class TrilinosKokkosKernels(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

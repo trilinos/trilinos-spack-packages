@@ -26,12 +26,24 @@ class TrilinosBelos(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-epetra', default=True, description='Enable Epetra support')
+    variant('trilinos-tpetra', default=True, description='Enable Tpetra support')
+    variant('trilinos-xpetra', default=True, description='Enable Xpetra support')
+    variant('trilinos-thyra', default=True, description='Enable Thyra support')
+    variant('trilinos-aztec-oo', default=True, description='Enable AztecOO support')
+    variant('trilinos-triutils', default=True, description='Enable Triutils support')
+    variant('trilinos-kokkos-kernels', default=True, description='Enable KokkosKernels support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
+
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

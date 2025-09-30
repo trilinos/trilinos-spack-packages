@@ -26,12 +26,26 @@ class TrilinosTrilinosCouplings(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-amesos', default=True, description='Enable Amesos support')
+    variant('trilinos-aztec-oo', default=True, description='Enable AztecOO support')
+    variant('trilinos-belos', default=True, description='Enable Belos support')
+    variant('trilinos-epetra-ext', default=True, description='Enable EpetraExt support')
+    variant('trilinos-ifpack', default=True, description='Enable Ifpack support')
+    variant('trilinos-isorropia', default=True, description='Enable Isorropia support')
+    variant('trilinos-ml', default=True, description='Enable ML support')
+    variant('trilinos-mue-lu', default=True, description='Enable MueLu support')
+    variant('trilinos-nox', default=True, description='Enable NOX support')
+    variant('trilinos-stokhos', default=True, description='Enable Stokhos support')
+    variant('trilinos-zoltan', default=True, description='Enable Zoltan support')
+    variant('trilinos-zoltan2-core', default=True, description='Enable Zoltan2Core support')
+
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

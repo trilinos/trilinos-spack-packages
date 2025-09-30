@@ -27,11 +27,20 @@ class TrilinosIfpack(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(hypre, default=True, description='Enable tpl')
-    variant(hips, default=True, description='Enable tpl')
-    variant(superlu, default=True, description='Enable tpl')
-    variant(sparskit, default=True, description='Enable tpl')
-    variant(boost, default=True, description='Enable tpl')
+    variant('hypre', default=True, description='Enable tpl')
+    variant('hips', default=True, description='Enable tpl')
+    variant('superlu', default=True, description='Enable tpl')
+    variant('sparskit', default=True, description='Enable tpl')
+    variant('boost', default=True, description='Enable tpl')
+
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-amesos', default=True, description='Enable Amesos support')
+    variant('trilinos-epetra-ext', default=True, description='Enable EpetraExt support')
+    variant('trilinos-aztec-oo', default=True, description='Enable AztecOO support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
+    depends_on_trilinos_package(trilinos-epetra)
 
     ### Optional TPLs automatically generated ###
     depends_on(hypre, when='+hypre')
@@ -45,7 +54,7 @@ class TrilinosIfpack(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

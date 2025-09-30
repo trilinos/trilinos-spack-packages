@@ -26,6 +26,10 @@ class TrilinosAdelus(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-kokkos)
+    depends_on_trilinos_package(trilinos-kokkos-kernels)
+
     ### Required TPLs automatically generated ###
     depends_on(blas)
 
@@ -34,7 +38,7 @@ class TrilinosAdelus(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

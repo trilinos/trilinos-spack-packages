@@ -26,12 +26,30 @@ class TrilinosPiro(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-nox', default=True, description='Enable NOX support')
+    variant('trilinos-tempus', default=True, description='Enable Tempus support')
+    variant('trilinos-rol', default=True, description='Enable ROL support')
+    variant('trilinos-ifpack2', default=True, description='Enable Ifpack2 support')
+    variant('trilinos-mue-lu', default=True, description='Enable MueLu support')
+    variant('trilinos-thyra-epetra-adapters', default=True, description='Enable ThyraEpetraAdapters support')
+    variant('trilinos-thyra-epetra-ext-adapters', default=True, description='Enable ThyraEpetraExtAdapters support')
+    variant('trilinos-epetra', default=True, description='Enable Epetra support')
+    variant('trilinos-epetra-ext', default=True, description='Enable EpetraExt support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
+    depends_on_trilinos_package(trilinos-stratimikos)
+    depends_on_trilinos_package(trilinos-thyra-core)
+    depends_on_trilinos_package(trilinos-tpetra)
+    depends_on_trilinos_package(trilinos-teko)
+
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

@@ -27,9 +27,9 @@ class TrilinosPamgen(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(exodusii, default=True, description='Enable tpl')
-    variant(nemesis, default=True, description='Enable tpl')
-    variant(boost, default=True, description='Enable tpl')
+    variant('exodusii', default=True, description='Enable tpl')
+    variant('nemesis', default=True, description='Enable tpl')
+    variant('boost', default=True, description='Enable tpl')
 
     ### Optional TPLs automatically generated ###
     depends_on(exodusii, when='+exodusii')
@@ -41,7 +41,7 @@ class TrilinosPamgen(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

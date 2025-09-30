@@ -26,6 +26,17 @@ class TrilinosXpetra(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-epetra', default=True, description='Enable Epetra support')
+    variant('trilinos-epetra-ext', default=True, description='Enable EpetraExt support')
+    variant('trilinos-tpetra', default=True, description='Enable Tpetra support')
+    variant('trilinos-kokkos-kernels', default=True, description='Enable KokkosKernels support')
+    variant('trilinos-thyra', default=True, description='Enable Thyra support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos)
+    depends_on_trilinos_package(trilinos-kokkos)
+
     ### Required TPLs automatically generated ###
     depends_on(blas)
     depends_on(lapack)
@@ -35,7 +46,7 @@ class TrilinosXpetra(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

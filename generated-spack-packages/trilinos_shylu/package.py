@@ -27,17 +27,30 @@ class TrilinosShyLu(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Variants automatically generated from optional subpackages ###
-    variant(_node, default=True, description='Enable ShyLU_Node')
+    variant('_node', default=True, description='Enable ShyLU_Node')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-amesos2)
+    depends_on_trilinos_package(trilinos-teuchos)
+    depends_on_trilinos_package(trilinos-tpetra)
+    depends_on_trilinos_package(trilinos-xpetra)
+    depends_on_trilinos_package(trilinos-epetra)
+    depends_on_trilinos_package(trilinos-isorropia)
+    depends_on_trilinos_package(trilinos-aztec-oo)
+    depends_on_trilinos_package(trilinos-belos)
+    depends_on_trilinos_package(trilinos-ifpack)
+    depends_on_trilinos_package(trilinos-amesos)
+    depends_on_trilinos_package(trilinos-teuchos)
 
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
-        generated_cmake_options.append(-DTrilinos_ENABLE_ShyLU_DD=ON)
+        generated_cmake_options.append('-DTrilinos_ENABLE_ShyLU_DD=ON')
 
         generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_ShyLU_Node', _node))
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

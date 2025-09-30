@@ -26,12 +26,18 @@ class TrilinosTriutils(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
     
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-epetra', default=True, description='Enable Epetra support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-teuchos-core)
+
     def generated_trilinos_package_cmake_args(self):
         # auto generated cmake arguments
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

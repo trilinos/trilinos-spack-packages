@@ -27,9 +27,12 @@ class TrilinosEpetra(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(cask, default=True, description='Enable tpl')
-    variant(mpi, default=True, description='Enable tpl')
-    variant(oski, default=True, description='Enable tpl')
+    variant('cask', default=True, description='Enable tpl')
+    variant('mpi', default=True, description='Enable tpl')
+    variant('oski', default=True, description='Enable tpl')
+
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-teuchos', default=True, description='Enable Teuchos support')
 
     ### Required TPLs automatically generated ###
     depends_on(blas)
@@ -45,7 +48,7 @@ class TrilinosEpetra(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())

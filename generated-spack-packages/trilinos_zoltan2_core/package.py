@@ -27,15 +27,26 @@ class TrilinosZoltan2Core(TrilinosBaseClass):
     # Handled in TrilinosBaseClass
     
     ### Optional TPLs variants ###
-    variant(metis, default=True, description='Enable tpl')
-    variant(patoh, default=True, description='Enable tpl')
-    variant(parmetis, default=True, description='Enable tpl')
-    variant(pulp, default=True, description='Enable tpl')
-    variant(scotch, default=True, description='Enable tpl')
-    variant(sarma, default=True, description='Enable tpl')
-    variant(amd, default=True, description='Enable tpl')
-    variant(ovis, default=True, description='Enable tpl')
-    variant(topomanager, default=True, description='Enable tpl')
+    variant('metis', default=True, description='Enable tpl')
+    variant('patoh', default=True, description='Enable tpl')
+    variant('parmetis', default=True, description='Enable tpl')
+    variant('pulp', default=True, description='Enable tpl')
+    variant('scotch', default=True, description='Enable tpl')
+    variant('sarma', default=True, description='Enable tpl')
+    variant('amd', default=True, description='Enable tpl')
+    variant('ovis', default=True, description='Enable tpl')
+    variant('topomanager', default=True, description='Enable tpl')
+
+    ### Optional Trilinos dependencies variants ###
+    variant('trilinos-epetra', default=True, description='Enable Epetra support')
+
+    ### Required Trilinos packages ###
+    depends_on_trilinos_package(trilinos-tpetra)
+    depends_on_trilinos_package(trilinos-teuchos-core)
+    depends_on_trilinos_package(trilinos-teuchos-comm)
+    depends_on_trilinos_package(trilinos-teuchos-parameter-list)
+    depends_on_trilinos_package(trilinos-xpetra)
+    depends_on_trilinos_package(trilinos-zoltan)
 
     ### Optional TPLs automatically generated ###
     depends_on(metis, when='+metis')
@@ -53,7 +64,7 @@ class TrilinosZoltan2Core(TrilinosBaseClass):
         generated_cmake_options = []
 
         return generated_cmake_options
-   
+
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())
