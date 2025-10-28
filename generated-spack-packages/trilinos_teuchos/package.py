@@ -25,8 +25,68 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
-    
-    ### Variants automatically generated from optional subpackages of Teuchos ###
-    variant('kokkoscomm', default=True, description='Enable TeuchosKokkosComm')
-    variant('kokkoscompat', default=True, description='Enable TeuchosKokkosCompat')
 
+    # List of automatically generated cmake arguments
+    trilinos_package_auto_cmake_args=[]
+    
+    ### Required subpackages of Teuchos ###
+    trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_TeuchosComm=ON')
+    trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_TeuchosCore=ON')
+    trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_TeuchosNumerics=ON')
+    trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_TeuchosParameterList=ON')
+    trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_TeuchosParser=ON')
+    trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_TeuchosRemainder=ON')
+
+    ### Required tpls of Teuchos from subpackage requirements###
+    depends_on('arprec')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_ARPREC=ON')
+    depends_on('binutils')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_BinUtils=ON')
+    depends_on('boost')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Boost=ON')
+    depends_on('mpi')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_MPI=ON')
+    depends_on('pthread')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Pthread=ON')
+    depends_on('qd')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_QD=ON')
+    depends_on('qt')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_QT=ON')
+    depends_on('valgrind')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Valgrind=ON')
+    depends_on('quadmath')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_quadmath=ON')
+    depends_on('kokkos')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Kokkos=ON')
+    depends_on('blas')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_BLAS=ON')
+    depends_on('eigen')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Eigen=ON')
+    depends_on('lapack')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_LAPACK=ON')
+    depends_on('yamlcpp')
+    trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_yamlcpp=ON')
+
+    ### Optional subpackages of Teuchos ###
+    variant('kokkoscomm', default=True, description='Enable TeuchosKokkosComm')
+    trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_TeuchosKokkosComm', 'kokkoscomm'))
+    depends_on('kokkos', when='+kokkoscomm')
+    trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_Kokkos', 'kokkoscomm'))
+    depends_on('mpi', when='+kokkoscomm')
+    trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_MPI', 'kokkoscomm'))
+
+
+    variant('kokkoscompat', default=True, description='Enable TeuchosKokkosCompat')
+    trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_TeuchosKokkosCompat', 'kokkoscompat'))
+    depends_on('kokkos', when='+kokkoscompat')
+    trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_Kokkos', 'kokkoscompat'))
+
+
+
+
+    def cmake_args(self):
+        args = []
+        args.extend(self.generated_trilinos_base_cmake_args())
+        args.extend(self.trilinos_package_auto_cmake_args)
+        return args
+        

@@ -1,3 +1,4 @@
+#
 # Copyright Spack Project Developers. See COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -8,7 +9,6 @@ import re
 import sys
 
 from spack.package import *
-
 from ..trilinos_base_class.package import TrilinosBaseClass
 from ..trilinos_base_class.package import depends_on_trilinos_package
 from ..trilinos_base_class.package import trilinos_variant
@@ -21,33 +21,29 @@ class TrilinosPercept(TrilinosBaseClass):
     A unique design feature of Trilinos is its focus on packages.
     """
 
-    maintainers("keitat", "kuberry", "jfrye", "jwillenbring", "psakievich")
+    maintainers("jfrye")
 
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
-    
-    # ###################### Variants ##########################
 
+    # List of automatically generated cmake arguments
+    trilinos_package_auto_cmake_args=[]
     
-    # ######################### Conflicts #############################
+    ###Optional tpl dependencies of Percept ###
+    variant('opennurbs', default=True, description='Enable OpenNURBS')
+    depends_on('opennurbs', when='+opennurbs')
 
-    
-    # ######################### TPLs #############################
-    depends_on_trilinos_package("trilinos-stk")
-    depends_on_trilinos_package("trilinos-intrepid2")
-    depends_on("seacas")
-    def trilinos_package_cmake_args(self):
-        args = [
-        "-DTrilinos_ENABLE_Percept=ON",
-        "-DTPL_ENABLE_STK=ON",
-        "-DTPL_ENABLE_Intrepid2=ON",
-        "-DTPL_ENABLE_Seacas=ON",
-        ]
+    def generated_trilinos_package_cmake_args(self):
+        ### auto generated cmake arguments
+        trilinos_package_auto_cmake_args = []
+        ###Optional tpl dependencies of Percept ###
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_OpenNURBS', 'opennurbs'))
 
-        return args
+        return trilinos_package_auto_cmake_args
 
     def cmake_args(self):
         args = []
-        args.extend(self.trilinos_base_cmake_args())
-        args.extend(self.trilinos_package_cmake_args())
+        args.extend(self.generated_trilinos_base_cmake_args())
+        args.extend(self.trilinos_package_auto_cmake_args)
         return args
+        

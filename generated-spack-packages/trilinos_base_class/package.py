@@ -39,8 +39,8 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
 
     # ###################### Versions ##########################
     version("jfrye-spack-changes", branch="changes-for-spack")
-#    version("master", branch="master")
-#    version("develop", branch="develop")
+    #version("master", branch="master")
+    #version("develop", branch="develop")
     #version("16.0.0", sha256="46bfc40419ed2aa2db38c144fb8e61d4aa8170eaa654a88d833ba6b92903f309")
     # List of possible trilinos versions.  used to enforce that depends_on_trilinos_package()
     # all have the same version

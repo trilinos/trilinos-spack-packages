@@ -1,3 +1,4 @@
+#
 # Copyright Spack Project Developers. See COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -8,7 +9,6 @@ import re
 import sys
 
 from spack.package import *
-
 from ..trilinos_base_class.package import TrilinosBaseClass
 from ..trilinos_base_class.package import depends_on_trilinos_package
 from ..trilinos_base_class.package import trilinos_variant
@@ -21,35 +21,45 @@ class TrilinosKrino(TrilinosBaseClass):
     A unique design feature of Trilinos is its focus on packages.
     """
 
-    maintainers("keitat", "kuberry", "jfrye", "jwillenbring", "psakievich")
+    maintainers("jfrye")
 
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
-    
-    # ###################### Variants ##########################
 
+    # List of automatically generated cmake arguments
+    trilinos_package_auto_cmake_args=[]
     
-    # ######################### Conflicts #############################
+    ### Required tpl dependencies of Krino ###
+    depends_on('boost')
 
-    
-    # ######################### TPLs #############################
-    depends_on_trilinos_package("trilinos-stk")
-    depends_on_trilinos_package("trilinos-intrepid2")
-    depends_on_trilinos_package("trilinos-sacado")
-    depends_on("seacas")
-    def trilinos_package_cmake_args(self):
-        args = [
-        "-DTrilinos_ENABLE_Krino=ON",
-        "-DTPL_ENABLE_STK=ON",
-        "-DTPL_ENABLE_Intrepid2=ON",
-        "-DTPL_ENABLE_Seacas=ON",
-        "-DTPL_ENABLE_Sacado=ON",
-        ]
+    ###Optional tpl dependencies of Krino ###
+    variant('mpi', default=True, description='Enable MPI')
+    depends_on('mpi', when='+mpi')
 
-        return args
+    variant('parmetis', default=True, description='Enable ParMETIS')
+    depends_on('parmetis', when='+parmetis')
+
+    variant('yamlcpp', default=True, description='Enable yamlcpp')
+    depends_on('yamlcpp', when='+yamlcpp')
+
+    def generated_trilinos_package_cmake_args(self):
+        ### auto generated cmake arguments
+        trilinos_package_auto_cmake_args = []
+        ### Required tpl dependencies of Krino ###
+        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Boost=ON')
+
+        ###Optional tpl dependencies of Krino ###
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_MPI', 'mpi'))
+
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_ParMETIS', 'parmetis'))
+
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_yamlcpp', 'yamlcpp'))
+
+        return trilinos_package_auto_cmake_args
 
     def cmake_args(self):
         args = []
-        args.extend(self.trilinos_base_cmake_args())
-        args.extend(self.trilinos_package_cmake_args())
+        args.extend(self.generated_trilinos_base_cmake_args())
+        args.extend(self.trilinos_package_auto_cmake_args)
         return args
+        

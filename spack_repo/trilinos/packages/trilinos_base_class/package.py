@@ -39,8 +39,8 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
 
     # ###################### Versions ##########################
     version("jfrye-spack-changes", branch="changes-for-spack")
-#    version("master", branch="master")
-#    version("develop", branch="develop")
+    #version("master", branch="master")
+    #version("develop", branch="develop")
     #version("16.0.0", sha256="46bfc40419ed2aa2db38c144fb8e61d4aa8170eaa654a88d833ba6b92903f309")
     # List of possible trilinos versions.  used to enforce that depends_on_trilinos_package()
     # all have the same version
@@ -77,24 +77,27 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     #Trilinos_ENABLE_THREAD_SAFE:BOOL=OFF
     
     # List of variants we want to be the same between all packages built together
-    trilinos_variant("mpi", default=True, description="Enable mpi")
-    trilinos_variant("fortran", default=False, description="Enable fortran")
-    trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
-    trilinos_variant("openmp", default=False, description="use openmp")
-    trilinos_variant("explicit-instantiation", default=True, description="use explicit instantiation")
-    trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
+    #trilinos_variant("mpi", default=True, description="Enable mpi")
+    #trilinos_variant("fortran", default=False, description="Enable fortran")
+    #trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
+    #trilinos_variant("openmp", default=False, description="use openmp")
+    #trilinos_variant("explicit-instantiation", default=True, description="use explicit instantiation")
+    #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
-    depends_on("blas")
-    depends_on("lapack")
-    depends_on("kokkos@4.6.02")
-    depends_on("kokkos-kernels")
+    kokkos_version="4.6.02"
+    with when ("^kokkos"):
+        depends_on(f"kokkos@{kokkos_version}")
+    #depends_on("blas")
+    #depends_on("lapack")
+    #depends_on("kokkos@4.6.02")
+    #depends_on("kokkos-kernels")
     
     depends_on("c", type="build")
     depends_on("cxx", type="build")
-    depends_on("fortran", type="build", when="+fortran")
-    depends_on("mpi", when="+mpi")
-    depends_on("kokkos-nvcc-wrapper", when="+wrapper")
+    #depends_on("fortran", type="build", when="+fortran")
+    #depends_on("mpi", when="+mpi")
+    #depends_on("kokkos-nvcc-wrapper", when="+wrapper")
 
     
     git_sparse_paths = []
@@ -127,7 +130,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
         args.append(self.define_from_variant("Trilinos_ENABLE_OpenMP", "openmp"))
         args.append(self.define_from_variant("Trilinos_ENABLE_EXPLICIT_INSTANTIATION", "explicit-instantiation"))
         args.append(self.define_from_variant("Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES", "all-optional-packages"))
-        args.append(self.define_from_variant("TPL_ENABLE_MPI", "mpi"))
+        #args.append(self.define_from_variant("TPL_ENABLE_MPI", "mpi"))
         
         if "^openblas" in self.spec:
             args.append(f"-DBLAS_LIBRARY_NAMES=openblas")

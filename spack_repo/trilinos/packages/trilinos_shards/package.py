@@ -1,3 +1,4 @@
+#
 # Copyright Spack Project Developers. See COPYRIGHT file for details.
 #
 # SPDX-License-Identifier: (Apache-2.0 OR MIT)
@@ -8,7 +9,6 @@ import re
 import sys
 
 from spack.package import *
-
 from ..trilinos_base_class.package import TrilinosBaseClass
 from ..trilinos_base_class.package import depends_on_trilinos_package
 from ..trilinos_base_class.package import trilinos_variant
@@ -26,19 +26,17 @@ class TrilinosShards(TrilinosBaseClass):
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
 
-    # ###################### Variants ##########################
-
-    # ######################### TPLs #############################
-
-    def trilinos_package_cmake_args(self):
-        args = [
-        "-DTrilinos_ENABLE_Shards=ON",
-        ]
-
-        return args
+    # List of automatically generated cmake arguments
+    trilinos_package_auto_cmake_args=[]
+    
+    def generated_trilinos_package_cmake_args(self):
+        ### auto generated cmake arguments
+        trilinos_package_auto_cmake_args = []
+        return trilinos_package_auto_cmake_args
 
     def cmake_args(self):
         args = []
-        args.extend(self.trilinos_base_cmake_args())
-        args.extend(self.trilinos_package_cmake_args())
+        args.extend(self.generated_trilinos_base_cmake_args())
+        args.extend(self.trilinos_package_auto_cmake_args)
         return args
+        

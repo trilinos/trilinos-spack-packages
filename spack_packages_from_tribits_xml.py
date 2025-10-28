@@ -6,11 +6,11 @@ import re
 
 parser = argparse.ArgumentParser(description='Create Spack logic from Tribits logic')
 parser.add_argument('-i', '--input', default='tribits.xml', help='Tribits XML file')
-parser.add_argument('-d', '--output-dir', default='./generated-spack-packages', help='directory to write spack files')
+parser.add_argument('-d', '--output-dir', default='./spack_repo/trilinos/packages', help='directory to write spack files')
 args = parser.parse_args()
 
 # list of packages that have their own spack packages outside of trilinos
-external_spack_packages=["kokkos", "kokkos-kernals", "seacas"]
+external_spack_packages=["Kokkos", "kokkos-kernals", "seacas"]
 
 tree = ET.parse(args.input)
 root = tree.getroot()
@@ -33,10 +33,14 @@ class trilinos_package:
         self.optional_trilinos_packages=[]
         self.required_tpls=[]
         self.optional_tpls=[]
+        self.all_tpls=[]
+        self.all_subpackages=[]
+        self.all_trilinos_package_dependencies=[]
         self.parent_package=""
 
         self.set_spack_package_names()
         self.set_dependency_lists()
+        self.cleanup_lists()
 
     def set_dependency_lists(self):
         for package in root:
@@ -79,11 +83,9 @@ class trilinos_package:
                         if parent_pkg == "":
                             #this is not a subpackage so it is added to the list of required trilinos packages and will be expressed as a spack dependency
                             self.required_trilinos_packages.append(dep)
-                            pass
                         elif parent_pkg == self.name:
                             #this is a required subpackage of the current package and will be explicitly turned on with no variant
                             self.required_own_subpackages.append(dep)
-                            pass
                         elif parent_pkg in external_spack_packages:
                             self.required_tpls.append(parent_pkg)
                         else:
@@ -114,21 +116,31 @@ class trilinos_package:
                         elif parent_pkg == self.name:
                             #this is an optional subpackage of the current package and will be expressed as a variant
                             self.optional_own_subpackages.append(dep)
-                            pass
+                        elif parent_pkg in external_spack_packages:
+                            self.optional_tpls.append(parent_pkg)
                         else:
                             #this is a subpackage from another trilinos package and needs to be expressed as a spack variant that enables dependency + variant
                             self.optional_trilinos_subpackages.append(dep)
 
-                #remove duplicates and own package name from lists
 
-
+                
                 #required trilinos tpl dependencies
                 self.required_tpls=lib_req_dep_tpls
 
                 #optional trilinos tpl dependencies
                 self.optional_tpls=lib_opt_dep_tpls
 
-                self.cleanup_lists()
+                for external_spack_package in external_spack_packages:
+                    if self.required_trilinos_packages:
+                        if external_spack_package in self.required_trilinos_packages:
+                            self.required_trilinos_packages=list(set(self.required_trilinos_packages)).remove(external_spack_package)
+                            self.required_tpls.append(external_spack_package)
+                            if self.required_trilinos_packages == None:
+                                self.required_trilinos_packages=[]
+
+                self.all_tpls=lib_opt_dep_tpls + lib_req_dep_tpls
+                self.all_subpackages = self.required_own_subpackages + self.optional_own_subpackages + self.required_trilinos_subpackages + self.optional_trilinos_subpackages
+                self.all_trilinos_package_dependencies = self.required_trilinos_packages + self.optional_trilinos_packages
 
     def cleanup_lists(self):
         #remove duplicates and own package name from lists
@@ -137,6 +149,7 @@ class trilinos_package:
             if self.name in tmp_set:
                 tmp_set.remove(self.name)
             list_to_clean=list(tmp_set)
+            list_to_clean.sort()
             return list_to_clean
 
         self.required_own_subpackages=remove_duplicates_and_package_name_from(self.required_own_subpackages)
@@ -147,6 +160,19 @@ class trilinos_package:
         self.optional_trilinos_subpackages=remove_duplicates_and_package_name_from(self.optional_trilinos_subpackages)
         self.optional_tpls=remove_duplicates_and_package_name_from(self.optional_tpls)
         self.required_tpls=remove_duplicates_and_package_name_from(self.required_tpls)
+        self.all_tpls=remove_duplicates_and_package_name_from(self.all_tpls)
+        self.all_trilinos_package_dependencies=remove_duplicates_and_package_name_from(self.all_trilinos_package_dependencies)
+
+        #remove trilinos packages that have an external spack package (kokkos, kokkos kernals, seacas ...) from the lists of 
+        #trilinos dependencies and ass to the tpl lists
+        for package in self.required_trilinos_packages:
+            if package in external_spack_packages:
+                self.required_own_subpackages.remove(package)
+                self.required_tpls.append(package)
+        for package in self.optional_trilinos_packages:
+            if package in external_spack_packages:
+                self.optional_trilinos_packages.remove(package)
+                self.optional_tpls.append(package)
         
     def is_subpackage(self):
         if self.parent_package != "":
@@ -206,15 +232,100 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
 
     # ###################### Versions ##########################
     # Handled in TrilinosBaseClass
+
+    # List of automatically generated cmake arguments
+    trilinos_package_auto_cmake_args=[]
     \n''')
+
+    def write_spack_package_optional_own_subpackage(self, file, writing_cmake_section=False, white_space="    "):
+        # These are optional subpackages of the current package.  There will be a spack variant and a cmake arg
+        if self.optional_own_subpackages:
+            for subpackage in self.optional_own_subpackages:
+                file.write(f"{white_space}### Optional subpackage {subpackage} ###\n")
+                if not writing_cmake_section:
+                    file.write(f"{white_space}variant('{subpackage.replace(self.name,'').lower()}', default=True, description='Enable {subpackage}')\n")
+                else:
+                    file.write(f"{white_space}trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_{subpackage}', '{subpackage.replace(self.name, '').lower()}'))\n")
+                tmp_pkg=trilinos_package(subpackage, self.root)
+                subpackage_tpls = tmp_pkg.all_tpls
+                trilinos_package_dependencies = tmp_pkg.all_trilinos_package_dependencies
+                if subpackage_tpls or trilinos_package_dependencies:
+                    if not writing_cmake_section:
+                        file.write(f"{white_space}with when('+{subpackage.replace(self.name,'').lower()}'):\n")
+                for tpl in subpackage_tpls:
+                    if not writing_cmake_section:
+                        file.write(f"{white_space}    depends_on('{tpl.lower()}')\n")
+                    else:
+                        file.write(f"{white_space}trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_{tpl}', '{subpackage.replace(self.name, '').lower()}'))\n")
+
+                for trilinos_dep in trilinos_package_dependencies:
+                    if not writing_cmake_section:
+                        file.write(f"{white_space}    depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_dep)}')\n")
+                    else:
+                        file.write(f"{white_space}trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_{trilinos_dep}', '{subpackage.replace(self.name, '').lower()}'))\n")
+                file.write("\n")
+            file.write("\n")
+
+    def write_spack_package_required_own_subpackage(self, file, writing_cmake_section=False, white_space="    "):
+        # These are required subpackages of the current package.  Just add the cmake args
+        if self.required_own_subpackages:
+            for subpackage in self.required_own_subpackages:
+                file.write(f"{white_space}### Required subpackage {subpackage} ###\n")
+                if writing_cmake_section:
+                    file.write(f"{white_space}trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_{subpackage}=ON')\n")
+            file.write("\n")
+
+            file.write(f"{white_space}### Required tpls of {self.name} from subpackage requirements###\n")
+            for subpackage in self.required_own_subpackages:
+                tmp_pkg=trilinos_package(subpackage, self.root)
+                subpackage_tpls = tmp_pkg.all_tpls
+                trilinos_package_dependencies = tmp_pkg.all_trilinos_package_dependencies
+                for trilinos_dep in trilinos_package_dependencies:
+                    if trilinos_dep in external_spack_packages:
+                        trilinos_package_dependencies.remove(trilinos_dep)
+                        subpackage_tpls.append(trilinos_dep)
+                for tpl in subpackage_tpls:
+                    if not writing_cmake_section:
+                        file.write(f"{white_space}depends_on('{self.get_spack_package_name(tpl)}')\n")
+                    else:
+                        file.write(f"{white_space}trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_{tpl}=ON')\n")
+                for trilinos_dep in trilinos_package_dependencies:
+                    if not writing_cmake_section:
+                        file.write(f"{white_space}depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_dep)}')\n")
+                    else:
+                        file.write(f"{white_space}trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_{trilinos_dep}=ON')\n")
+            file.write("\n")
+
+    def write_spack_package_required_tpls(self, file, writing_cmake_section=False, white_space="    "):
+        # These are required tpls of the current package
+        if self.required_tpls:
+            file.write(f"{white_space}### Required tpl dependencies of {self.name} ###\n")
+            for tpl in self.required_tpls:
+                if not writing_cmake_section:
+                    file.write(f"{white_space}depends_on('{self.get_spack_package_name(tpl)}')\n")
+                else:
+                    file.write(f"{white_space}trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_{tpl}=ON')\n")
+                file.write("\n")
+
+    def write_spack_package_optional_tpls(self, file, writing_cmake_section=False, white_space="    "):
+        # These are optional tpls of the current package
+        if self.optional_tpls:
+            file.write(f"{white_space}###Optional tpl dependencies of {self.name} ###\n")
+            for tpl in self.optional_tpls:
+                if not writing_cmake_section:
+                    file.write(f"{white_space}variant('{tpl.lower()}', default=True, description='Enable {tpl}')\n")
+                    file.write(f"{white_space}depends_on('{tpl.lower()}', when='+{tpl.lower()}')\n")
+                else:
+                    file.write(f"{white_space}trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_{tpl}', '{tpl.lower()}'))\n")
+                file.write("\n")
 
     def write_spack_package_variants(self, file):
         # These are optional subpackages of the current package.  There will be a spack variant added here and a cmake arg added later
-        if self.optional_own_subpackages:
-            file.write(f"    ### Variants automatically generated from optional subpackages of {self.name} ###\n")
-            for subpackage in self.optional_own_subpackages:
-                file.write(f"    variant('{subpackage.replace(self.name,'').lower()}', default=True, description='Enable {subpackage}')\n")
-            file.write("\n")
+        #if self.optional_own_subpackages:
+        #    file.write(f"    ### Variants automatically generated from optional subpackages of {self.name} ###\n")
+        #    for subpackage in self.optional_own_subpackages:
+        #        file.write(f"    variant('{subpackage.replace(self.name,'').lower()}', default=True, description='Enable {subpackage}')\n")
+         #   file.write("\n")
 
         # These are optional subpackages of another package.  There will be a spack variant added here and a depends_on(...) added later
         if self.optional_trilinos_subpackages:
@@ -223,17 +334,18 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
                 file.write(f"    variant('{subpackage.replace(self.name,'').lower()}', default=True, description='Enable {subpackage}')\n")
             file.write("\n")
 
+        # optional trilinos packages.  Add a spack variant here and a depends_on(...) later
+        if self.optional_trilinos_packages:
+            file.write(f"    ### Optional Trilinos dependencies variants ###\n")
+            for trilinos_package in self.optional_trilinos_packages:
+                file.write(f"    variant('{self.get_trilinos_spack_package_name(trilinos_package)}', default=True, description='Enable {trilinos_package} support')\n")
+            file.write("\n")
+
         # These are optional sTPLs.  There will be a spack variant added here and a depends_on(...) added later
         if self.optional_tpls:
             file.write(f"    ### Optional TPLs variants ###\n")
             for tpl in self.optional_tpls:
-                file.write(f"    variant('{tpl.lower()}', default=True, description='Enable tpl')\n")
-            file.write("\n")
-
-        if self.optional_trilinos_packages:
-            file.write(f"    ### Optional Trilinos dependencies variants ###\n")
-            for trilinos_package in self.optional_trilinos_packages:
-                file.write(f"    variant('{self.get_spack_package_name(trilinos_package)}', default=True, description='Enable {trilinos_package} support')\n")
+                file.write(f"    variant('{tpl.lower()}', default=True, description='Enable {tpl}')\n")
             file.write("\n")
 
     def write_spack_package_conflicts(self, file):
@@ -243,7 +355,13 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
         if self.required_trilinos_packages:
             file.write(f"    ### Required Trilinos packages ###\n")
             for trilinos_package in self.required_trilinos_packages:
-                file.write(f"    depends_on_trilinos_package({self.get_spack_package_name(trilinos_package)})\n")
+                file.write(f"    depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_package)}')\n")
+            file.write("\n")
+
+        if self.optional_trilinos_packages:
+            file.write(f"    ### Optional Trilinos packages ###\n")
+            for trilinos_package in self.optional_trilinos_packages:
+                file.write(f"    depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_package)}', when='+{self.get_trilinos_spack_package_name(trilinos_package)}')\n")
             file.write("\n")
 
         if self.required_tpls:
@@ -259,26 +377,22 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
             file.write("\n")
 
     def write_spack_package_generated_cmake_args(self, file):
+        ws="        "
         file.write(f"    def generated_trilinos_package_cmake_args(self):\n")
-        file.write(f"        # auto generated cmake arguments\n")
-        file.write(f"        generated_cmake_options = []\n")
-        if self.required_subpackages:
-            for subpackage in self.required_subpackages:
-                file.write(f"        generated_cmake_options.append('-DTrilinos_ENABLE_{subpackage}=ON')\n")
-            file.write("\n")
-        if self.optional_subpackages:
-            for subpackage in self.optional_subpackages:
-                file.write(f"        generated_cmake_options.append(self.define_from_variant('TRILINOS_ENABLE_{subpackage}', {subpackage.replace(self.name, '').lower()}))\n")
-
-        file.write(f"\n")
-        file.write(f"        return generated_cmake_options\n")
+        file.write(f"{ws}### auto generated cmake arguments\n")
+        file.write(f"{ws}trilinos_package_auto_cmake_args = []\n")
+        self.write_spack_package_required_tpls(file, writing_cmake_section=True, white_space=ws)
+        self.write_spack_package_optional_tpls(file, writing_cmake_section=True, white_space=ws)
+        self.write_spack_package_required_own_subpackage(file, writing_cmake_section=True, white_space=ws)
+        self.write_spack_package_optional_own_subpackage(file, writing_cmake_section=True, white_space=ws)
+        file.write(f"{ws}return trilinos_package_auto_cmake_args\n")
 
     def write_spack_package_footer(self, file):
         file.write('''
     def cmake_args(self):
         args = []
         args.extend(self.generated_trilinos_base_cmake_args())
-        args.extend(self.trilinos_package_cmake_args())
+        args.extend(self.trilinos_package_auto_cmake_args)
         return args
         ''')
 
@@ -293,19 +407,42 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
         print(f"Writing spack package for {self.name}: {output_file}")
         with open (f"{output_file}", 'w') as file:
             self.write_spack_package_header(file)
-            self.write_spack_package_variants(file)
+            self.write_spack_package_required_tpls(file)
+            self.write_spack_package_optional_tpls(file)
+            self.write_spack_package_required_own_subpackage(file)
+            self.write_spack_package_optional_own_subpackage(file)
+            #self.write_spack_package_variants(file)
             #self.write_spack_package_conflicts(file)
             #self.write_spack_package_tpls(file)
-            #self.write_spack_package_generated_cmake_args(file)
-            #self.write_spack_package_footer(file)
+            self.write_spack_package_generated_cmake_args(file)
+            self.write_spack_package_footer(file)
 
     def set_spack_package_names(self):
 
-        self.spack_package_name = self.get_spack_package_name(self.name)
+        self.spack_package_name = self.get_trilinos_spack_package_name(self.name)
         self.spack_package_directory_name = self.get_spack_package_directory_name(self.name)
         self.spack_package_header_name=self.get_spack_package_header_name(self.name)
 
-    def get_spack_package_name(self, packageName):
+    def get_spack_package_name(self, packageName=""):
+        if packageName == "":
+            packageName=self.name
+
+        # Initialize tmp_string with a default value
+        tmp_string = packageName.replace("_","")
+
+        # Define a function to convert matched uppercase letters to lowercase
+        def replace_match(match):
+            return match.group(0).lower()
+
+        # Use re.sub() to find sequences of uppercase letters and replace them
+        tmp_string = re.sub(r'[A-Z]+', replace_match, packageName)
+        #return tmp_string.replace("shy-lu","shylu")
+        return tmp_string
+    
+    def get_trilinos_spack_package_name(self, packageName=""):
+        if packageName == "":
+            packageName=self.name
+
         # Initialize tmp_string with a default value
         tmp_string = packageName.replace("_","")
 
@@ -315,15 +452,21 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
 
         # Use re.sub() to find sequences of uppercase letters and replace them
         tmp_string = "trilinos" + re.sub(r'[A-Z]+', replace_match, packageName)
-        return tmp_string.replace("shy-lu","shylu")
+        #return tmp_string.replace("shy-lu","shylu")
+        return tmp_string
 
-    def get_spack_package_directory_name(self, packageName):
+    def get_spack_package_directory_name(self, packageName=""):
+        if packageName == "":
+            packageName=self.name
         # Initialize tmp_string with a default value
-        tmp_string = self.get_spack_package_name(packageName)
+        tmp_string = self.get_trilinos_spack_package_name(packageName)
 
         return tmp_string.replace("-", "_").replace("__","_")
 
-    def get_spack_package_header_name(self, packageName):
+    def get_spack_package_header_name(self, packageName=""):
+        if packageName == "":
+            packageName=self.name
+
         # Define a function to capitalize the first letter and lowercase the rest
         def replace_match(match):
             # Get the matched group
@@ -370,15 +513,15 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
             print(f"  - {opt_tpl}")
      
 
-skip_loop=True
+skip_loop=False
 
-pkg_list=["Panzer", "Panzer", "Teuchos", "MueLu"]
-#pkg_list=["Panzer"]
+#pkg_list=["Panzer", "Panzer", "Teuchos", "MueLu"]
+pkg_list=["Teuchos", "Panzer"]
 
 if skip_loop:
     for pkg in pkg_list:
         tmp_pkg=trilinos_package(pkg, root)
-        #tmp_pkg.printout()
+        tmp_pkg.printout()
         tmp_pkg.write_spack_package(args.output_dir)
 
 else:
