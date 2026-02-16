@@ -31,7 +31,7 @@ class TrilinosGaleri(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Galeri ###
     variant('kokkos', default=True, description='Enable Kokkos')
-    depends_on('kokkos', when='+kokkos')
+    ##depends_on('kokkos', when='+kokkos')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

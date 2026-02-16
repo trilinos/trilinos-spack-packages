@@ -31,7 +31,7 @@ class TrilinosAztecOo(TrilinosBaseClass):
     
     ###Optional tpl dependencies of AztecOO ###
     variant('y12m', default=True, description='Enable y12m')
-    depends_on('y12m', when='+y12m')
+    ##depends_on('y12m', when='+y12m')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

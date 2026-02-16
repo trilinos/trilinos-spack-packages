@@ -31,19 +31,19 @@ class TrilinosIfpack2(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Ifpack2 ###
     variant('cholmod', default=True, description='Enable Cholmod')
-    depends_on('cholmod', when='+cholmod')
+    ##depends_on('cholmod', when='+cholmod')
 
     variant('hypre', default=True, description='Enable HYPRE')
-    depends_on('hypre', when='+hypre')
+    ##depends_on('hypre', when='+hypre')
 
     variant('lemon', default=True, description='Enable Lemon')
-    depends_on('lemon', when='+lemon')
+    ##depends_on('lemon', when='+lemon')
 
     variant('metis', default=True, description='Enable METIS')
-    depends_on('metis', when='+metis')
+    ##depends_on('metis', when='+metis')
 
     variant('mpi', default=True, description='Enable MPI')
-    depends_on('mpi', when='+mpi')
+    ##depends_on('mpi', when='+mpi')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

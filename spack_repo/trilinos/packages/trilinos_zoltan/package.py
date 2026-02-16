@@ -31,25 +31,25 @@ class TrilinosZoltan(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Zoltan ###
     variant('metis', default=True, description='Enable METIS')
-    depends_on('metis', when='+metis')
+    ##depends_on('metis', when='+metis')
 
     variant('mpi', default=True, description='Enable MPI')
-    depends_on('mpi', when='+mpi')
+    ##depends_on('mpi', when='+mpi')
 
     variant('ovis', default=True, description='Enable OVIS')
-    depends_on('ovis', when='+ovis')
+    ##depends_on('ovis', when='+ovis')
 
     variant('patoh', default=True, description='Enable PaToH')
-    depends_on('patoh', when='+patoh')
+    ##depends_on('patoh', when='+patoh')
 
     variant('parmetis', default=True, description='Enable ParMETIS')
-    depends_on('parmetis', when='+parmetis')
+    ##depends_on('parmetis', when='+parmetis')
 
     variant('scotch', default=True, description='Enable Scotch')
-    depends_on('scotch', when='+scotch')
+    ##depends_on('scotch', when='+scotch')
 
     variant('zlib', default=True, description='Enable Zlib')
-    depends_on('zlib', when='+zlib')
+    ##depends_on('zlib', when='+zlib')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

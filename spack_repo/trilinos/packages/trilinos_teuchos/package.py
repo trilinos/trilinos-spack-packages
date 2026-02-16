@@ -37,31 +37,36 @@ class TrilinosTeuchos(TrilinosBaseClass):
     ### Required subpackage TeuchosRemainder ###
 
     ### Required tpls of Teuchos from subpackage requirements###
-    depends_on('arprec')
-    depends_on('binutils')
-    depends_on('boost')
-    depends_on('mpi')
-    depends_on('pthread')
-    depends_on('qd')
-    depends_on('qt')
-    depends_on('valgrind')
-    depends_on('quadmath')
-    depends_on('kokkos')
-    depends_on('blas')
-    depends_on('eigen')
-    depends_on('lapack')
-    depends_on('yamlcpp')
+    #depends_on('arprec')
+    #depends_on('binutils')
+    #depends_on('boost')
+    #depends_on('mpi')
+    #depends_on('pthread')
+    #depends_on('qd')
+    #depends_on('qt')
+    #depends_on('valgrind')
+    #depends_on('quadmath')
+    #depends_on('kokkos')
+    #depends_on('blas')
+    #depends_on('eigen')
+    #depends_on('lapack')
+    #depends_on('yamlcpp')
 
     ### Optional subpackage TeuchosKokkosComm ###
     variant('kokkoscomm', default=True, description='Enable TeuchosKokkosComm')
-    with when('+kokkoscomm'):
-        depends_on('kokkos')
-        depends_on('mpi')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+kokkoscomm~kokkos')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+kokkoscomm~mpi')
 
     ### Optional subpackage TeuchosKokkosCompat ###
     variant('kokkoscompat', default=True, description='Enable TeuchosKokkosCompat')
-    with when('+kokkoscompat'):
-        depends_on('kokkos')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    depends_on('kokkos-kernels', when='+kokkos')
+    #conflicts('+kokkoscompat~kokkos')
 
 
     def generated_trilinos_package_cmake_args(self):

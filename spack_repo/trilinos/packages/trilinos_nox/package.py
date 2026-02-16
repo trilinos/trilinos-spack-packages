@@ -31,16 +31,16 @@ class TrilinosNox(TrilinosBaseClass):
     
     ###Optional tpl dependencies of NOX ###
     variant('blas', default=True, description='Enable BLAS')
-    depends_on('blas', when='+blas')
+    ##depends_on('blas', when='+blas')
 
     variant('lapack', default=True, description='Enable LAPACK')
-    depends_on('lapack', when='+lapack')
+    ##depends_on('lapack', when='+lapack')
 
     variant('mf', default=True, description='Enable MF')
-    depends_on('mf', when='+mf')
+    ##depends_on('mf', when='+mf')
 
     variant('petsc', default=True, description='Enable PETSC')
-    depends_on('petsc', when='+petsc')
+    ##depends_on('petsc', when='+petsc')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

@@ -31,19 +31,19 @@ class TrilinosEpetraExt(TrilinosBaseClass):
     
     ###Optional tpl dependencies of EpetraExt ###
     variant('amd', default=True, description='Enable AMD')
-    depends_on('amd', when='+amd')
+    ##depends_on('amd', when='+amd')
 
     variant('hdf5', default=True, description='Enable HDF5')
-    depends_on('hdf5', when='+hdf5')
+    ##depends_on('hdf5', when='+hdf5')
 
     variant('hypre', default=True, description='Enable HYPRE')
-    depends_on('hypre', when='+hypre')
+    ##depends_on('hypre', when='+hypre')
 
     variant('petsc', default=True, description='Enable PETSC')
-    depends_on('petsc', when='+petsc')
+    ##depends_on('petsc', when='+petsc')
 
     variant('umfpack', default=True, description='Enable UMFPACK')
-    depends_on('umfpack', when='+umfpack')
+    ##depends_on('umfpack', when='+umfpack')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

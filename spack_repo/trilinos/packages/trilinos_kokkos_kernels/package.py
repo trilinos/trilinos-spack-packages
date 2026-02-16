@@ -30,47 +30,47 @@ class TrilinosKokkosKernels(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of KokkosKernels ###
-    depends_on('kokkos')
+    #depends_on('kokkos')
 
     ###Optional tpl dependencies of KokkosKernels ###
     variant('blas', default=True, description='Enable BLAS')
-    depends_on('blas', when='+blas')
+    ##depends_on('blas', when='+blas')
 
     variant('cublas', default=True, description='Enable CUBLAS')
-    depends_on('cublas', when='+cublas')
+    ##depends_on('cublas', when='+cublas')
 
     variant('cusolver', default=True, description='Enable CUSOLVER')
-    depends_on('cusolver', when='+cusolver')
+    ##depends_on('cusolver', when='+cusolver')
 
     variant('cusparse', default=True, description='Enable CUSPARSE')
-    depends_on('cusparse', when='+cusparse')
+    ##depends_on('cusparse', when='+cusparse')
 
     variant('cholmod', default=True, description='Enable Cholmod')
-    depends_on('cholmod', when='+cholmod')
+    ##depends_on('cholmod', when='+cholmod')
 
     variant('lapack', default=True, description='Enable LAPACK')
-    depends_on('lapack', when='+lapack')
+    ##depends_on('lapack', when='+lapack')
 
     variant('metis', default=True, description='Enable METIS')
-    depends_on('metis', when='+metis')
+    ##depends_on('metis', when='+metis')
 
     variant('mkl', default=True, description='Enable MKL')
-    depends_on('mkl', when='+mkl')
+    ##depends_on('mkl', when='+mkl')
 
     variant('rocblas', default=True, description='Enable ROCBLAS')
-    depends_on('rocblas', when='+rocblas')
+    ##depends_on('rocblas', when='+rocblas')
 
     variant('rocsolver', default=True, description='Enable ROCSOLVER')
-    depends_on('rocsolver', when='+rocsolver')
+    ##depends_on('rocsolver', when='+rocsolver')
 
     variant('rocsparse', default=True, description='Enable ROCSPARSE')
-    depends_on('rocsparse', when='+rocsparse')
+    ##depends_on('rocsparse', when='+rocsparse')
 
     variant('superlu', default=True, description='Enable SuperLU')
-    depends_on('superlu', when='+superlu')
+    ##depends_on('superlu', when='+superlu')
 
     variant('quadmath', default=True, description='Enable quadmath')
-    depends_on('quadmath', when='+quadmath')
+    ##depends_on('quadmath', when='+quadmath')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

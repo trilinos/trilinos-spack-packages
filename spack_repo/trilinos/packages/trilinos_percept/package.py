@@ -31,7 +31,7 @@ class TrilinosPercept(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Percept ###
     variant('opennurbs', default=True, description='Enable OpenNURBS')
-    depends_on('opennurbs', when='+opennurbs')
+    ##depends_on('opennurbs', when='+opennurbs')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

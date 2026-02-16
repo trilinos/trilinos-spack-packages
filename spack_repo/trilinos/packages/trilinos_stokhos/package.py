@@ -30,41 +30,41 @@ class TrilinosStokhos(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of Stokhos ###
-    depends_on('kokkos')
+    #depends_on('kokkos')
 
     ###Optional tpl dependencies of Stokhos ###
     variant('boost', default=True, description='Enable Boost')
-    depends_on('boost', when='+boost')
+    ##depends_on('boost', when='+boost')
 
     variant('cuda', default=True, description='Enable CUDA')
-    depends_on('cuda', when='+cuda')
+    ##depends_on('cuda', when='+cuda')
 
     variant('cusparse', default=True, description='Enable CUSPARSE')
-    depends_on('cusparse', when='+cusparse')
+    ##depends_on('cusparse', when='+cusparse')
 
     variant('clp', default=True, description='Enable Clp')
-    depends_on('clp', when='+clp')
+    ##depends_on('clp', when='+clp')
 
     variant('cusp', default=True, description='Enable Cusp')
-    depends_on('cusp', when='+cusp')
+    ##depends_on('cusp', when='+cusp')
 
     variant('foruqtk', default=True, description='Enable ForUQTK')
-    depends_on('foruqtk', when='+foruqtk')
+    ##depends_on('foruqtk', when='+foruqtk')
 
     variant('glpk', default=True, description='Enable GLPK')
-    depends_on('glpk', when='+glpk')
+    ##depends_on('glpk', when='+glpk')
 
     variant('matlablib', default=True, description='Enable MATLABLib')
-    depends_on('matlablib', when='+matlablib')
+    ##depends_on('matlablib', when='+matlablib')
 
     variant('mkl', default=True, description='Enable MKL')
-    depends_on('mkl', when='+mkl')
+    ##depends_on('mkl', when='+mkl')
 
     variant('thrust', default=True, description='Enable Thrust')
-    depends_on('thrust', when='+thrust')
+    ##depends_on('thrust', when='+thrust')
 
     variant('qpoases', default=True, description='Enable qpOASES')
-    depends_on('qpoases', when='+qpoases')
+    ##depends_on('qpoases', when='+qpoases')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

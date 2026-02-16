@@ -31,10 +31,10 @@ class TrilinosAnasazi(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Anasazi ###
     variant('mpi', default=True, description='Enable MPI')
-    depends_on('mpi', when='+mpi')
+    ##depends_on('mpi', when='+mpi')
 
     variant('tbb', default=True, description='Enable TBB')
-    depends_on('tbb', when='+tbb')
+    ##depends_on('tbb', when='+tbb')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

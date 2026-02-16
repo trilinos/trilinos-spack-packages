@@ -30,39 +30,39 @@ class TrilinosMueLu(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of MueLu ###
-    depends_on('blas')
+    #depends_on('blas')
 
-    depends_on('kokkos')
+    #depends_on('kokkos')
 
-    depends_on('lapack')
+    #depends_on('lapack')
 
     ###Optional tpl dependencies of MueLu ###
     variant('amgx', default=True, description='Enable AmgX')
-    depends_on('amgx', when='+amgx')
+    ##depends_on('amgx', when='+amgx')
 
     variant('avatar', default=True, description='Enable Avatar')
-    depends_on('avatar', when='+avatar')
+    ##depends_on('avatar', when='+avatar')
 
     variant('boost', default=True, description='Enable Boost')
-    depends_on('boost', when='+boost')
+    ##depends_on('boost', when='+boost')
 
     variant('cusparse', default=True, description='Enable CUSPARSE')
-    depends_on('cusparse', when='+cusparse')
+    ##depends_on('cusparse', when='+cusparse')
 
     variant('magmasparse', default=True, description='Enable MAGMASparse')
-    depends_on('magmasparse', when='+magmasparse')
+    ##depends_on('magmasparse', when='+magmasparse')
 
     variant('matlab', default=True, description='Enable MATLAB')
-    depends_on('matlab', when='+matlab')
+    ##depends_on('matlab', when='+matlab')
 
     variant('mkl', default=True, description='Enable MKL')
-    depends_on('mkl', when='+mkl')
+    ##depends_on('mkl', when='+mkl')
 
     variant('viennacl', default=True, description='Enable ViennaCL')
-    depends_on('viennacl', when='+viennacl')
+    ##depends_on('viennacl', when='+viennacl')
 
     variant('mlpack', default=True, description='Enable mlpack')
-    depends_on('mlpack', when='+mlpack')
+    ##depends_on('mlpack', when='+mlpack')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

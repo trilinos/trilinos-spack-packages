@@ -30,19 +30,19 @@ class TrilinosEpetra(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of Epetra ###
-    depends_on('blas')
+    #depends_on('blas')
 
-    depends_on('lapack')
+    #depends_on('lapack')
 
     ###Optional tpl dependencies of Epetra ###
     variant('cask', default=True, description='Enable CASK')
-    depends_on('cask', when='+cask')
+    ##depends_on('cask', when='+cask')
 
     variant('mpi', default=True, description='Enable MPI')
-    depends_on('mpi', when='+mpi')
+    ##depends_on('mpi', when='+mpi')
 
     variant('oski', default=True, description='Enable Oski')
-    depends_on('oski', when='+oski')
+    ##depends_on('oski', when='+oski')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

@@ -32,23 +32,28 @@ class TrilinosThyra(TrilinosBaseClass):
     ### Required subpackage ThyraCore ###
 
     ### Required tpls of Thyra from subpackage requirements###
-    depends_on_trilinos_package('trilinos-rtop')
+    #depends_on_trilinos_package('trilinos-rtop')
 
     ### Optional subpackage ThyraEpetraAdapters ###
     variant('epetraadapters', default=True, description='Enable ThyraEpetraAdapters')
-    with when('+epetraadapters'):
-        depends_on_trilinos_package('trilinos-epetra')
+    variant('epetra', default=True, description='Enable Epetra')
+    depends_on_trilinos_package('trilinos-epetra')
+    #conflicts('+epetraadapters~epetra')
 
     ### Optional subpackage ThyraEpetraExtAdapters ###
     variant('epetraextadapters', default=True, description='Enable ThyraEpetraExtAdapters')
-    with when('+epetraextadapters'):
-        depends_on_trilinos_package('trilinos-epetra')
-        depends_on_trilinos_package('trilinos-epetra-ext')
+    variant('epetra', default=True, description='Enable Epetra')
+    depends_on_trilinos_package('trilinos-epetra')
+    #conflicts('+epetraextadapters~epetra')
+    variant('epetraext', default=True, description='Enable EpetraExt')
+    depends_on_trilinos_package('trilinos-epetra-ext')
+    #conflicts('+epetraextadapters~epetraext')
 
     ### Optional subpackage ThyraTpetraAdapters ###
     variant('tpetraadapters', default=True, description='Enable ThyraTpetraAdapters')
-    with when('+tpetraadapters'):
-        depends_on_trilinos_package('trilinos-tpetra')
+    variant('tpetra', default=True, description='Enable Tpetra')
+    depends_on_trilinos_package('trilinos-tpetra')
+    #conflicts('+tpetraadapters~tpetra')
 
 
     def generated_trilinos_package_cmake_args(self):

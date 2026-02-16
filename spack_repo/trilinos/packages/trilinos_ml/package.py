@@ -30,28 +30,28 @@ class TrilinosMl(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of ML ###
-    depends_on('blas')
+    #depends_on('blas')
 
-    depends_on('lapack')
+    #depends_on('lapack')
 
     ###Optional tpl dependencies of ML ###
     variant('matlab', default=True, description='Enable MATLAB')
-    depends_on('matlab', when='+matlab')
+    ##depends_on('matlab', when='+matlab')
 
     variant('metis', default=True, description='Enable METIS')
-    depends_on('metis', when='+metis')
+    ##depends_on('metis', when='+metis')
 
     variant('mpi', default=True, description='Enable MPI')
-    depends_on('mpi', when='+mpi')
+    ##depends_on('mpi', when='+mpi')
 
     variant('petsc', default=True, description='Enable PETSC')
-    depends_on('petsc', when='+petsc')
+    ##depends_on('petsc', when='+petsc')
 
     variant('parmetis', default=True, description='Enable ParMETIS')
-    depends_on('parmetis', when='+parmetis')
+    ##depends_on('parmetis', when='+parmetis')
 
     variant('superlu', default=True, description='Enable SuperLU')
-    depends_on('superlu', when='+superlu')
+    ##depends_on('superlu', when='+superlu')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

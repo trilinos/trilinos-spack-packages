@@ -30,11 +30,11 @@ class TrilinosXpetra(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of Xpetra ###
-    depends_on('blas')
+    #depends_on('blas')
 
-    depends_on('kokkos')
+    #depends_on('kokkos')
 
-    depends_on('lapack')
+    #depends_on('lapack')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

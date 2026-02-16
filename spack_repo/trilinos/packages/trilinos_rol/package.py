@@ -31,16 +31,16 @@ class TrilinosRol(TrilinosBaseClass):
     
     ###Optional tpl dependencies of ROL ###
     variant('arrayfirecpu', default=True, description='Enable ArrayFireCPU')
-    depends_on('arrayfirecpu', when='+arrayfirecpu')
+    ##depends_on('arrayfirecpu', when='+arrayfirecpu')
 
     variant('boost', default=True, description='Enable Boost')
-    depends_on('boost', when='+boost')
+    ##depends_on('boost', when='+boost')
 
     variant('eigen', default=True, description='Enable Eigen')
-    depends_on('eigen', when='+eigen')
+    ##depends_on('eigen', when='+eigen')
 
     variant('pebbl', default=True, description='Enable pebbl')
-    depends_on('pebbl', when='+pebbl')
+    ##depends_on('pebbl', when='+pebbl')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

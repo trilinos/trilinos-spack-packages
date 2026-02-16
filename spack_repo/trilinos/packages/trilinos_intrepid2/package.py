@@ -30,7 +30,7 @@ class TrilinosIntrepid2(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of Intrepid2 ###
-    depends_on('kokkos')
+    #depends_on('kokkos')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

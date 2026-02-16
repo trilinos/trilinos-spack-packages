@@ -30,17 +30,17 @@ class TrilinosKrino(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of Krino ###
-    depends_on('boost')
+    #depends_on('boost')
 
     ###Optional tpl dependencies of Krino ###
     variant('mpi', default=True, description='Enable MPI')
-    depends_on('mpi', when='+mpi')
+    ##depends_on('mpi', when='+mpi')
 
     variant('parmetis', default=True, description='Enable ParMETIS')
-    depends_on('parmetis', when='+parmetis')
+    ##depends_on('parmetis', when='+parmetis')
 
     variant('yamlcpp', default=True, description='Enable yamlcpp')
-    depends_on('yamlcpp', when='+yamlcpp')
+    ##depends_on('yamlcpp', when='+yamlcpp')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

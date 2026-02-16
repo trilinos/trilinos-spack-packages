@@ -31,40 +31,40 @@ class TrilinosAmesos(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Amesos ###
     variant('blacs', default=True, description='Enable BLACS')
-    depends_on('blacs', when='+blacs')
+    ##depends_on('blacs', when='+blacs')
 
     variant('css_mkl', default=True, description='Enable CSS_MKL')
-    depends_on('css_mkl', when='+css_mkl')
+    ##depends_on('css_mkl', when='+css_mkl')
 
     variant('csparse', default=True, description='Enable CSparse')
-    depends_on('csparse', when='+csparse')
+    ##depends_on('csparse', when='+csparse')
 
     variant('mumps', default=True, description='Enable MUMPS')
-    depends_on('mumps', when='+mumps')
+    ##depends_on('mumps', when='+mumps')
 
     variant('pardiso', default=True, description='Enable PARDISO')
-    depends_on('pardiso', when='+pardiso')
+    ##depends_on('pardiso', when='+pardiso')
 
     variant('pardiso_mkl', default=True, description='Enable PARDISO_MKL')
-    depends_on('pardiso_mkl', when='+pardiso_mkl')
+    ##depends_on('pardiso_mkl', when='+pardiso_mkl')
 
     variant('parmetis', default=True, description='Enable ParMETIS')
-    depends_on('parmetis', when='+parmetis')
+    ##depends_on('parmetis', when='+parmetis')
 
     variant('scalapack', default=True, description='Enable SCALAPACK')
-    depends_on('scalapack', when='+scalapack')
+    ##depends_on('scalapack', when='+scalapack')
 
     variant('superlu', default=True, description='Enable SuperLU')
-    depends_on('superlu', when='+superlu')
+    ##depends_on('superlu', when='+superlu')
 
     variant('superludist', default=True, description='Enable SuperLUDist')
-    depends_on('superludist', when='+superludist')
+    ##depends_on('superludist', when='+superludist')
 
     variant('taucs', default=True, description='Enable TAUCS')
-    depends_on('taucs', when='+taucs')
+    ##depends_on('taucs', when='+taucs')
 
     variant('umfpack', default=True, description='Enable UMFPACK')
-    depends_on('umfpack', when='+umfpack')
+    ##depends_on('umfpack', when='+umfpack')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

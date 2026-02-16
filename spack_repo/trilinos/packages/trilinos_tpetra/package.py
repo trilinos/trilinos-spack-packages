@@ -32,20 +32,25 @@ class TrilinosTpetra(TrilinosBaseClass):
     ### Required subpackage TpetraCore ###
 
     ### Required tpls of Tpetra from subpackage requirements###
-    depends_on('cuda')
-    depends_on('kokkos')
-    depends_on('mpi')
-    depends_on('qd')
-    depends_on('mpi_advance')
-    depends_on('quadmath')
-    depends_on_trilinos_package('trilinos-epetra')
+    #depends_on('cuda')
+    #depends_on('kokkos')
+    #depends_on('mpi')
+    #depends_on('qd')
+    #depends_on('mpi_advance')
+    #depends_on('quadmath')
+    #depends_on_trilinos_package('trilinos-epetra')
 
     ### Optional subpackage TpetraTSQR ###
     variant('tsqr', default=True, description='Enable TpetraTSQR')
-    with when('+tsqr'):
-        depends_on('cublas')
-        depends_on('cusolver')
-        depends_on('kokkos')
+    variant('cublas', default=True, description='Enable TPL CUBLAS')
+    depends_on('cublas', when='+cublas')
+    #conflicts('+tsqr~cublas')
+    variant('cusolver', default=True, description='Enable TPL CUSOLVER')
+    depends_on('cusolver', when='+cusolver')
+    #conflicts('+tsqr~cusolver')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+tsqr~kokkos')
 
 
     def generated_trilinos_package_cmake_args(self):

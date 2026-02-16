@@ -77,17 +77,17 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     #Trilinos_ENABLE_THREAD_SAFE:BOOL=OFF
     
     # List of variants we want to be the same between all packages built together
-    #trilinos_variant("mpi", default=True, description="Enable mpi")
-    #trilinos_variant("fortran", default=False, description="Enable fortran")
-    #trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
-    #trilinos_variant("openmp", default=False, description="use openmp")
-    #trilinos_variant("explicit-instantiation", default=True, description="use explicit instantiation")
-    #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
+    trilinos_variant("mpi", default=True, description="Enable mpi")
+    trilinos_variant("fortran", default=True, description="Enable fortran")
+    trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
+    trilinos_variant("openmp", default=False, description="use openmp")
+    trilinos_variant("explicit-instantiation", default=True, description="use explicit instantiation")
+    trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
     kokkos_version="4.6.02"
-    with when ("^kokkos"):
-        depends_on(f"kokkos@{kokkos_version}")
+    #with when ("^kokkos"):
+    #    depends_on(f"kokkos@{kokkos_version}")
     #depends_on("blas")
     #depends_on("lapack")
     #depends_on("kokkos@4.6.02")
@@ -95,15 +95,15 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     
     depends_on("c", type="build")
     depends_on("cxx", type="build")
-    #depends_on("fortran", type="build", when="+fortran")
+    depends_on("fortran", type="build", when="+fortran")
     #depends_on("mpi", when="+mpi")
-    #depends_on("kokkos-nvcc-wrapper", when="+wrapper")
+    depends_on("kokkos-nvcc-wrapper", when="+wrapper")
 
     
     git_sparse_paths = []
         
 
-    def trilinos_base_cmake_args(self):
+    def generated_trilinos_base_cmake_args(self):
         args = []
         args.append("-DTPL_ENABLE_Kokkos=ON")
         args.append("-DTPL_ENABLE_KokkosKernels=ON")

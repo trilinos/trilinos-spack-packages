@@ -31,32 +31,40 @@ class TrilinosStk(TrilinosBaseClass):
     
     ###Optional tpl dependencies of STK ###
     variant('mpi', default=True, description='Enable MPI')
-    depends_on('mpi', when='+mpi')
+    ##depends_on('mpi', when='+mpi')
 
     ### Optional subpackage STKBalance ###
     variant('balance', default=True, description='Enable STKBalance')
-    with when('+balance'):
-        depends_on('blas')
-        depends_on('lapack')
-        depends_on_trilinos_package('trilinos-zoltan2-core')
+    variant('blas', default=True, description='Enable TPL BLAS')
+    depends_on('blas', when='+blas')
+    #conflicts('+balance~blas')
+    variant('lapack', default=True, description='Enable TPL LAPACK')
+    depends_on('lapack', when='+lapack')
+    #conflicts('+balance~lapack')
+    variant('zoltan2core', default=True, description='Enable Zoltan2Core')
+    depends_on_trilinos_package('trilinos-zoltan2-core')
+    #conflicts('+balance~zoltan2core')
 
     ### Optional subpackage STKCoupling ###
     variant('coupling', default=True, description='Enable STKCoupling')
-    with when('+coupling'):
-        depends_on('mpi')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+coupling~mpi')
 
     ### Optional subpackage STKDoc_tests ###
     variant('doc_tests', default=True, description='Enable STKDoc_tests')
 
     ### Optional subpackage STKEmend ###
     variant('emend', default=True, description='Enable STKEmend')
-    with when('+emend'):
-        depends_on('mpi')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+emend~mpi')
 
     ### Optional subpackage STKExprEval ###
     variant('expreval', default=True, description='Enable STKExprEval')
-    with when('+expreval'):
-        depends_on('kokkos')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+expreval~kokkos')
 
     ### Optional subpackage STKIO ###
     variant('io', default=True, description='Enable STKIO')
@@ -66,49 +74,63 @@ class TrilinosStk(TrilinosBaseClass):
 
     ### Optional subpackage STKMath ###
     variant('math', default=True, description='Enable STKMath')
-    with when('+math'):
-        depends_on('kokkos')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+math~kokkos')
 
     ### Optional subpackage STKMesh ###
     variant('mesh', default=True, description='Enable STKMesh')
-    with when('+mesh'):
-        depends_on('blas')
-        depends_on('kokkos')
-        depends_on('mpi')
+    variant('blas', default=True, description='Enable TPL BLAS')
+    depends_on('blas', when='+blas')
+    #conflicts('+mesh~blas')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+mesh~kokkos')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+mesh~mpi')
 
     ### Optional subpackage STKMiddle_mesh ###
     variant('middle_mesh', default=True, description='Enable STKMiddle_mesh')
-    with when('+middle_mesh'):
-        depends_on('cdt')
+    variant('cdt', default=True, description='Enable TPL CDT')
+    depends_on('cdt', when='+cdt')
+    #conflicts('+middle_mesh~cdt')
 
     ### Optional subpackage STKMiddle_mesh_util ###
     variant('middle_mesh_util', default=True, description='Enable STKMiddle_mesh_util')
-    with when('+middle_mesh_util'):
-        depends_on('cdt')
+    variant('cdt', default=True, description='Enable TPL CDT')
+    depends_on('cdt', when='+cdt')
+    #conflicts('+middle_mesh_util~cdt')
 
     ### Optional subpackage STKNGP_TEST ###
     variant('ngp_test', default=True, description='Enable STKNGP_TEST')
-    with when('+ngp_test'):
-        depends_on('kokkos')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+ngp_test~kokkos')
 
     ### Optional subpackage STKPerformance_tests ###
     variant('performance_tests', default=True, description='Enable STKPerformance_tests')
 
     ### Optional subpackage STKSearch ###
     variant('search', default=True, description='Enable STKSearch')
-    with when('+search'):
-        depends_on('kokkos')
-        depends_on('mpi')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+search~kokkos')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+search~mpi')
 
     ### Optional subpackage STKSearchUtil ###
     variant('searchutil', default=True, description='Enable STKSearchUtil')
-    with when('+searchutil'):
-        depends_on_trilinos_package('trilinos-intrepid2')
+    variant('intrepid2', default=True, description='Enable Intrepid2')
+    depends_on_trilinos_package('trilinos-intrepid2')
+    #conflicts('+searchutil~intrepid2')
 
     ### Optional subpackage STKSimd ###
     variant('simd', default=True, description='Enable STKSimd')
-    with when('+simd'):
-        depends_on('kokkos')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+simd~kokkos')
 
     ### Optional subpackage STKTools ###
     variant('tools', default=True, description='Enable STKTools')
@@ -121,23 +143,30 @@ class TrilinosStk(TrilinosBaseClass):
 
     ### Optional subpackage STKTransferUtil ###
     variant('transferutil', default=True, description='Enable STKTransferUtil')
-    with when('+transferutil'):
-        depends_on('mpi')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+transferutil~mpi')
 
     ### Optional subpackage STKUnit_test_utils ###
     variant('unit_test_utils', default=True, description='Enable STKUnit_test_utils')
-    with when('+unit_test_utils'):
-        depends_on('mpi')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+unit_test_utils~mpi')
 
     ### Optional subpackage STKUnit_tests ###
     variant('unit_tests', default=True, description='Enable STKUnit_tests')
 
     ### Optional subpackage STKUtil ###
     variant('util', default=True, description='Enable STKUtil')
-    with when('+util'):
-        depends_on('boost')
-        depends_on('kokkos')
-        depends_on('mpi')
+    variant('boost', default=True, description='Enable TPL Boost')
+    depends_on('boost', when='+boost')
+    #conflicts('+util~boost')
+    variant('kokkos', default=True, description='Enable TPL Kokkos')
+    depends_on('kokkos', when='+kokkos')
+    #conflicts('+util~kokkos')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+util~mpi')
 
 
     def generated_trilinos_package_cmake_args(self):

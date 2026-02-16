@@ -31,31 +31,31 @@ class TrilinosZoltan2Core(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Zoltan2Core ###
     variant('amd', default=True, description='Enable AMD')
-    depends_on('amd', when='+amd')
+    ##depends_on('amd', when='+amd')
 
     variant('metis', default=True, description='Enable METIS')
-    depends_on('metis', when='+metis')
+    ##depends_on('metis', when='+metis')
 
     variant('ovis', default=True, description='Enable OVIS')
-    depends_on('ovis', when='+ovis')
+    ##depends_on('ovis', when='+ovis')
 
     variant('patoh', default=True, description='Enable PaToH')
-    depends_on('patoh', when='+patoh')
+    ##depends_on('patoh', when='+patoh')
 
     variant('parmetis', default=True, description='Enable ParMETIS')
-    depends_on('parmetis', when='+parmetis')
+    ##depends_on('parmetis', when='+parmetis')
 
     variant('pulp', default=True, description='Enable PuLP')
-    depends_on('pulp', when='+pulp')
+    ##depends_on('pulp', when='+pulp')
 
     variant('sarma', default=True, description='Enable SARMA')
-    depends_on('sarma', when='+sarma')
+    ##depends_on('sarma', when='+sarma')
 
     variant('scotch', default=True, description='Enable Scotch')
-    depends_on('scotch', when='+scotch')
+    ##depends_on('scotch', when='+scotch')
 
     variant('topomanager', default=True, description='Enable TopoManager')
-    depends_on('topomanager', when='+topomanager')
+    ##depends_on('topomanager', when='+topomanager')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

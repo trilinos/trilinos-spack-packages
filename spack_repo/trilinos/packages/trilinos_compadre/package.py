@@ -30,14 +30,14 @@ class TrilinosCompadre(TrilinosBaseClass):
     trilinos_package_auto_cmake_args=[]
     
     ### Required tpl dependencies of Compadre ###
-    depends_on('kokkos')
+    #depends_on('kokkos')
 
     ###Optional tpl dependencies of Compadre ###
     variant('cuda', default=True, description='Enable CUDA')
-    depends_on('cuda', when='+cuda')
+    ##depends_on('cuda', when='+cuda')
 
     variant('mpi', default=True, description='Enable MPI')
-    depends_on('mpi', when='+mpi')
+    ##depends_on('mpi', when='+mpi')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

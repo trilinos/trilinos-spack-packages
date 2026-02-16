@@ -31,19 +31,19 @@ class TrilinosIfpack(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Ifpack ###
     variant('boost', default=True, description='Enable Boost')
-    depends_on('boost', when='+boost')
+    ##depends_on('boost', when='+boost')
 
     variant('hips', default=True, description='Enable HIPS')
-    depends_on('hips', when='+hips')
+    ##depends_on('hips', when='+hips')
 
     variant('hypre', default=True, description='Enable HYPRE')
-    depends_on('hypre', when='+hypre')
+    ##depends_on('hypre', when='+hypre')
 
     variant('sparskit', default=True, description='Enable SPARSKIT')
-    depends_on('sparskit', when='+sparskit')
+    ##depends_on('sparskit', when='+sparskit')
 
     variant('superlu', default=True, description='Enable SuperLU')
-    depends_on('superlu', when='+superlu')
+    ##depends_on('superlu', when='+superlu')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

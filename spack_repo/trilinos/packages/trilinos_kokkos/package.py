@@ -31,16 +31,16 @@ class TrilinosKokkos(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Kokkos ###
     variant('cuda', default=True, description='Enable CUDA')
-    depends_on('cuda', when='+cuda')
+    ##depends_on('cuda', when='+cuda')
 
     variant('dllib', default=True, description='Enable DLlib')
-    depends_on('dllib', when='+dllib')
+    ##depends_on('dllib', when='+dllib')
 
     variant('hwloc', default=True, description='Enable HWLOC')
-    depends_on('hwloc', when='+hwloc')
+    ##depends_on('hwloc', when='+hwloc')
 
     variant('pthread', default=True, description='Enable Pthread')
-    depends_on('pthread', when='+pthread')
+    ##depends_on('pthread', when='+pthread')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments

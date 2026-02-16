@@ -249,18 +249,22 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
                 tmp_pkg=trilinos_package(subpackage, self.root)
                 subpackage_tpls = tmp_pkg.all_tpls
                 trilinos_package_dependencies = tmp_pkg.all_trilinos_package_dependencies
-                if subpackage_tpls or trilinos_package_dependencies:
-                    if not writing_cmake_section:
-                        file.write(f"{white_space}with when('+{subpackage.replace(self.name,'').lower()}'):\n")
+                #if subpackage_tpls or trilinos_package_dependencies:
+                #    if not writing_cmake_section:
+                #       file.write(f"{white_space}with when('+{subpackage.replace(self.name,'').lower()}'):\n")
                 for tpl in subpackage_tpls:
                     if not writing_cmake_section:
-                        file.write(f"{white_space}    depends_on('{tpl.lower()}')\n")
+                        file.write(f"{white_space}variant('{tpl.lower()}', default=True, description='Enable TPL {tpl}')\n")
+                        file.write(f"{white_space}depends_on('{tpl.lower()}', when='+{tpl.lower()}')\n")
+                        file.write(f"{white_space}#conflicts('+{subpackage.replace(self.name,'').lower()}~{tpl.lower()}')\n")
                     else:
                         file.write(f"{white_space}trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_{tpl}', '{subpackage.replace(self.name, '').lower()}'))\n")
 
                 for trilinos_dep in trilinos_package_dependencies:
                     if not writing_cmake_section:
-                        file.write(f"{white_space}    depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_dep)}')\n")
+                        file.write(f"{white_space}variant('{trilinos_dep.lower()}', default=True, description='Enable {trilinos_dep}')\n")
+                        file.write(f"{white_space}depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_dep)}')\n")
+                        file.write(f"{white_space}#conflicts('+{subpackage.replace(self.name,'').lower()}~{trilinos_dep.lower()}')\n")
                     else:
                         file.write(f"{white_space}trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_{trilinos_dep}', '{subpackage.replace(self.name, '').lower()}'))\n")
                 file.write("\n")
@@ -286,12 +290,12 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
                         subpackage_tpls.append(trilinos_dep)
                 for tpl in subpackage_tpls:
                     if not writing_cmake_section:
-                        file.write(f"{white_space}depends_on('{self.get_spack_package_name(tpl)}')\n")
+                        file.write(f"{white_space}#depends_on('{self.get_spack_package_name(tpl)}')\n")
                     else:
                         file.write(f"{white_space}trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_{tpl}=ON')\n")
                 for trilinos_dep in trilinos_package_dependencies:
                     if not writing_cmake_section:
-                        file.write(f"{white_space}depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_dep)}')\n")
+                        file.write(f"{white_space}#depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_dep)}')\n")
                     else:
                         file.write(f"{white_space}trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_{trilinos_dep}=ON')\n")
             file.write("\n")
@@ -302,7 +306,7 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
             file.write(f"{white_space}### Required tpl dependencies of {self.name} ###\n")
             for tpl in self.required_tpls:
                 if not writing_cmake_section:
-                    file.write(f"{white_space}depends_on('{self.get_spack_package_name(tpl)}')\n")
+                    file.write(f"{white_space}#depends_on('{self.get_spack_package_name(tpl)}')\n")
                 else:
                     file.write(f"{white_space}trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_{tpl}=ON')\n")
                 file.write("\n")
@@ -314,7 +318,7 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
             for tpl in self.optional_tpls:
                 if not writing_cmake_section:
                     file.write(f"{white_space}variant('{tpl.lower()}', default=True, description='Enable {tpl}')\n")
-                    file.write(f"{white_space}depends_on('{tpl.lower()}', when='+{tpl.lower()}')\n")
+                    file.write(f"{white_space}##depends_on('{tpl.lower()}', when='+{tpl.lower()}')\n")
                 else:
                     file.write(f"{white_space}trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_{tpl}', '{tpl.lower()}'))\n")
                 file.write("\n")
@@ -355,25 +359,25 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
         if self.required_trilinos_packages:
             file.write(f"    ### Required Trilinos packages ###\n")
             for trilinos_package in self.required_trilinos_packages:
-                file.write(f"    depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_package)}')\n")
+                file.write(f"    #depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_package)}')\n")
             file.write("\n")
 
         if self.optional_trilinos_packages:
             file.write(f"    ### Optional Trilinos packages ###\n")
             for trilinos_package in self.optional_trilinos_packages:
-                file.write(f"    depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_package)}', when='+{self.get_trilinos_spack_package_name(trilinos_package)}')\n")
+                file.write(f"    #depends_on_trilinos_package('{self.get_trilinos_spack_package_name(trilinos_package)}', when='+{self.get_trilinos_spack_package_name(trilinos_package)}')\n")
             file.write("\n")
 
         if self.required_tpls:
             file.write(f"    ### Required TPLs automatically generated ###\n")
             for tpl in self.required_tpls:
-                file.write(f"    depends_on({tpl.lower()})\n")
+                file.write(f"    #depends_on({tpl.lower()})\n")
             file.write("\n")
 
         if self.optional_tpls:
             file.write(f"    ### Optional TPLs automatically generated ###\n")
             for tpl in self.optional_tpls:
-                file.write(f"    depends_on({tpl.lower()}, when='+{tpl.lower()}')\n")
+                file.write(f"    #depends_on({tpl.lower()}, when='+{tpl.lower()}')\n")
             file.write("\n")
 
     def write_spack_package_generated_cmake_args(self, file):
@@ -466,6 +470,10 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
     def get_spack_package_header_name(self, packageName=""):
         if packageName == "":
             packageName=self.name
+        if packageName == "ShyLU_Node":
+            return "TrilinosShyLuNode"
+        elif packageName == "ShyLU_DD":
+            return "TrilinosShyLuDd"
 
         # Define a function to capitalize the first letter and lowercase the rest
         def replace_match(match):

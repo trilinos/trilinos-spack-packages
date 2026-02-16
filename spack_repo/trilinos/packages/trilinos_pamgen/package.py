@@ -31,13 +31,13 @@ class TrilinosPamgen(TrilinosBaseClass):
     
     ###Optional tpl dependencies of Pamgen ###
     variant('boost', default=True, description='Enable Boost')
-    depends_on('boost', when='+boost')
+    ##depends_on('boost', when='+boost')
 
     variant('exodusii', default=True, description='Enable ExodusII')
-    depends_on('exodusii', when='+exodusii')
+    ##depends_on('exodusii', when='+exodusii')
 
     variant('nemesis', default=True, description='Enable Nemesis')
-    depends_on('nemesis', when='+nemesis')
+    ##depends_on('nemesis', when='+nemesis')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments
