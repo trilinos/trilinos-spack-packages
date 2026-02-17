@@ -1,5 +1,5 @@
 import os
-7
+
 from datetime import datetime
 
 from spack.package import *
