@@ -38,7 +38,6 @@ class TrilinosTpetra(TrilinosBaseClass):
     #depends_on('qd')
     #depends_on('mpi_advance')
     #depends_on('quadmath')
-    #depends_on_trilinos_package('trilinos-epetra')
 
     ### Optional subpackage TpetraTSQR ###
     variant('tsqr', default=True, description='Enable TpetraTSQR')
@@ -66,7 +65,6 @@ class TrilinosTpetra(TrilinosBaseClass):
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_QD=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_mpi_advance=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_quadmath=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Epetra=ON')
 
         ### Optional subpackage TpetraTSQR ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_TpetraTSQR', 'tsqr'))

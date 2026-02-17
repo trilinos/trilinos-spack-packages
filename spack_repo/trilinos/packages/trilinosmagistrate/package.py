@@ -14,7 +14,7 @@ from ..trilinos_base_class.package import depends_on_trilinos_package
 from ..trilinos_base_class.package import trilinos_variant
 from ..trilinos_base_class.package import list_of_trilinos_variants
 
-class TrilinosThyra(TrilinosBaseClass):
+class Trilinosmagistrate(TrilinosBaseClass):
     """The Trilinos Project is an effort to develop algorithms and enabling
     technologies within an object-oriented software framework for the solution
     of large-scale, complex multi-physics engineering and scientific problems.
@@ -29,31 +29,15 @@ class TrilinosThyra(TrilinosBaseClass):
     # List of automatically generated cmake arguments
     trilinos_package_auto_cmake_args=[]
     
-    ### Required subpackage ThyraCore ###
-
-    ### Required tpls of Thyra from subpackage requirements###
-    #depends_on_trilinos_package('trilinos-rtop')
-
-    ### Optional subpackage ThyraTpetraAdapters ###
-    variant('tpetraadapters', default=True, description='Enable ThyraTpetraAdapters')
-    variant('tpetra', default=True, description='Enable Tpetra')
-    depends_on_trilinos_package('trilinos-tpetra')
-    #conflicts('+tpetraadapters~tpetra')
-
+    ###Optional tpl dependencies of magistrate ###
+    variant('kokkos', default=True, description='Enable Kokkos')
+    ##depends_on('kokkos', when='+kokkos')
 
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments
         trilinos_package_auto_cmake_args = []
-        ### Required subpackage ThyraCore ###
-        trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_ThyraCore=ON')
-
-        ### Required tpls of Thyra from subpackage requirements###
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_RTOp=ON')
-
-        ### Optional subpackage ThyraTpetraAdapters ###
-        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_ThyraTpetraAdapters', 'tpetraadapters'))
-        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_Tpetra', 'tpetraadapters'))
-
+        ###Optional tpl dependencies of magistrate ###
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_Kokkos', 'kokkos'))
 
         return trilinos_package_auto_cmake_args
 

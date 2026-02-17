@@ -131,6 +131,9 @@ class TrilinosSeacas(TrilinosBaseClass):
     variant('adios2', default=True, description='Enable TPL ADIOS2')
     depends_on('adios2', when='+adios2')
     #conflicts('+ioss~adios2')
+    variant('awssdk', default=True, description='Enable TPL AWSSDK')
+    depends_on('awssdk', when='+awssdk')
+    #conflicts('+ioss~awssdk')
     variant('cgns', default=True, description='Enable TPL CGNS')
     depends_on('cgns', when='+cgns')
     #conflicts('+ioss~cgns')
@@ -353,6 +356,7 @@ class TrilinosSeacas(TrilinosBaseClass):
         ### Optional subpackage SEACASIoss ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_SEACASIoss', 'ioss'))
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_ADIOS2', 'ioss'))
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_AWSSDK', 'ioss'))
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_CGNS', 'ioss'))
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_Catalyst2', 'ioss'))
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_Cereal', 'ioss'))

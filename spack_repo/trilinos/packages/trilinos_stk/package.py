@@ -92,9 +92,18 @@ class TrilinosStk(TrilinosBaseClass):
 
     ### Optional subpackage STKMiddle_mesh ###
     variant('middle_mesh', default=True, description='Enable STKMiddle_mesh')
+    variant('blas', default=True, description='Enable TPL BLAS')
+    depends_on('blas', when='+blas')
+    #conflicts('+middle_mesh~blas')
     variant('cdt', default=True, description='Enable TPL CDT')
     depends_on('cdt', when='+cdt')
     #conflicts('+middle_mesh~cdt')
+    variant('lapack', default=True, description='Enable TPL LAPACK')
+    depends_on('lapack', when='+lapack')
+    #conflicts('+middle_mesh~lapack')
+    variant('mpi', default=True, description='Enable TPL MPI')
+    depends_on('mpi', when='+mpi')
+    #conflicts('+middle_mesh~mpi')
 
     ### Optional subpackage STKMiddle_mesh_util ###
     variant('middle_mesh_util', default=True, description='Enable STKMiddle_mesh_util')
@@ -107,6 +116,9 @@ class TrilinosStk(TrilinosBaseClass):
     variant('kokkos', default=True, description='Enable TPL Kokkos')
     depends_on('kokkos', when='+kokkos')
     #conflicts('+ngp_test~kokkos')
+    variant('gtest', default=True, description='Enable TPL gtest')
+    depends_on('gtest', when='+gtest')
+    #conflicts('+ngp_test~gtest')
 
     ### Optional subpackage STKPerformance_tests ###
     variant('performance_tests', default=True, description='Enable STKPerformance_tests')
@@ -152,6 +164,9 @@ class TrilinosStk(TrilinosBaseClass):
     variant('mpi', default=True, description='Enable TPL MPI')
     depends_on('mpi', when='+mpi')
     #conflicts('+unit_test_utils~mpi')
+    variant('gtest', default=True, description='Enable TPL gtest')
+    depends_on('gtest', when='+gtest')
+    #conflicts('+unit_test_utils~gtest')
 
     ### Optional subpackage STKUnit_tests ###
     variant('unit_tests', default=True, description='Enable STKUnit_tests')
@@ -214,7 +229,10 @@ class TrilinosStk(TrilinosBaseClass):
 
         ### Optional subpackage STKMiddle_mesh ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_STKMiddle_mesh', 'middle_mesh'))
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_BLAS', 'middle_mesh'))
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_CDT', 'middle_mesh'))
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_LAPACK', 'middle_mesh'))
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_MPI', 'middle_mesh'))
 
         ### Optional subpackage STKMiddle_mesh_util ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_STKMiddle_mesh_util', 'middle_mesh_util'))
@@ -223,6 +241,7 @@ class TrilinosStk(TrilinosBaseClass):
         ### Optional subpackage STKNGP_TEST ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_STKNGP_TEST', 'ngp_test'))
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_Kokkos', 'ngp_test'))
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_gtest', 'ngp_test'))
 
         ### Optional subpackage STKPerformance_tests ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_STKPerformance_tests', 'performance_tests'))
@@ -256,6 +275,7 @@ class TrilinosStk(TrilinosBaseClass):
         ### Optional subpackage STKUnit_test_utils ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_STKUnit_test_utils', 'unit_test_utils'))
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_MPI', 'unit_test_utils'))
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_gtest', 'unit_test_utils'))
 
         ### Optional subpackage STKUnit_tests ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_ENABLE_STKUnit_tests', 'unit_tests'))

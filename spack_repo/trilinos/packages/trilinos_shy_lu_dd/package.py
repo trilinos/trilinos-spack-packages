@@ -29,34 +29,16 @@ class TrilinosShyLuDd(TrilinosBaseClass):
     # List of automatically generated cmake arguments
     trilinos_package_auto_cmake_args=[]
     
-    ### Required subpackage ShyLU_DDCore ###
     ### Required subpackage ShyLU_DDFROSch ###
 
     ### Required tpls of ShyLU_DD from subpackage requirements###
+    #depends_on('kokkos')
     #depends_on('mpi')
-    #depends_on_trilinos_package('trilinos-amesos')
-    #depends_on_trilinos_package('trilinos-amesos2')
-    #depends_on_trilinos_package('trilinos-aztec-oo')
     #depends_on_trilinos_package('trilinos-belos')
-    #depends_on_trilinos_package('trilinos-epetra')
-    #depends_on_trilinos_package('trilinos-ifpack')
-    #depends_on_trilinos_package('trilinos-isorropia')
-    #depends_on_trilinos_package('trilinos-teuchos')
-    #depends_on_trilinos_package('trilinos-tpetra')
-    #depends_on_trilinos_package('trilinos-zoltan2-core')
-    #depends_on('mpi')
-    #depends_on_trilinos_package('trilinos-amesos')
-    #depends_on_trilinos_package('trilinos-amesos2')
-    #depends_on_trilinos_package('trilinos-belos')
-    #depends_on_trilinos_package('trilinos-epetra')
-    #depends_on_trilinos_package('trilinos-epetra-ext')
     #depends_on_trilinos_package('trilinos-ifpack2')
     #depends_on_trilinos_package('trilinos-mue-lu')
     #depends_on_trilinos_package('trilinos-stratimikos')
-    #depends_on_trilinos_package('trilinos-teuchos')
     #depends_on_trilinos_package('trilinos-thyra')
-    #depends_on_trilinos_package('trilinos-tpetra')
-    #depends_on_trilinos_package('trilinos-xpetra')
     #depends_on_trilinos_package('trilinos-zoltan2')
 
     ### Optional subpackage ShyLU_DDCommon ###
@@ -66,36 +48,17 @@ class TrilinosShyLuDd(TrilinosBaseClass):
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments
         trilinos_package_auto_cmake_args = []
-        ### Required subpackage ShyLU_DDCore ###
-        trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_ShyLU_DDCore=ON')
         ### Required subpackage ShyLU_DDFROSch ###
         trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_ShyLU_DDFROSch=ON')
 
         ### Required tpls of ShyLU_DD from subpackage requirements###
+        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Kokkos=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_MPI=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Amesos=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Amesos2=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_AztecOO=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Belos=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Epetra=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Ifpack=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Isorropia=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Teuchos=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Tpetra=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Zoltan2Core=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_MPI=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Amesos=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Amesos2=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Belos=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Epetra=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_EpetraExt=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Ifpack2=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_MueLu=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Stratimikos=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Teuchos=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Thyra=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Tpetra=ON')
-        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Xpetra=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Zoltan2=ON')
 
         ### Optional subpackage ShyLU_DDCommon ###

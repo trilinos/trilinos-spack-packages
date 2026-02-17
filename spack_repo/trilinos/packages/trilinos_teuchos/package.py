@@ -37,6 +37,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
     ### Required subpackage TeuchosRemainder ###
 
     ### Required tpls of Teuchos from subpackage requirements###
+    #depends_on_trilinos_package('trilinosmagistrate')
     #depends_on('arprec')
     #depends_on('binutils')
     #depends_on('boost')
@@ -65,7 +66,6 @@ class TrilinosTeuchos(TrilinosBaseClass):
     variant('kokkoscompat', default=True, description='Enable TeuchosKokkosCompat')
     variant('kokkos', default=True, description='Enable TPL Kokkos')
     depends_on('kokkos', when='+kokkos')
-    depends_on('kokkos-kernels', when='+kokkos')
     #conflicts('+kokkoscompat~kokkos')
 
 
@@ -86,6 +86,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
         trilinos_package_auto_cmake_args.append('TRILINOS_ENABLE_TeuchosRemainder=ON')
 
         ### Required tpls of Teuchos from subpackage requirements###
+        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_magistrate=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_ARPREC=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_BinUtils=ON')
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Boost=ON')
