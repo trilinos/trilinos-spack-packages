@@ -32,11 +32,18 @@ class TrilinosIntrepid2(TrilinosBaseClass):
     ### Required tpl dependencies of Intrepid2 ###
     #depends_on('kokkos')
 
+    ###Optional tpl dependencies of Intrepid2 ###
+    variant('kokkoskernels', default=True, description='Enable KokkosKernels')
+    ##depends_on('kokkoskernels', when='+kokkoskernels')
+
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments
         trilinos_package_auto_cmake_args = []
         ### Required tpl dependencies of Intrepid2 ###
         trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_Kokkos=ON')
+
+        ###Optional tpl dependencies of Intrepid2 ###
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_KokkosKernels', 'kokkoskernels'))
 
         return trilinos_package_auto_cmake_args
 

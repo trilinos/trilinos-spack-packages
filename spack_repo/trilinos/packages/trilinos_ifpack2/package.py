@@ -29,6 +29,9 @@ class TrilinosIfpack2(TrilinosBaseClass):
     # List of automatically generated cmake arguments
     trilinos_package_auto_cmake_args=[]
     
+    ### Required tpl dependencies of Ifpack2 ###
+    #depends_on('kokkoskernels')
+
     ###Optional tpl dependencies of Ifpack2 ###
     variant('cholmod', default=True, description='Enable Cholmod')
     ##depends_on('cholmod', when='+cholmod')
@@ -48,6 +51,9 @@ class TrilinosIfpack2(TrilinosBaseClass):
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments
         trilinos_package_auto_cmake_args = []
+        ### Required tpl dependencies of Ifpack2 ###
+        trilinos_package_auto_cmake_args.append('TRILINOS_TPL_ENABLE_KokkosKernels=ON')
+
         ###Optional tpl dependencies of Ifpack2 ###
         trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_Cholmod', 'cholmod'))
 

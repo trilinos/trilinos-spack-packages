@@ -29,9 +29,16 @@ class TrilinosBelos(TrilinosBaseClass):
     # List of automatically generated cmake arguments
     trilinos_package_auto_cmake_args=[]
     
+    ###Optional tpl dependencies of Belos ###
+    variant('kokkoskernels', default=True, description='Enable KokkosKernels')
+    ##depends_on('kokkoskernels', when='+kokkoskernels')
+
     def generated_trilinos_package_cmake_args(self):
         ### auto generated cmake arguments
         trilinos_package_auto_cmake_args = []
+        ###Optional tpl dependencies of Belos ###
+        trilinos_package_auto_cmake_args.append(self.define_from_variant('TRILINOS_TPL_ENABLE_KokkosKernels', 'kokkoskernels'))
+
         return trilinos_package_auto_cmake_args
 
     def cmake_args(self):

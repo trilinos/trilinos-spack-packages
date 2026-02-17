@@ -10,12 +10,12 @@ parser.add_argument('-d', '--output-dir', default='./spack_repo/trilinos/package
 args = parser.parse_args()
 
 # list of packages that have their own spack packages outside of trilinos
-external_spack_packages=["Kokkos", "kokkos-kernals", "seacas"]
+external_spack_packages=["Kokkos", "kokkos-kernals", "seacas", "KokkosKernels", "SEACAS"]
 
 tree = ET.parse(args.input)
 root = tree.getroot()
 
-exclude_name_list = ["ParentPackage", "TrilinosInstallTests", "TrilinosATDMConfigTests"]
+exclude_name_list = ["ParentPackage", "TrilinosInstallTests", "TrilinosATDMConfigTests"] + external_spack_packages
 
 
 class trilinos_package:
@@ -521,7 +521,7 @@ class {self.spack_package_header_name}(TrilinosBaseClass):
             print(f"  - {opt_tpl}")
      
 
-skip_loop=False
+skip_loop=True
 
 #pkg_list=["Panzer", "Panzer", "Teuchos", "MueLu"]
 pkg_list=["Teuchos", "Panzer"]

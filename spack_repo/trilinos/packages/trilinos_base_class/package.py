@@ -8,7 +8,7 @@ from spack_repo.builtin.build_systems.cmake import CMakePackage
 from spack_repo.builtin.build_systems.cuda import CudaPackage
 from spack_repo.builtin.build_systems.rocm import ROCmPackage
 
-import llnl.util.filesystem as fs
+#import llnl.util.filesystem as fs
 import spack.store
 
 list_of_trilinos_variants=[]
