@@ -22,4 +22,19 @@ spack --version
 echo "######################################"
 echo ""
 
-spack repo add ${PWD}/spack_repo/trilinos
+repo_ls_out=$(spack repo ls)
+
+#$(spack repo ls)|grep "trilinos"
+
+#echo $repo_ls_out
+#echo $?
+
+if echo "$repo_ls_out" | grep -q trilinos; then
+    echo "Trilinos repo is already setup in spack"
+else
+    echo "Adding the trilinos repo to spack."
+    spack repo add ${PWD}/spack_repo/trilinos
+fi
+
+unset repo_ls_out
+

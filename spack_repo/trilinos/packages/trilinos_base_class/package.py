@@ -18,12 +18,17 @@ def trilinos_variant(variant_name, default, description):
     variant(variant_name, default=default, description=description)
     list_of_trilinos_variants.append(variant_name)
     
-def depends_on_trilinos_package(trilinos_package_name):
+def depends_on_trilinos_package(trilinos_package_spec, when=None):
+    depends_on(trilinos_package_spec, when=when)
+
+    pkg_name = trilinos_package_spec.split()[0]
+
     for tril_ver in trilinos_versions:
-        depends_on(trilinos_package_name+"@"+tril_ver, when="@"+tril_ver)
+        depends_on(f"{pkg_name}@{tril_ver}", when=f"@{tril_ver}")
+
     for t_variant in list_of_trilinos_variants:
-        depends_on(trilinos_package_name+"+"+t_variant, when="+"+t_variant)
-        depends_on(trilinos_package_name+"~"+t_variant, when="~"+t_variant)
+        depends_on(f"{pkg_name}+{t_variant}", when=f"+{t_variant}")
+        depends_on(f"{pkg_name}~{t_variant}", when=f"~{t_variant}")
     
 class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     """The Trilinos Project is an effort to develop algorithms and enabling
@@ -39,13 +44,13 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
 
     # ###################### Versions ##########################
     version("jfrye-spack-changes", branch="changes-for-spack")
+    trilinos_versions.append("jfrye-spack-changes")
     #version("master", branch="master")
+    #trilinos_versions.append("master")
     #version("develop", branch="develop")
+    #trilinos_versions.append("develop")
     #version("16.0.0", sha256="46bfc40419ed2aa2db38c144fb8e61d4aa8170eaa654a88d833ba6b92903f309")
-    # List of possible trilinos versions.  used to enforce that depends_on_trilinos_package()
-    # all have the same version
-    trilinos_versions.append("master")
-    trilinos_versions.append("develop")
+    #trilinos_versions.append("16.0.0")
 
     # ###################### Variants ##########################
     variant("tests", default=False, description="Enable build of package's test executables")
@@ -139,5 +144,5 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
         return args
     
     def cmake_args(self):
-        return []
+        return self.generated_trilinos_base_cmake_args()
 

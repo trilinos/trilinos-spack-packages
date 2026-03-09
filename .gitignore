@@ -1,3 +1,6 @@
 __pycache__
 spack-src/
 *~
+.venv
+results.xml
+build/
