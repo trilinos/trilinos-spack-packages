@@ -36,7 +36,7 @@ class TrilinosIfpack2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
     depends_on_trilinos_package("trilinos-amesos2")
-    depends_on_trilinos_package("trilinos-shylu_node +shylu-nodebasker +shylu-nodehts +shylu-nodefastilu")
+    depends_on_trilinos_package("trilinos-shylu-node +shylu-nodebasker +shylu-nodehts +shylu-nodefastilu")
 
     # Optional external (TPL) dependencies
     depends_on("hypre", when="+hypre")

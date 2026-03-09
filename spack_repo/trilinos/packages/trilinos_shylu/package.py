@@ -20,10 +20,10 @@ class TrilinosShylu(TrilinosBaseClass):
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-shylu_dd")
+    depends_on_trilinos_package("trilinos-shylu-dd")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-shylu_node")
+    depends_on_trilinos_package("trilinos-shylu-node")
 
     def cmake_args(self):
         args = super().cmake_args()

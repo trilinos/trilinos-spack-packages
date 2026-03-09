@@ -43,7 +43,7 @@ class TrilinosAmesos2(TrilinosBaseClass):
     depends_on("kokkos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-shylu_node +shylu-nodebasker +shylu-nodetacho")
+    depends_on_trilinos_package("trilinos-shylu-node +shylu-nodebasker +shylu-nodetacho")
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")

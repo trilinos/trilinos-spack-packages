@@ -239,8 +239,8 @@ def _tpl_to_spack(tpl_name: str) -> str | None:
 
 
 def _spack_pkg_name(tribits_name: str) -> str:
-    """Return the Spack package name: trilinos-<lower>."""
-    return f"trilinos-{tribits_name.lower()}"
+    """Return the Spack package name: trilinos-<lower>, underscores→hyphens."""
+    return f"trilinos-{tribits_name.lower().replace('_', '-')}"
 
 
 def _dir_name(tribits_name: str) -> str:

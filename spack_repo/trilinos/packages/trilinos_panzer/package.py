@@ -56,7 +56,7 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-percept", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-ifpack2", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-tempus", when="+panzeradaptersstk")
-    depends_on_trilinos_package("trilinos-shylu_node +shylu-nodetacho", when="+panzerminiem")
+    depends_on_trilinos_package("trilinos-shylu-node +shylu-nodetacho", when="+panzerminiem")
 
     # Required external (TPL) dependencies
     depends_on("mpi")
