@@ -1,0 +1,390 @@
+#!/usr/bin/env python3
+"""
+generate_spack_packages.py
+
+Uses parse_tribits_xml.parse_xml() to load Trilinos package objects from a
+TriBITS XML file, then writes one Spack package.py per top-level package.
+
+Output directory structure:
+    <outdir>/trilinos_<lower>/package.py
+
+Current scope
+-------------
+  - Package header  (class declaration, homepage, url, git, versions)
+  - Required TPL dependencies  (depends_on("..."))
+  - Package footer  (cmake_args stub)
+
+Usage
+-----
+    python generate_spack_packages.py \
+        --xml  xml_files/TrilinosPackageDependencies.xml \
+        --outdir spack_repo/trilinos/packages
+"""
+
+from __future__ import annotations
+
+import argparse
+import os
+import sys
+
+from parse_tribits_xml import parse_xml, TrilinosPackage
+
+
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
+
+# Packages that already exist in Spack and should NOT get a generated package.py.
+# Any Trilinos package that depends on one of these will use plain depends_on()
+# (not depends_on_trilinos_package()) so Spack resolves it from its own repo.
+#
+# Key   = TriBITS package name (as it appears in the XML)
+# Value = Spack package name to use in depends_on()
+#
+# To add more externals, just append to this dict.
+EXTERNAL_PACKAGES: dict[str, str] = {
+    "Kokkos":        "kokkos",
+    "KokkosKernels": "kokkos-kernels",
+    "STK":           "stk",
+    "SEACAS":        "seacas",
+}
+
+# Convenience set for fast membership tests
+_EXTERNAL_NAMES: set[str] = set(EXTERNAL_PACKAGES.keys())
+
+# TPLs to skip entirely – no depends_on generated, no variants, nothing.
+# Add any TPL here that has no Spack equivalent or should be ignored.
+SKIP_TPLS: set[str] = {
+    "QD",
+    "ARPREC",
+    "QT",
+    "quadmath",
+    "BinUtils",
+    "Valgrind",
+    "HWLOC",
+    "Pthread",
+    "DLlib",
+    "PyTrilinos",
+}
+
+# TriBITS TPL name → Spack package name.
+TPL_SPACK_MAP: dict[str, str] = {
+    "MPI":          "mpi",
+    "BLAS":         "blas",
+    "LAPACK":       "lapack",
+    "Boost":        "boost",
+    "HDF5":         "hdf5",
+    "NetCDF":       "netcdf-c",
+    "Netcdf":       "netcdf-c",
+    "METIS":        "metis",
+    "ParMETIS":     "parmetis",
+    "Parmetis":     "parmetis",
+    "Zlib":         "zlib-api",
+    "ZLIB":         "zlib-api",
+    "SuperLU":      "superlu",
+    "SuperLUDist":  "superlu-dist",
+    "SuperLU_Dist": "superlu-dist",
+    "HYPRE":        "hypre",
+    "Hypre":        "hypre",
+    "MUMPS":        "mumps",
+    "Scotch":       "scotch",
+    "TBB":          "intel-tbb",
+    "CUDA":         "cuda",
+    "OpenMP":       "llvm-openmp",
+    "X11":          "libx11",
+    "Eigen":        "eigen",
+    "GLM":          "glm",
+    "Gtest":        "googletest",
+    "CGNS":         "cgns",
+    "Matio":        "matio",
+    "Kokkos":       "kokkos",
+    "KokkosKernels":"kokkos-kernels",
+    "yaml-cpp":     "yaml-cpp",
+    "yamlcpp":      "yaml-cpp",
+    "Python":       "python",
+    "PAPI":         "papi",
+    "CAMAL":        "camal",
+}
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _dep_call(tribits_name: str) -> str:
+    """Return the correct depends_on function name for a Trilinos package dep.
+
+    External packages (Kokkos, STK, SEACAS, etc.) already exist in Spack and
+    use plain depends_on().  Generated trilinos-* packages use
+    depends_on_trilinos_package().
+    """
+    if tribits_name in _EXTERNAL_NAMES:
+        return "depends_on"
+    return "depends_on_trilinos_package"
+
+
+def _tpl_to_spack(tpl_name: str) -> str | None:
+    """Map a TriBITS TPL name to its Spack package name.
+
+    Returns None if the TPL is in SKIP_TPLS (omit entirely) or unknown.
+    """
+    if tpl_name in SKIP_TPLS:
+        return None
+    return TPL_SPACK_MAP.get(tpl_name)
+
+
+def _spack_pkg_name(tribits_name: str) -> str:
+    """Return the Spack package name: trilinos-<lower>."""
+    return f"trilinos-{tribits_name.lower()}"
+
+
+def _dir_name(tribits_name: str) -> str:
+    """Return the output directory name: trilinos_<lower> (underscore)."""
+    return f"trilinos_{tribits_name.lower()}"
+
+
+def _variant_name(subpackage_name: str) -> str:
+    """Convert a subpackage name to a valid Spack variant name.
+
+    Rules: lowercase, hyphens allowed, underscores replaced with hyphens,
+    no spaces.  e.g. 'TeuchosCore' -> 'teuchoscore',
+                     'ShyLU_Node'  -> 'shylu-node'
+    """
+    return subpackage_name.lower().replace("_", "-")
+
+
+# ---------------------------------------------------------------------------
+# Code generation
+# ---------------------------------------------------------------------------
+
+def _header(pkg: TrilinosPackage) -> list[str]:
+    """Render the package header: copyright, imports, class declaration, variants.
+
+    homepage, url, git, and versions are defined in TrilinosBaseClass.
+    """
+    lines: list[str] = []
+    class_name = f"Trilinos{pkg.name}"
+
+    lines += [
+        "# Copyright Spack Project Developers. See COPYRIGHT file for details.",
+        "# Auto-generated by generate_spack_packages.py",
+        "# Source: TrilinosPackageDependencies.xml",
+        "",
+        "from spack.package import *",
+        "",
+        "",
+        f"class {class_name}(TrilinosBaseClass):",
+        f'    """Trilinos {pkg.name} package.',
+        "",
+        "    Part of the Trilinos Project (https://trilinos.github.io).",
+        '    """',
+        "",
+    ]
+
+    # One variant per subpackage, default=True
+    if pkg.subpackages:
+        lines.append("    # Subpackage variants")
+        for sp in pkg.subpackages:
+            vname = _variant_name(sp)
+            lines.append(
+                f'    variant("{vname}", default=True,'
+                f' description="Enable the {sp} subpackage")'
+            )
+        lines.append("")
+
+    return lines
+
+
+def _required_package_deps(pkg: TrilinosPackage) -> list[str]:
+    """Render depends_on lines for required Trilinos/external package dependencies.
+
+    Packages in EXTERNAL_PACKAGES (Kokkos, STK, etc.) use plain depends_on().
+    All other generated trilinos-* packages use depends_on_trilinos_package().
+    """
+    if not pkg.required_package_deps:
+        return []
+
+    lines = ["    # Required package dependencies"]
+    for dep in pkg.required_package_deps:
+        fn = _dep_call(dep)
+        if dep in EXTERNAL_PACKAGES:
+            spack_name = EXTERNAL_PACKAGES[dep]
+        else:
+            spack_name = _spack_pkg_name(dep)
+        lines.append(f'    {fn}("{spack_name}")')
+    lines.append("")
+    return lines
+
+
+def _optional_package_deps(pkg: TrilinosPackage) -> list[str]:
+    """Render depends_on lines for optional Trilinos/external package dependencies.
+
+    Applies the same subpackage-variant when= logic as _optional_tpl_deps:
+    if the dep was introduced only by specific subpackages, each contributing
+    subpackage gets its own when= line.
+    """
+    if not pkg.optional_package_deps:
+        return []
+
+    sp_variant_names: set[str] = {_variant_name(sp) for sp in pkg.subpackages}
+
+    lines = ["    # Optional package dependencies"]
+    for dep in pkg.optional_package_deps:
+        fn = _dep_call(dep)
+        if dep in EXTERNAL_PACKAGES:
+            spack_name = EXTERNAL_PACKAGES[dep]
+        else:
+            spack_name = _spack_pkg_name(dep)
+
+        sources: list[str] = pkg.optional_package_sources.get(dep, [])
+        sp_sources = [sp for sp in sources if _variant_name(sp) in sp_variant_names]
+        non_sp_sources = [sp for sp in sources if _variant_name(sp) not in sp_variant_names]
+
+        if not sp_sources or non_sp_sources:
+            # Introduced at top-level or no source info — always active
+            lines.append(f'    {fn}("{spack_name}")')
+        else:
+            # One line per contributing subpackage variant
+            for sp in sp_sources:
+                vname = _variant_name(sp)
+                lines.append(f'    {fn}("{spack_name}", when="+{vname}")')
+
+    lines.append("")
+    return lines
+
+
+def _required_tpl_deps(pkg: TrilinosPackage) -> list[str]:
+    """Render depends_on(...) lines for required TPL dependencies."""
+    if not pkg.required_tpl_deps:
+        return []
+
+    lines = ["    # Required external (TPL) dependencies"]
+    for tpl in pkg.required_tpl_deps:
+        spack_name = _tpl_to_spack(tpl)
+        if spack_name is None:
+            continue
+        lines.append(f'    depends_on("{spack_name}")')
+    lines.append("")
+    return lines
+
+
+def _optional_tpl_deps(pkg: TrilinosPackage) -> list[str]:
+    """Render depends_on(...) lines for optional TPL dependencies.
+
+    Each optional TPL is enabled by default.  If it was introduced solely by
+    specific subpackages, a when= condition is added so the dependency is only
+    active when at least one of those subpackage variants is enabled.
+
+    e.g. Boost introduced only by TeuchosCore:
+        depends_on("boost", when="+teuchoscore")
+
+    e.g. MPI introduced by TeuchosCore AND TeuchosKokkosComm:
+        depends_on("mpi", when="+teuchoscore +teuchoskokkoscomm")
+        (one depends_on line per contributing subpackage variant)
+    """
+    if not pkg.optional_tpl_deps:
+        return []
+
+    # Build a set of known subpackage variant names for this package
+    sp_variant_names: set[str] = {_variant_name(sp) for sp in pkg.subpackages}
+
+    lines = ["    # Optional external (TPL) dependencies"]
+    for tpl in pkg.optional_tpl_deps:
+        spack_name = _tpl_to_spack(tpl)
+        if spack_name is None:
+            continue
+
+        sources: list[str] = pkg.optional_tpl_sources.get(tpl, [])
+
+        # Filter sources to only those that are subpackages of this package
+        # (the top-level package itself counts as "always on" — no when needed)
+        sp_sources = [sp for sp in sources if _variant_name(sp) in sp_variant_names]
+        non_sp_sources = [sp for sp in sources if _variant_name(sp) not in sp_variant_names]
+
+        if not sp_sources or non_sp_sources:
+            # Either introduced by the top-level package itself (no subpackage
+            # condition), or no source info at all — always active
+            lines.append(f'    depends_on("{spack_name}")')
+        else:
+            # One depends_on per contributing subpackage variant
+            for sp in sp_sources:
+                vname = _variant_name(sp)
+                lines.append(f'    depends_on("{spack_name}", when="+{vname}")')
+
+    lines.append("")
+    return lines
+
+
+def _footer(pkg: TrilinosPackage) -> list[str]:
+    """Render the cmake_args stub."""
+    lines: list[str] = []
+    lines += [
+        "    def cmake_args(self):",
+        "        args = [",
+        f'            self.define("Trilinos_ENABLE_{pkg.name}", True),',
+        "        ]",
+        "        return args",
+        "",
+    ]
+    return lines
+
+
+def generate_package_py(pkg: TrilinosPackage) -> str:
+    """Assemble a complete package.py for one top-level Trilinos package."""
+    lines: list[str] = []
+    lines += _header(pkg)
+    lines += _required_package_deps(pkg)
+    lines += _optional_package_deps(pkg)
+    lines += _required_tpl_deps(pkg)
+    lines += _optional_tpl_deps(pkg)
+    lines += _footer(pkg)
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Generate Spack package.py files from TrilinosPackageDependencies.xml"
+    )
+    parser.add_argument("--xml", required=True, metavar="FILE",
+                        help="Path to TrilinosPackageDependencies.xml")
+    parser.add_argument("--outdir", default="spack_repo/trilinos/packages",
+                        metavar="DIR", help="Root output directory")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Print package names without writing files")
+    args = parser.parse_args()
+
+    print(f"[*] Parsing {args.xml} ...")
+    try:
+        packages = parse_xml(args.xml)
+    except Exception as exc:
+        print(f"[ERROR] {exc}", file=sys.stderr)
+        sys.exit(1)
+
+    # Filter out external packages – they already exist in Spack
+    packages = [p for p in packages if p.name not in _EXTERNAL_NAMES]
+    print(f"    {len(packages)} top-level packages to generate.")
+    print(f"    Externals (skipped): {', '.join(sorted(_EXTERNAL_NAMES))}")
+
+    if args.dry_run:
+        for p in packages:
+            print(f"  {_spack_pkg_name(p.name)}  →  {_dir_name(p.name)}/package.py")
+        return
+
+    os.makedirs(args.outdir, exist_ok=True)
+    for pkg in packages:
+        pkg_dir = os.path.join(args.outdir, _dir_name(pkg.name))
+        os.makedirs(pkg_dir, exist_ok=True)
+        pkg_path = os.path.join(pkg_dir, "package.py")
+        with open(pkg_path, "w", encoding="utf-8") as fh:
+            fh.write(generate_package_py(pkg))
+        print(f"  → {pkg_path}")
+
+    print(f"\n[✓] Generated {len(packages)} package.py files in {args.outdir}/")
+
+
+if __name__ == "__main__":
+    main()
