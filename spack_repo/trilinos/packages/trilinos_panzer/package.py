@@ -19,59 +19,113 @@ class TrilinosPanzer(TrilinosBaseClass):
     variant("panzerminiem", default=True, description="Enable the PanzerMiniEM subpackage")
     variant("panzerexpreval", default=True, description="Enable the PanzerExprEval subpackage")
 
+    # Optional TPL variants
+    variant("papi", default=True, description="Enable papi support")
+    variant("camal", default=True, description="Enable camal support")
+
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchoscore")
-    depends_on_trilinos_package("trilinos-teuchos")
-    depends_on_trilinos_package("trilinos-teuchoscomm")
-    depends_on_trilinos_package("trilinos-teuchosparameterlist")
-    depends_on_trilinos_package("trilinos-tpetracore")
-    depends_on_trilinos_package("trilinos-tpetra")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist +teuchosparser")
+    depends_on_trilinos_package("trilinos-tpetra +tpetracore")
     depends_on_trilinos_package("trilinos-shards")
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on_trilinos_package("trilinos-phalanx")
     depends_on("kokkos")
     depends_on_trilinos_package("trilinos-sacado")
-    depends_on_trilinos_package("trilinos-thyracore")
-    depends_on_trilinos_package("trilinos-thyra")
-    depends_on_trilinos_package("trilinos-thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-thyra +thyracore +thyratpetraadapters")
     depends_on_trilinos_package("trilinos-zoltan")
-    depends_on_trilinos_package("trilinos-stkutil")
     depends_on("stk")
-    depends_on_trilinos_package("trilinos-stktools")
-    depends_on_trilinos_package("trilinos-stktopology")
-    depends_on_trilinos_package("trilinos-stkmesh")
-    depends_on_trilinos_package("trilinos-stkio")
     depends_on_trilinos_package("trilinos-stratimikos")
     depends_on_trilinos_package("trilinos-piro")
     depends_on_trilinos_package("trilinos-nox")
     depends_on_trilinos_package("trilinos-belos")
     depends_on_trilinos_package("trilinos-teko")
     depends_on_trilinos_package("trilinos-muelu")
-    depends_on_trilinos_package("trilinos-teuchosparser")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-stksearch", when="+panzeradaptersstk")
-    depends_on_trilinos_package("trilinos-seacasioss", when="+panzeradaptersstk")
+    depends_on("stk", when="+panzeradaptersstk")
     depends_on("seacas", when="+panzeradaptersstk")
-    depends_on("seacas", when="+panzeradaptersstk")
-    depends_on_trilinos_package("trilinos-seacasexodus", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-percept", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-ifpack2", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-tempus", when="+panzeradaptersstk")
-    depends_on_trilinos_package("trilinos-shylu_nodetacho", when="+panzerminiem")
-    depends_on_trilinos_package("trilinos-shylu_node", when="+panzerminiem")
+    depends_on_trilinos_package("trilinos-shylu_node +shylu-nodetacho", when="+panzerminiem")
 
     # Required external (TPL) dependencies
     depends_on("mpi")
 
     # Optional external (TPL) dependencies
-    depends_on("papi", when="+panzerdiscfe")
-    depends_on("papi", when="+panzerminiem")
-    depends_on("camal", when="+panzerdiscfe")
-    depends_on("camal", when="+panzerminiem")
+    depends_on("papi", when="+papi")
+    depends_on("camal", when="+camal")
+
+    # TPL conflicts: subpackages that require an optional TPL
+    conflicts("~papi", when="+panzerdiscfe")
+    conflicts("~papi", when="+panzerminiem")
+    conflicts("~camal", when="+panzerdiscfe")
+    conflicts("~camal", when="+panzerminiem")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Panzer", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Panzer", True))
+
+        if self.spec.satisfies("+panzercore"):
+            args.append(self.define("Trilinos_ENABLE_PanzerCore", True))
+
+        if self.spec.satisfies("+panzerdofmgr"):
+            args.append(self.define("Trilinos_ENABLE_PanzerDofMgr", True))
+
+        if self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("Trilinos_ENABLE_PanzerDiscFE", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("Trilinos_ENABLE_PanzerAdaptersSTK", True))
+
+        if self.spec.satisfies("+panzerminiem"):
+            args.append(self.define("Trilinos_ENABLE_PanzerMiniEM", True))
+
+        if self.spec.satisfies("+panzerexpreval"):
+            args.append(self.define("Trilinos_ENABLE_PanzerExprEval", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TpetraCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Shards", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Phalanx", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraTpetraAdapters", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Piro", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teko", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParser", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Percept", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Tempus", True))
+
+        if self.spec.satisfies("+panzerminiem"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_NodeTacho", True))
+
+        if self.spec.satisfies("+panzerminiem"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_Node", True))
+
+        if self.spec.satisfies("+papi"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_PAPI", True))
+
+        if self.spec.satisfies("+camal"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_CAMAL", True))
+
         return args

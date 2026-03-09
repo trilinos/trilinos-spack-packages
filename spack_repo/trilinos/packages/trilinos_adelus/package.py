@@ -19,7 +19,9 @@ class TrilinosAdelus(TrilinosBaseClass):
     depends_on("blas")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Adelus", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Adelus", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_BLAS", True))
+
         return args

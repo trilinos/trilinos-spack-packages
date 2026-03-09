@@ -15,22 +15,65 @@ class TrilinosTpetra(TrilinosBaseClass):
     variant("tpetratsqr", default=True, description="Enable the TpetraTSQR subpackage")
     variant("tpetracore", default=True, description="Enable the TpetraCore subpackage")
 
+    # Optional TPL variants
+    variant("cublas", default=True, description="Enable cuda support")
+    variant("cusolver", default=True, description="Enable cuda support")
+    variant("mpi", default=True, description="Enable mpi support")
+    variant("cuda", default=True, description="Enable cuda support")
+    variant("mpi-advance", default=True, description="Enable mpi-advance support")
+
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchos")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat +teuchoskokkoscomm")
     depends_on("kokkos")
     depends_on("kokkos-kernels")
-    depends_on_trilinos_package("trilinos-teuchoskokkoscompat")
-    depends_on_trilinos_package("trilinos-teuchoskokkoscomm")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-teuchosnumerics", when="+tpetracore")
+    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+tpetracore")
 
     # Optional external (TPL) dependencies
-    depends_on("mpi", when="+tpetracore")
-    depends_on("cuda", when="+tpetracore")
+    depends_on("cuda", when="+cublas")
+    depends_on("cuda", when="+cusolver")
+    depends_on("mpi", when="+mpi")
+    depends_on("cuda", when="+cuda")
+    depends_on("mpi-advance", when="+mpi-advance")
+
+    # TPL conflicts: subpackages that require an optional TPL
+    conflicts("~cublas", when="+tpetratsqr")
+    conflicts("~cusolver", when="+tpetratsqr")
+    conflicts("~mpi", when="+tpetracore")
+    conflicts("~cuda", when="+tpetracore")
+    conflicts("~mpi-advance", when="+tpetracore")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Tpetra", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+tpetratsqr"):
+            args.append(self.define("Trilinos_ENABLE_TpetraTSQR", True))
+
+        if self.spec.satisfies("+tpetracore"):
+            args.append(self.define("Trilinos_ENABLE_TpetraCore", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosCompat", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosComm", True))
+
+        if self.spec.satisfies("+tpetracore"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
+
+        if self.spec.satisfies("+cublas"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_CUBLAS", True))
+
+        if self.spec.satisfies("+cusolver"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_CUSOLVER", True))
+
+        if self.spec.satisfies("+mpi"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+cuda"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
+
+        if self.spec.satisfies("+mpi-advance"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_mpi_advance", True))
+
         return args

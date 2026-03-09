@@ -12,7 +12,8 @@ class TrilinosTrilinosATDMConfigTests(TrilinosBaseClass):
     """
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_TrilinosATDMConfigTests", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_TrilinosATDMConfigTests", True))
+
+
         return args

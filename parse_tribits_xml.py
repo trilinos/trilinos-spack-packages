@@ -276,7 +276,7 @@ def parse_xml(xml_path: str) -> list[TrilinosPackage]:
             optional_package_sources=opt_pkg_sources,
         ))
 
-    return packages
+    return packages, dict(parent_of)
 
 
 # ---------------------------------------------------------------------------
@@ -291,7 +291,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        packages = parse_xml(args.xml)
+        packages, subpkg_parent = parse_xml(args.xml)
     except Exception as e:
         print(f"ERROR: {e}", file=sys.stderr)
         sys.exit(1)

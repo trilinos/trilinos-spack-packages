@@ -11,15 +11,43 @@ class TrilinosZoltan(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional TPL variants
+    variant("mpi", default=True, description="Enable mpi support")
+    variant("metis", default=True, description="Enable metis support")
+    variant("parmetis", default=True, description="Enable parmetis support")
+    variant("patoh", default=True, description="Enable patoh support")
+    variant("scotch", default=True, description="Enable scotch support")
+    variant("zlib", default=True, description="Enable zlib-api support")
+
     # Optional external (TPL) dependencies
-    depends_on("mpi")
-    depends_on("metis")
-    depends_on("parmetis")
-    depends_on("scotch")
-    depends_on("zlib-api")
+    depends_on("mpi", when="+mpi")
+    depends_on("metis", when="+metis")
+    depends_on("parmetis", when="+parmetis")
+    depends_on("patoh", when="+patoh")
+    depends_on("scotch", when="+scotch")
+    depends_on("zlib-api", when="+zlib")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Zoltan", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Zoltan", True))
+
+
+        if self.spec.satisfies("+mpi"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+metis"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))
+
+        if self.spec.satisfies("+parmetis"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
+
+        if self.spec.satisfies("+patoh"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_PaToH", True))
+
+        if self.spec.satisfies("+scotch"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Scotch", True))
+
+        if self.spec.satisfies("+zlib"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Zlib", True))
+
         return args

@@ -13,11 +13,10 @@ class TrilinosTeko(TrilinosBaseClass):
 
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
-    depends_on_trilinos_package("trilinos-thyra")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
     depends_on_trilinos_package("trilinos-stratimikos")
     depends_on_trilinos_package("trilinos-anasazi")
     depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-thyratpetraadapters")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-ifpack2")
@@ -25,7 +24,20 @@ class TrilinosTeko(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-belos")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Teko", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Teko", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Anasazi", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraTpetraAdapters", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+
         return args

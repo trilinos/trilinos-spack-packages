@@ -21,7 +21,22 @@ class TrilinosTrilinosCouplings(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-zoltan2core")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_TrilinosCouplings", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_TrilinosCouplings", True))
+
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Stokhos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2Core", True))
+
         return args

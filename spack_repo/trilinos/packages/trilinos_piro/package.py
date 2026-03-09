@@ -14,8 +14,7 @@ class TrilinosPiro(TrilinosBaseClass):
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-stratimikos")
-    depends_on_trilinos_package("trilinos-thyracore")
-    depends_on_trilinos_package("trilinos-thyra")
+    depends_on_trilinos_package("trilinos-thyra +thyracore")
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-teko")
 
@@ -27,7 +26,24 @@ class TrilinosPiro(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-muelu")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Piro", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Piro", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teko", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tempus", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_ROL", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+
         return args

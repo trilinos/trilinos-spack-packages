@@ -18,7 +18,11 @@ class TrilinosShyLU(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-shylu_node")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_ShyLU", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_ShyLU", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_DD", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_Node", True))
+
         return args

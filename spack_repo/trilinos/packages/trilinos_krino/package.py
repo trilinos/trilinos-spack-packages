@@ -11,20 +11,14 @@ class TrilinosKrino(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional TPL variants
+    variant("mpi", default=True, description="Enable mpi support")
+    variant("parmetis", default=True, description="Enable parmetis support")
+    variant("yamlcpp", default=True, description="Enable yaml-cpp support")
+
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-seacasioss")
     depends_on("seacas")
-    depends_on_trilinos_package("trilinos-seacasexodus")
-    depends_on_trilinos_package("trilinos-stkbalance")
     depends_on("stk")
-    depends_on_trilinos_package("trilinos-stkexpreval")
-    depends_on_trilinos_package("trilinos-stkmath")
-    depends_on_trilinos_package("trilinos-stkio")
-    depends_on_trilinos_package("trilinos-stksearch")
-    depends_on_trilinos_package("trilinos-stktopology")
-    depends_on_trilinos_package("trilinos-stkutil")
-    depends_on_trilinos_package("trilinos-stktools")
-    depends_on_trilinos_package("trilinos-stkemend")
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on_trilinos_package("trilinos-sacado")
 
@@ -32,12 +26,25 @@ class TrilinosKrino(TrilinosBaseClass):
     depends_on("boost")
 
     # Optional external (TPL) dependencies
-    depends_on("mpi")
-    depends_on("parmetis")
-    depends_on("yaml-cpp")
+    depends_on("mpi", when="+mpi")
+    depends_on("parmetis", when="+parmetis")
+    depends_on("yaml-cpp", when="+yamlcpp")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Krino", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Krino", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
+
+        if self.spec.satisfies("+mpi"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+parmetis"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
+
+        if self.spec.satisfies("+yamlcpp"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_yamlcpp", True))
+
         return args

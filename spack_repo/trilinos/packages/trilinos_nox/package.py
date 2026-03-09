@@ -11,12 +11,16 @@ class TrilinosNOX(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional TPL variants
+    variant("petsc", default=True, description="Enable petsc support")
+    variant("lapack", default=True, description="Enable lapack support")
+    variant("blas", default=True, description="Enable blas support")
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-thyracore")
-    depends_on_trilinos_package("trilinos-thyra")
+    depends_on_trilinos_package("trilinos-thyra +thyracore")
     depends_on_trilinos_package("trilinos-belos")
     depends_on_trilinos_package("trilinos-anasazi")
     depends_on_trilinos_package("trilinos-stratimikos")
@@ -24,11 +28,37 @@ class TrilinosNOX(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tpetra")
 
     # Optional external (TPL) dependencies
-    depends_on("lapack")
-    depends_on("blas")
+    depends_on("petsc", when="+petsc")
+    depends_on("lapack", when="+lapack")
+    depends_on("blas", when="+blas")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_NOX", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_NOX", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Anasazi", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teko", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+petsc"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_PETSC", True))
+
+        if self.spec.satisfies("+lapack"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_LAPACK", True))
+
+        if self.spec.satisfies("+blas"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_BLAS", True))
+
         return args

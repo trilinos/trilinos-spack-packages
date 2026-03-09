@@ -16,16 +16,26 @@ class TrilinosThyra(TrilinosBaseClass):
     variant("thyratpetraadapters", default=True, description="Enable the ThyraTpetraAdapters subpackage")
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchoscore")
-    depends_on_trilinos_package("trilinos-teuchos")
-    depends_on_trilinos_package("trilinos-teuchosparameterlist")
-    depends_on_trilinos_package("trilinos-teuchoscomm")
-    depends_on_trilinos_package("trilinos-teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist +teuchoscomm +teuchosnumerics")
     depends_on_trilinos_package("trilinos-rtop")
     depends_on_trilinos_package("trilinos-tpetra")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Thyra", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+thyracore"):
+            args.append(self.define("Trilinos_ENABLE_ThyraCore", True))
+
+        if self.spec.satisfies("+thyratpetraadapters"):
+            args.append(self.define("Trilinos_ENABLE_ThyraTpetraAdapters", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_RTOp", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+
         return args

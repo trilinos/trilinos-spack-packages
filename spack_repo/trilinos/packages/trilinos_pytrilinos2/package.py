@@ -14,15 +14,22 @@ class TrilinosPyTrilinos2(TrilinosBaseClass):
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-thyra")
-    depends_on_trilinos_package("trilinos-thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
     depends_on_trilinos_package("trilinos-stratimikos")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-muelu")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_PyTrilinos2", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_PyTrilinos2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraTpetraAdapters", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+
         return args

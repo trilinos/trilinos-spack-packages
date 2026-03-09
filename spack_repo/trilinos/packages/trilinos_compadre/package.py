@@ -11,16 +11,27 @@ class TrilinosCompadre(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional TPL variants
+    variant("mpi", default=True, description="Enable mpi support")
+    variant("cuda", default=True, description="Enable cuda support")
+
     # Required package dependencies
     depends_on("kokkos")
     depends_on("kokkos-kernels")
 
     # Optional external (TPL) dependencies
-    depends_on("mpi")
-    depends_on("cuda")
+    depends_on("mpi", when="+mpi")
+    depends_on("cuda", when="+cuda")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Compadre", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Compadre", True))
+
+
+        if self.spec.satisfies("+mpi"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+cuda"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
+
         return args

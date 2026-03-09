@@ -12,14 +12,17 @@ class TrilinosMiniTensor(TrilinosBaseClass):
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchoscore")
-    depends_on_trilinos_package("trilinos-teuchos")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore")
     depends_on("kokkos")
     depends_on("kokkos-kernels")
     depends_on_trilinos_package("trilinos-sacado")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_MiniTensor", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_MiniTensor", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
+
         return args

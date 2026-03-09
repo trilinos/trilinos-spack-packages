@@ -11,6 +11,15 @@ class TrilinosStokhos(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional TPL variants
+    variant("cuda", default=True, description="Enable cuda support")
+    variant("thrust", default=True, description="Enable thrust support")
+    variant("cusparse", default=True, description="Enable cuda support")
+    variant("clp", default=True, description="Enable clp support")
+    variant("glpk", default=True, description="Enable glpk support")
+    variant("boost", default=True, description="Enable boost support")
+    variant("mkl", default=True, description="Enable intel-oneapi-mkl support")
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on("kokkos")
@@ -20,7 +29,7 @@ class TrilinosStokhos(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-anasazi")
     depends_on_trilinos_package("trilinos-sacado")
     depends_on_trilinos_package("trilinos-nox")
-    depends_on_trilinos_package("trilinos-teuchoskokkoscomm")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm")
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-ifpack2")
     depends_on_trilinos_package("trilinos-muelu")
@@ -30,11 +39,61 @@ class TrilinosStokhos(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-xpetra")
 
     # Optional external (TPL) dependencies
-    depends_on("cuda")
-    depends_on("boost")
+    depends_on("cuda", when="+cuda")
+    depends_on("thrust", when="+thrust")
+    depends_on("cuda", when="+cusparse")
+    depends_on("clp", when="+clp")
+    depends_on("glpk", when="+glpk")
+    depends_on("boost", when="+boost")
+    depends_on("intel-oneapi-mkl", when="+mkl")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Stokhos", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Stokhos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Anasazi", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosComm", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
+
+        if self.spec.satisfies("+cuda"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
+
+        if self.spec.satisfies("+thrust"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Thrust", True))
+
+        if self.spec.satisfies("+cusparse"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_CUSPARSE", True))
+
+        if self.spec.satisfies("+clp"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Clp", True))
+
+        if self.spec.satisfies("+glpk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_GLPK", True))
+
+        if self.spec.satisfies("+boost"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
+
+        if self.spec.satisfies("+mkl"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_MKL", True))
+
         return args

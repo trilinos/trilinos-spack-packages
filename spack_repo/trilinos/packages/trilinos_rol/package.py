@@ -11,6 +11,11 @@ class TrilinosROL(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional TPL variants
+    variant("boost", default=True, description="Enable boost support")
+    variant("arrayfirecpu", default=True, description="Enable arrayfire support")
+    variant("eigen", default=True, description="Enable eigen support")
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
 
@@ -28,11 +33,45 @@ class TrilinosROL(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tempus")
 
     # Optional external (TPL) dependencies
-    depends_on("boost")
-    depends_on("eigen")
+    depends_on("boost", when="+boost")
+    depends_on("arrayfire", when="+arrayfirecpu")
+    depends_on("eigen", when="+eigen")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_ROL", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_ROL", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_MiniTensor", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Shards", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tempus", True))
+
+        if self.spec.satisfies("+boost"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
+
+        if self.spec.satisfies("+arrayfirecpu"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_ArrayFireCPU", True))
+
+        if self.spec.satisfies("+eigen"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Eigen", True))
+
         return args

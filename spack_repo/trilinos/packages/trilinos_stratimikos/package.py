@@ -12,17 +12,27 @@ class TrilinosStratimikos(TrilinosBaseClass):
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-thyracore")
-    depends_on_trilinos_package("trilinos-thyra")
+    depends_on_trilinos_package("trilinos-thyra +thyracore")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-amesos2")
     depends_on_trilinos_package("trilinos-belos")
     depends_on_trilinos_package("trilinos-ifpack2")
-    depends_on_trilinos_package("trilinos-thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Stratimikos", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Stratimikos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraTpetraAdapters", True))
+
         return args

@@ -12,9 +12,7 @@ class TrilinosIntrepid2(TrilinosBaseClass):
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchoscore")
-    depends_on_trilinos_package("trilinos-teuchos")
-    depends_on_trilinos_package("trilinos-teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosnumerics")
     depends_on_trilinos_package("trilinos-shards")
     depends_on("kokkos")
 
@@ -23,7 +21,14 @@ class TrilinosIntrepid2(TrilinosBaseClass):
     depends_on("kokkos-kernels")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Intrepid2", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Intrepid2", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Shards", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
+
         return args

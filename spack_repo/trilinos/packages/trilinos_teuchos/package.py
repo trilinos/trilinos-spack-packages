@@ -21,6 +21,12 @@ class TrilinosTeuchos(TrilinosBaseClass):
     variant("teuchoskokkoscompat", default=True, description="Enable the TeuchosKokkosCompat subpackage")
     variant("teuchoskokkoscomm", default=True, description="Enable the TeuchosKokkosComm subpackage")
 
+    # Optional TPL variants
+    variant("boost", default=True, description="Enable boost support")
+    variant("mpi", default=True, description="Enable mpi support")
+    variant("yamlcpp", default=True, description="Enable yaml-cpp support")
+    variant("eigen", default=True, description="Enable eigen support")
+
     # Required package dependencies
     depends_on("kokkos")
 
@@ -32,14 +38,62 @@ class TrilinosTeuchos(TrilinosBaseClass):
     depends_on("lapack")
 
     # Optional external (TPL) dependencies
-    depends_on("boost", when="+teuchoscore")
-    depends_on("mpi", when="+teuchoscore")
-    depends_on("mpi", when="+teuchoskokkoscomm")
-    depends_on("yaml-cpp", when="+teuchosparameterlist")
-    depends_on("eigen", when="+teuchosnumerics")
+    depends_on("boost", when="+boost")
+    depends_on("mpi", when="+mpi")
+    depends_on("yaml-cpp", when="+yamlcpp")
+    depends_on("eigen", when="+eigen")
+
+    # TPL conflicts: subpackages that require an optional TPL
+    conflicts("~boost", when="+teuchoscore")
+    conflicts("~mpi", when="+teuchoscore")
+    conflicts("~mpi", when="+teuchoskokkoscomm")
+    conflicts("~yamlcpp", when="+teuchosparameterlist")
+    conflicts("~eigen", when="+teuchosnumerics")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Teuchos", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+teuchoscore"):
+            args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
+
+        if self.spec.satisfies("+teuchosparser"):
+            args.append(self.define("Trilinos_ENABLE_TeuchosParser", True))
+
+        if self.spec.satisfies("+teuchosparameterlist"):
+            args.append(self.define("Trilinos_ENABLE_TeuchosParameterList", True))
+
+        if self.spec.satisfies("+teuchoscomm"):
+            args.append(self.define("Trilinos_ENABLE_TeuchosComm", True))
+
+        if self.spec.satisfies("+teuchosnumerics"):
+            args.append(self.define("Trilinos_ENABLE_TeuchosNumerics", True))
+
+        if self.spec.satisfies("+teuchosremainder"):
+            args.append(self.define("Trilinos_ENABLE_TeuchosRemainder", True))
+
+        if self.spec.satisfies("+teuchoskokkoscompat"):
+            args.append(self.define("Trilinos_ENABLE_TeuchosKokkosCompat", True))
+
+        if self.spec.satisfies("+teuchoskokkoscomm"):
+            args.append(self.define("Trilinos_ENABLE_TeuchosKokkosComm", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_BLAS", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_LAPACK", True))
+
+        if self.spec.satisfies("+teuchoscomm"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_magistrate", True))
+
+        if self.spec.satisfies("+boost"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
+
+        if self.spec.satisfies("+mpi"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+yamlcpp"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_yamlcpp", True))
+
+        if self.spec.satisfies("+eigen"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Eigen", True))
+
         return args

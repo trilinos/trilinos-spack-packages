@@ -12,7 +12,8 @@ class TrilinosTrilinosBuildStats(TrilinosBaseClass):
     """
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_TrilinosBuildStats", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_TrilinosBuildStats", True))
+
+
         return args

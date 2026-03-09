@@ -12,13 +12,15 @@ class TrilinosRTOp(TrilinosBaseClass):
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchoscore")
-    depends_on_trilinos_package("trilinos-teuchos")
-    depends_on_trilinos_package("trilinos-teuchoscomm")
-    depends_on_trilinos_package("trilinos-teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosnumerics")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_RTOp", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_RTOp", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
+
         return args

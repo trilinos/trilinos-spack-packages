@@ -11,21 +11,40 @@ class TrilinosAnasazi(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional TPL variants
+    variant("mpi", default=True, description="Enable mpi support")
+    variant("tbb", default=True, description="Enable intel-tbb support")
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-thyracore")
-    depends_on_trilinos_package("trilinos-thyra")
+    depends_on_trilinos_package("trilinos-thyra +thyracore")
     depends_on_trilinos_package("trilinos-belos")
 
     # Optional external (TPL) dependencies
-    depends_on("mpi")
-    depends_on("intel-tbb")
+    depends_on("mpi", when="+mpi")
+    depends_on("intel-tbb", when="+tbb")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_Anasazi", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_Anasazi", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+
+        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+mpi"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+tbb"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TBB", True))
+
         return args

@@ -16,7 +16,8 @@ class Trilinosmagistrate(TrilinosBaseClass):
     depends_on("kokkos-kernels")
 
     def cmake_args(self):
-        args = [
-            self.define("Trilinos_ENABLE_magistrate", True),
-        ]
+        args = super().cmake_args()
+        args.append(self.define("Trilinos_ENABLE_magistrate", True))
+
+
         return args
