@@ -19,16 +19,28 @@ def trilinos_variant(variant_name, default, description):
     list_of_trilinos_variants.append(variant_name)
     
 def depends_on_trilinos_package(trilinos_package_spec, when=None):
-    depends_on(trilinos_package_spec, when=when)
+    # Split the spec into package name and any embedded variant conditions
+    # e.g. "trilinos-teuchos +teuchoscore +teuchoscomm" -> name="trilinos-teuchos", embedded="+teuchoscore +teuchoscomm"
+    parts = trilinos_package_spec.split()
+    pkg_name = parts[0]
+    embedded_variants = " ".join(parts[1:])  # e.g. "+teuchoscore +teuchoscomm" or ""
 
-    pkg_name = trilinos_package_spec.split()[0]
+    def _spec(version_or_variant_suffix):
+        s = pkg_name + version_or_variant_suffix
+        if embedded_variants:
+            s += " " + embedded_variants
+        return s
 
     for tril_ver in trilinos_versions:
-        depends_on(f"{pkg_name}@{tril_ver}", when=f"@{tril_ver}")
+        spec = _spec("@" + tril_ver)
+        when_str = "@" + tril_ver + (" " + when if when else "")
+        depends_on(spec, when=when_str)
 
     for t_variant in list_of_trilinos_variants:
-        depends_on(f"{pkg_name}+{t_variant}", when=f"+{t_variant}")
-        depends_on(f"{pkg_name}~{t_variant}", when=f"~{t_variant}")
+        when_plus = "+" + t_variant + (" " + when if when else "")
+        when_tilde = "~" + t_variant + (" " + when if when else "")
+        depends_on(_spec("+" + t_variant), when=when_plus)
+        depends_on(_spec("~" + t_variant), when=when_tilde)
     
 class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     """The Trilinos Project is an effort to develop algorithms and enabling
@@ -44,13 +56,13 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
 
     # ###################### Versions ##########################
     version("jfrye-spack-changes", branch="changes-for-spack")
-    trilinos_versions.append("jfrye-spack-changes")
     #version("master", branch="master")
-    #trilinos_versions.append("master")
     #version("develop", branch="develop")
-    #trilinos_versions.append("develop")
     #version("16.0.0", sha256="46bfc40419ed2aa2db38c144fb8e61d4aa8170eaa654a88d833ba6b92903f309")
-    #trilinos_versions.append("16.0.0")
+    # List of possible trilinos versions.  used to enforce that depends_on_trilinos_package()
+    # all have the same version
+    trilinos_versions.append("master")
+    trilinos_versions.append("develop")
 
     # ###################### Variants ##########################
     variant("tests", default=False, description="Enable build of package's test executables")

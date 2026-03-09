@@ -96,10 +96,13 @@ class _RawPackage:
 # Parser
 # ---------------------------------------------------------------------------
 
-def parse_xml(xml_path: str) -> list[TrilinosPackage]:
+def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
     """
     Parse TrilinosPackageDependencies.xml and return a list of TrilinosPackage
     objects, one per top-level Trilinos package.
+
+    extra_subpackages: optional {subpkg_name: parent_name} for relationships
+    not declared in the XML via ParentPackage (e.g. Zoltan2Core -> Zoltan2).
     """
     tree = ET.parse(xml_path)
     root = tree.getroot()
@@ -154,6 +157,12 @@ def parse_xml(xml_path: str) -> list[TrilinosPackage]:
             lib_req_tpls=_get("LIB_REQUIRED_DEP_TPLS"),
             lib_opt_tpls=_get("LIB_OPTIONAL_DEP_TPLS"),
         )
+
+    # Inject any extra subpackage relationships not present in the XML
+    if extra_subpackages:
+        for sp_name, par_name in extra_subpackages.items():
+            all_subpackage_names.add(sp_name)
+            parent_of[sp_name] = par_name
 
     # ------------------------------------------------------------------
     # Pass 2: determine which packages are top-level.
