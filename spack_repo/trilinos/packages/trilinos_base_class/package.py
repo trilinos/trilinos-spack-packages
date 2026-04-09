@@ -27,8 +27,11 @@ def depends_on_trilinos_package(trilinos_package_spec, when=None):
         depends_on(f"{pkg_name}@{tril_ver}", when=f"@{tril_ver}")
 
     for t_variant in list_of_trilinos_variants:
-        depends_on(f"{pkg_name}+{t_variant}", when=f"+{t_variant}")
-        depends_on(f"{pkg_name}~{t_variant}", when=f"~{t_variant}")
+        depends_on(f"{pkg_name}")
+        conflicts(f"^{pkg_name}+{t_variant}", when=f"~{t_variant}")
+        conflicts(f"^{pkg_name}~{t_variant}", when=f"+{t_variant}")
+        #depends_on(f"{pkg_name}+{t_variant}", when=f"+{t_variant}")
+        #depends_on(f"{pkg_name}~{t_variant}", when=f"~{t_variant}")
     
 class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     """The Trilinos Project is an effort to develop algorithms and enabling
@@ -87,7 +90,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
     trilinos_variant("openmp", default=False, description="use openmp")
     trilinos_variant("explicit-instantiation", default=True, description="use explicit instantiation")
-    trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
+    #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
     kokkos_version="4.6.02"

@@ -22,10 +22,9 @@ class TrilinosPercept(TrilinosBaseClass):
     # Required package dependencies
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on("seacas")
-    depends_on("stk")
-    depends_on_trilinos_package("trilinos-zoltan")
+#    depends_on("stk")
+#    depends_on_trilinos_package("trilinos-zoltan")
 
-    # Optional external (TPL) dependencies
 
     def cmake_args(self):
         args = super().cmake_args()

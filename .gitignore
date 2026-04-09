@@ -5,3 +5,6 @@ spack-env/
 .venv
 results.xml
 build/
+\#*
+Testing/
+*.trash

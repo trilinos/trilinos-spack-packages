@@ -30,7 +30,7 @@ class TrilinosIfpack2(TrilinosBaseClass):
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-xpetra")
-    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
+#    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
     depends_on_trilinos_package("trilinos-amesos2")
     depends_on_trilinos_package("trilinos-shylu-node +shylu-nodebasker +shylu-nodehts +shylu-nodefastilu")
