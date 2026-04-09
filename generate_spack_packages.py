@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 generate_spack_packages.py
 
@@ -569,6 +570,69 @@ def generate_package_py(pkg: TrilinosPackage) -> str:
     return "\n".join(lines)
 
 
+def _remove_cyclic_optional_deps(packages: list) -> list:
+    """Remove optional package deps that would create a cycle.
+
+    Builds a graph of required deps only, then checks each optional dep
+    to see if adding it would create a cycle. If so, drops it and warns.
+    Uses the Spack package name (trilinos-foo) as node identity.
+    """
+    # Map spack name -> TrilinosPackage for packages we generate
+    by_spack: dict[str, object] = {_spack_pkg_name(p.name): p for p in packages}
+
+    def spack_name_of(tribits_dep: str) -> str | None:
+        """Resolve a TriBITS dep name to the spack name of its top-level package."""
+        effective = _SUBPKG_PARENT.get(tribits_dep, tribits_dep)
+        if effective in _EXTERNAL_NAMES:
+            return None  # external, not in our graph
+        return _spack_pkg_name(effective)
+
+    # Build required-only adjacency: spack_name -> set of spack_names
+    req_graph: dict[str, set[str]] = {_spack_pkg_name(p.name): set() for p in packages}
+    for p in packages:
+        src = _spack_pkg_name(p.name)
+        for dep in p.required_package_deps:
+            dst = spack_name_of(dep)
+            if dst and dst in req_graph:
+                req_graph[src].add(dst)
+
+    def has_path(graph: dict, start: str, target: str) -> bool:
+        """Return True if there is a directed path from start to target."""
+        visited = set()
+        stack = [start]
+        while stack:
+            node = stack.pop()
+            if node == target:
+                return True
+            if node in visited:
+                continue
+            visited.add(node)
+            stack.extend(graph.get(node, set()))
+        return False
+
+    # For each package, check optional deps — drop any that would cycle
+    for p in packages:
+        src = _spack_pkg_name(p.name)
+        keep_opt: list[str] = []
+        for dep in p.optional_package_deps:
+            dst = spack_name_of(dep)
+            if dst is None or dst not in req_graph:
+                keep_opt.append(dep)
+                continue
+            # Would adding src->dst create a cycle? Yes if dst can already reach src.
+            if has_path(req_graph, dst, src):
+                print(f"  [cycle] dropping {src} -> {dst} (optional dep creates cycle)")
+                # Also remove from sources dict
+                p.optional_package_sources.pop(dep, None)
+            else:
+                keep_opt.append(dep)
+                # Add to graph so subsequent checks see it
+                req_graph[src].add(dst)
+        p.optional_package_deps[:] = keep_opt
+
+    return packages
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -600,6 +664,9 @@ def main():
     packages = [p for p in packages if p.name not in _EXTERNAL_NAMES]
     print(f"    {len(packages)} top-level packages to generate.")
     print(f"    Externals (skipped): {', '.join(sorted(_EXTERNAL_NAMES))}")
+
+    # Remove optional deps that would create cycles
+    packages = _remove_cyclic_optional_deps(packages)
 
     if args.dry_run:
         for p in packages:
