@@ -20,7 +20,6 @@ class TrilinosNox(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("petsc", default=True, description="Enable petsc support")
     variant("lapack", default=True, description="Enable lapack support")
     variant("blas", default=True, description="Enable blas support")
 
@@ -37,7 +36,6 @@ class TrilinosNox(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tpetra")
 
     # Optional external (TPL) dependencies
-    depends_on("petsc", when="+petsc")
     depends_on("lapack", when="+lapack")
     depends_on("blas", when="+blas")
 
@@ -60,9 +58,6 @@ class TrilinosNox(TrilinosBaseClass):
         args.append(self.define("TRILINOS_TPL_ENABLE_Teko", True))
 
         args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
-
-        if self.spec.satisfies("+petsc"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_PETSC", True))
 
         if self.spec.satisfies("+lapack"):
             args.append(self.define("TRILINOS_TPL_ENABLE_LAPACK", True))

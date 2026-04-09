@@ -20,21 +20,16 @@ class TrilinosPamgen(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("exodusii", default=True, description="Enable exodusii support")
     variant("boost", default=True, description="Enable boost support")
 
 
     # Optional external (TPL) dependencies
-    depends_on("exodusii", when="+exodusii")
     depends_on("boost", when="+boost")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Pamgen", True))
 
-
-        if self.spec.satisfies("+exodusii"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ExodusII", True))
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))

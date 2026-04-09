@@ -19,10 +19,6 @@ class TrilinosAnasazi(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
-    # Optional TPL variants
-    variant("tbb", default=True, description="Enable intel-tbb support")
-
-
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
 
@@ -33,7 +29,6 @@ class TrilinosAnasazi(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
-    depends_on("intel-tbb", when="+tbb")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -51,8 +46,5 @@ class TrilinosAnasazi(TrilinosBaseClass):
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
-
-        if self.spec.satisfies("+tbb"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TBB", True))
 
         return args

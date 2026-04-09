@@ -31,8 +31,6 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
     # Optional TPL variants
     variant("boost", default=True, description="Enable boost support")
-    variant("yamlcpp", default=True, description="Enable yaml-cpp support")
-    variant("eigen", default=True, description="Enable eigen support")
 
 
     # Required package dependencies
@@ -48,15 +46,11 @@ class TrilinosTeuchos(TrilinosBaseClass):
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
     depends_on("mpi", when="+mpi")
-    depends_on("yaml-cpp", when="+yamlcpp")
-    depends_on("eigen", when="+eigen")
 
     # TPL conflicts: subpackages that require an optional TPL
     conflicts("~boost", when="+teuchoscore")
     conflicts("~mpi", when="+teuchoscore")
     conflicts("~mpi", when="+teuchoskokkoscomm")
-    conflicts("~yamlcpp", when="+teuchosparameterlist")
-    conflicts("~eigen", when="+teuchosnumerics")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -97,11 +91,5 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
-
-        if self.spec.satisfies("+yamlcpp"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_yamlcpp", True))
-
-        if self.spec.satisfies("+eigen"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Eigen", True))
 
         return args

@@ -21,8 +21,6 @@ class TrilinosRol(TrilinosBaseClass):
 
     # Optional TPL variants
     variant("boost", default=True, description="Enable boost support")
-    variant("arrayfirecpu", default=True, description="Enable arrayfire support")
-    variant("eigen", default=True, description="Enable eigen support")
 
 
     # Required package dependencies
@@ -43,8 +41,6 @@ class TrilinosRol(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
-    depends_on("arrayfire", when="+arrayfirecpu")
-    depends_on("eigen", when="+eigen")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -76,11 +72,5 @@ class TrilinosRol(TrilinosBaseClass):
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
-
-        if self.spec.satisfies("+arrayfirecpu"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ArrayFireCPU", True))
-
-        if self.spec.satisfies("+eigen"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Eigen", True))
 
         return args

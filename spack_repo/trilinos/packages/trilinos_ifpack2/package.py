@@ -20,9 +20,6 @@ class TrilinosIfpack2(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("hypre", default=True, description="Enable hypre support")
-    variant("cholmod", default=True, description="Enable suite-sparse support")
-    variant("lemon", default=True, description="Enable lemon support")
     variant("metis", default=True, description="Enable metis support")
 
 
@@ -39,9 +36,6 @@ class TrilinosIfpack2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-shylu-node +shylu-nodebasker +shylu-nodehts +shylu-nodefastilu")
 
     # Optional external (TPL) dependencies
-    depends_on("hypre", when="+hypre")
-    depends_on("suite-sparse", when="+cholmod")
-    depends_on("lemon", when="+lemon")
     depends_on("metis", when="+metis")
     depends_on("mpi", when="+mpi")
 
@@ -71,15 +65,6 @@ class TrilinosIfpack2(TrilinosBaseClass):
         args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_NodeHTS", True))
 
         args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_NodeFastILU", True))
-
-        if self.spec.satisfies("+hypre"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_HYPRE", True))
-
-        if self.spec.satisfies("+cholmod"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Cholmod", True))
-
-        if self.spec.satisfies("+lemon"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Lemon", True))
 
         if self.spec.satisfies("+metis"):
             args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))

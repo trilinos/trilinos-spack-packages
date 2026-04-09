@@ -21,19 +21,10 @@ class TrilinosAmesos2(TrilinosBaseClass):
 
     # Optional TPL variants
     variant("superlu", default=True, description="Enable superlu support")
-    variant("superlumt", default=True, description="Enable superlu-mt support")
     variant("superludist", default=True, description="Enable superlu-dist support")
     variant("lapack", default=True, description="Enable lapack support")
-    variant("umfpack", default=True, description="Enable suite-sparse support")
-    variant("pardiso-mkl", default=True, description="Enable intel-oneapi-mkl support")
-    variant("css-mkl", default=True, description="Enable intel-oneapi-mkl support")
     variant("parmetis", default=True, description="Enable parmetis support")
     variant("metis", default=True, description="Enable metis support")
-    variant("cholmod", default=True, description="Enable suite-sparse support")
-    variant("mumps", default=True, description="Enable mumps support")
-    variant("strumpack", default=True, description="Enable strumpack support")
-    variant("cusparse", default=True, description="Enable cuda support")
-    variant("cusolver", default=True, description="Enable cuda support")
 
 
     # Required package dependencies
@@ -48,19 +39,10 @@ class TrilinosAmesos2(TrilinosBaseClass):
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
     depends_on("superlu", when="+superlu")
-    depends_on("superlu-mt", when="+superlumt")
     depends_on("superlu-dist", when="+superludist")
     depends_on("lapack", when="+lapack")
-    depends_on("suite-sparse", when="+umfpack")
-    depends_on("intel-oneapi-mkl", when="+pardiso-mkl")
-    depends_on("intel-oneapi-mkl", when="+css-mkl")
     depends_on("parmetis", when="+parmetis")
     depends_on("metis", when="+metis")
-    depends_on("suite-sparse", when="+cholmod")
-    depends_on("mumps", when="+mumps")
-    depends_on("strumpack", when="+strumpack")
-    depends_on("cuda", when="+cusparse")
-    depends_on("cuda", when="+cusolver")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -82,43 +64,16 @@ class TrilinosAmesos2(TrilinosBaseClass):
         if self.spec.satisfies("+superlu"):
             args.append(self.define("TRILINOS_TPL_ENABLE_SuperLU", True))
 
-        if self.spec.satisfies("+superlumt"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_SuperLUMT", True))
-
         if self.spec.satisfies("+superludist"):
             args.append(self.define("TRILINOS_TPL_ENABLE_SuperLUDist", True))
 
         if self.spec.satisfies("+lapack"):
             args.append(self.define("TRILINOS_TPL_ENABLE_LAPACK", True))
 
-        if self.spec.satisfies("+umfpack"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_UMFPACK", True))
-
-        if self.spec.satisfies("+pardiso-mkl"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_PARDISO_MKL", True))
-
-        if self.spec.satisfies("+css-mkl"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CSS_MKL", True))
-
         if self.spec.satisfies("+parmetis"):
             args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
 
         if self.spec.satisfies("+metis"):
             args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))
-
-        if self.spec.satisfies("+cholmod"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Cholmod", True))
-
-        if self.spec.satisfies("+mumps"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MUMPS", True))
-
-        if self.spec.satisfies("+strumpack"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_STRUMPACK", True))
-
-        if self.spec.satisfies("+cusparse"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUSPARSE", True))
-
-        if self.spec.satisfies("+cusolver"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUSOLVER", True))
 
         return args

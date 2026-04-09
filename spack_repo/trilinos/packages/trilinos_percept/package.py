@@ -19,10 +19,6 @@ class TrilinosPercept(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
-    # Optional TPL variants
-    variant("opennurbs", default=True, description="Enable opennurbs support")
-
-
     # Required package dependencies
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on("seacas")
@@ -30,7 +26,6 @@ class TrilinosPercept(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-zoltan")
 
     # Optional external (TPL) dependencies
-    depends_on("opennurbs", when="+opennurbs")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -38,8 +33,5 @@ class TrilinosPercept(TrilinosBaseClass):
 
         args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
-
-        if self.spec.satisfies("+opennurbs"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_OpenNURBS", True))
 
         return args

@@ -6,6 +6,20 @@ project(TrilinosSpackPackages)
 # Find Python 3 executable, fail if we can't find it via REQUIRED
 find_package (Python3 COMPONENTS Interpreter REQUIRED) 
 
+# Get current git branch (falls back to "nogit" if not available)
+execute_process(
+  COMMAND git -C ${CMAKE_SOURCE_DIR} rev-parse --abbrev-ref HEAD
+  OUTPUT_VARIABLE GIT_BRANCH
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_QUIET
+)
+
+if(NOT GIT_BRANCH)
+  set(GIT_BRANCH "nogit")
+endif()
+
+set(BUILDNAME "Trilinos_Spack_Packages-${GIT_BRANCH}" CACHE STRING "CDash build name" FORCE)
+
 INCLUDE(CTest)
 ENABLE_TESTING()
 
@@ -28,6 +42,7 @@ string(REPLACE "\n" ";" spack_package_names_list "${spack_package_names_list}")
 
 add_pytest_test("spack_version")
 add_pytest_test("spack_list")
+
 add_pytest_test("spack_find")
 
 foreach(package IN LISTS spack_package_names_list)

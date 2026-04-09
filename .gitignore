@@ -1,5 +1,6 @@
 __pycache__
 spack-src/
+spack-env/
 *~
 .venv
 results.xml

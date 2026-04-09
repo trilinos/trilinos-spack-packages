@@ -5,6 +5,7 @@ SPACK_SRC_DIR=$PWD/spack-src
 # Check if the command 'spack' is available
 if command -v spack &> /dev/null; then
     echo "Spack found already installed."
+    which spack
 else
     echo "spack is not setup"
     if [ -d "$SPACK_SRC_DIR" ]; then
