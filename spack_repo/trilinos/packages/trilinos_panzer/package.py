@@ -27,11 +27,6 @@ class TrilinosPanzer(TrilinosBaseClass):
     variant("panzerminiem", default=True, description="Enable the PanzerMiniEM subpackage")
     variant("panzerexpreval", default=True, description="Enable the PanzerExprEval subpackage")
 
-    # Optional TPL variants
-    variant("papi", default=True, description="Enable papi support")
-    variant("camal", default=True, description="Enable camal support")
-
-
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist +teuchosparser")
     depends_on_trilinos_package("trilinos-tpetra +tpetracore")
@@ -62,14 +57,6 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on("mpi")
 
     # Optional external (TPL) dependencies
-    depends_on("papi", when="+papi")
-    depends_on("camal", when="+camal")
-
-    # TPL conflicts: subpackages that require an optional TPL
-    conflicts("~papi", when="+panzerdiscfe")
-    conflicts("~papi", when="+panzerminiem")
-    conflicts("~camal", when="+panzerdiscfe")
-    conflicts("~camal", when="+panzerminiem")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -130,11 +117,5 @@ class TrilinosPanzer(TrilinosBaseClass):
 
         if self.spec.satisfies("+panzerminiem"):
             args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_Node", True))
-
-        if self.spec.satisfies("+papi"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_PAPI", True))
-
-        if self.spec.satisfies("+camal"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CAMAL", True))
 
         return args

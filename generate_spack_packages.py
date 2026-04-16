@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 generate_spack_packages.py
 
@@ -90,21 +89,6 @@ EXTRA_SUBPACKAGES: dict[str, str] = {
     "Zoltan2Sphynx": "Zoltan2",
 }
 
-# TPLs to skip entirely – no depends_on generated, no variants, nothing.
-# Add any TPL here that has no Spack equivalent or should be ignored.
-SKIP_TPLS: set[str] = {
-    "QD",
-    "ARPREC",
-    "QT",
-    "quadmath",
-    "BinUtils",
-    "Valgrind",
-    "HWLOC",
-    "Pthread",
-    "DLlib",
-    "PyTrilinos",
-}
-
 # Variant names already declared as trilinos_variant() in TrilinosBaseClass.
 # Generated packages must not re-declare these — the base class owns them.
 # Update this set whenever trilinos_variant() calls are added to the base class.
@@ -119,8 +103,11 @@ BASE_TRILINOS_VARIANTS: set[str] = {
     "tests",
 }
 
-# TriBITS TPL name → Spack package name.
-TPL_SPACK_MAP: dict[str, str] = {
+# TPL allowlist: only TPLs listed here get variants, depends_on, and cmake args.
+# Any TriBITS TPL not in this dict is silently ignored.
+# Key   = TriBITS TPL name (as it appears in the XML)
+# Value = Spack package name to use in depends_on()
+INCLUDE_TPLS: dict[str, str] = {
     "MPI":          "mpi",
     "BLAS":         "blas",
     "LAPACK":       "lapack",
@@ -136,79 +123,16 @@ TPL_SPACK_MAP: dict[str, str] = {
     "SuperLU":      "superlu",
     "SuperLUDist":  "superlu-dist",
     "SuperLU_Dist": "superlu-dist",
-    "SuperLUMT":    "superlu-mt",
-    "HYPRE":        "hypre",
-    "Hypre":        "hypre",
-    "MUMPS":        "mumps",
     "Scotch":       "scotch",
-    "TBB":          "intel-tbb",
     "CUDA":         "cuda",
-    "CUBLAS":       "cuda",
-    "CUSOLVER":     "cuda",
-    "CUSPARSE":     "cuda",
-    "ROCBLAS":      "rocblas",
-    "ROCSOLVER":    "rocsolver",
-    "ROCSPARSE":    "rocsparse",
-    "Thrust":       "thrust",
     "OpenMP":       "llvm-openmp",
-    "X11":          "libx11",
-    "Eigen":        "eigen",
-    "GLM":          "glm",
     "Gtest":        "googletest",
     "gtest":        "googletest",
     "CGNS":         "cgns",
-    "Matio":        "matio",
     "Kokkos":       "kokkos",
     "KokkosKernels":"kokkos-kernels",
-    "yaml-cpp":     "yaml-cpp",
-    "yamlcpp":      "yaml-cpp",
     "Python":       "python",
-    "PAPI":         "papi",
-    "CAMAL":        "camal",
-    "ADIOS2":       "adios2",
-    "AmgX":         "amgx",
-    "ArrayFireCPU": "arrayfire",
-    "AWSSDK":       "aws-sdk-cpp",
-    "Catalyst2":    "catalyst",
-    "Cereal":       "cereal",
-    "Cholmod":      "suite-sparse",
-    "AMD":          "suite-sparse",
-    "UMFPACK":      "suite-sparse",
-    "Clp":          "clp",
-    "DataWarp":     "datawarp",
-    "ExodusII":     "exodusii",
-    "Faodel":       "faodel",
-    "GLPK":         "glpk",
-    "Lemon":        "lemon",
-    "MKL":          "intel-oneapi-mkl",
-    "CSS_MKL":      "intel-oneapi-mkl",
-    "PARDISO_MKL":  "intel-oneapi-mkl",
-    "mlpack":       "mlpack",
-    "mpi_advance":  "mpi-advance",
-    "OpenNURBS":    "opennurbs",
-    "PaToH":        "patoh",
-    "PETSC":        "petsc",
     "Pnetcdf":      "parallel-netcdf",
-    "PuLP":         "py-pulp",
-    "QTHREAD":      "qthread",
-    "STRUMPACK":    "strumpack",
-    "ViennaCL":     "viennacl",
-    "VTune":        "intel-oneapi-vtune",
-    # No known Spack package
-    "Avatar":       "none",
-    "CDT":          "none",
-    "Cusp":         "none",
-    "ForUQTK":      "none",
-    "MAGMASparse":  "none",   # magma exists but MAGMASparse is a distinct lib
-    "MATLAB":       "none",
-    "MATLABLib":    "none",
-    "MF":           "none",
-    "Nemesis":      "none",   # bundled in SEACAS/ExodusII
-    "OVIS":         "none",
-    "pebbl":        "none",
-    "qpOASES":      "none",
-    "SARMA":        "none",
-    "TopoManager":  "none",
 }
 
 
@@ -227,15 +151,9 @@ def _dep_call(dep_name: str) -> str:
 
 def _tpl_to_spack(tpl_name: str) -> str | None:
     """Map a TriBITS TPL name to its Spack package name.
-
-    Returns None if the TPL is in SKIP_TPLS, unmapped, or mapped to 'none'.
+    Returns None if the TPL is not in the INCLUDE_TPLS allowlist.
     """
-    if tpl_name in SKIP_TPLS:
-        return None
-    spack_name = TPL_SPACK_MAP.get(tpl_name)
-    if spack_name == "none":
-        return None
-    return spack_name
+    return INCLUDE_TPLS.get(tpl_name)
 
 
 def _spack_pkg_name(tribits_name: str) -> str:
@@ -322,8 +240,7 @@ def _header(pkg: TrilinosPackage) -> list[str]:
     # Skip any whose variant name is already declared in TrilinosBaseClass.
     visible_opt_tpls = [
         tpl for tpl in pkg.optional_tpl_deps
-        if tpl not in SKIP_TPLS
-        and _tpl_to_spack(tpl) is not None
+        if _tpl_to_spack(tpl) is not None
         and _tpl_variant_name(tpl) not in BASE_TRILINOS_VARIANTS
     ]
     if visible_opt_tpls:
@@ -505,7 +422,7 @@ def _conflicts(pkg: TrilinosPackage) -> list[str]:
     lines = ["    # TPL conflicts: subpackages that require an optional TPL"]
     any_written = False
     for tpl in pkg.optional_tpl_deps:
-        if tpl in SKIP_TPLS or _tpl_to_spack(tpl) is None:
+        if _tpl_to_spack(tpl) is None:
             continue
 
         tpl_vname = _tpl_variant_name(tpl)
@@ -581,7 +498,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
 
     # ---- Required TPL deps — unconditional TRILINOS_TPL_ENABLE_ --------------
     for tpl in pkg.required_tpl_deps:
-        if tpl in SKIP_TPLS:
+        if _tpl_to_spack(tpl) is None:
             continue
         if tpl not in seen:
             seen.add(tpl)
@@ -619,8 +536,6 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
 
     # ---- Optional TPL deps — conditional TRILINOS_TPL_ENABLE_ ----------------
     for tpl in pkg.optional_tpl_deps:
-        if tpl in SKIP_TPLS:
-            continue
         if _tpl_to_spack(tpl) is None:
             continue
         if tpl in seen:

@@ -20,12 +20,7 @@ class TrilinosStokhos(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("thrust", default=True, description="Enable thrust support")
-    variant("cusparse", default=True, description="Enable cuda support")
-    variant("clp", default=True, description="Enable clp support")
-    variant("glpk", default=True, description="Enable glpk support")
     variant("boost", default=True, description="Enable boost support")
-    variant("mkl", default=True, description="Enable intel-oneapi-mkl support")
 
 
     # Required package dependencies
@@ -48,12 +43,7 @@ class TrilinosStokhos(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
     depends_on("cuda", when="+cuda")
-    depends_on("thrust", when="+thrust")
-    depends_on("cuda", when="+cusparse")
-    depends_on("clp", when="+clp")
-    depends_on("glpk", when="+glpk")
     depends_on("boost", when="+boost")
-    depends_on("intel-oneapi-mkl", when="+mkl")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -86,22 +76,7 @@ class TrilinosStokhos(TrilinosBaseClass):
         if self.spec.satisfies("+cuda"):
             args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
 
-        if self.spec.satisfies("+thrust"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Thrust", True))
-
-        if self.spec.satisfies("+cusparse"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUSPARSE", True))
-
-        if self.spec.satisfies("+clp"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Clp", True))
-
-        if self.spec.satisfies("+glpk"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_GLPK", True))
-
         if self.spec.satisfies("+boost"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
-
-        if self.spec.satisfies("+mkl"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MKL", True))
 
         return args

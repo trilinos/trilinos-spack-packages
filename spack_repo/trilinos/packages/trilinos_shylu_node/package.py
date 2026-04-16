@@ -26,18 +26,9 @@ class TrilinosShyluNode(TrilinosBaseClass):
     variant("shylu-nodefastilu", default=True, description="Enable the ShyLU_NodeFastILU subpackage")
 
     # Optional TPL variants
-    variant("mkl", default=True, description="Enable intel-oneapi-mkl support")
     variant("blas", default=True, description="Enable blas support")
     variant("metis", default=True, description="Enable metis support")
     variant("lapack", default=True, description="Enable lapack support")
-    variant("qthread", default=True, description="Enable qthread support")
-    variant("vtune", default=True, description="Enable intel-oneapi-vtune support")
-    variant("cusolver", default=True, description="Enable cuda support")
-    variant("cusparse", default=True, description="Enable cuda support")
-    variant("cublas", default=True, description="Enable cuda support")
-    variant("rocsolver", default=True, description="Enable rocsolver support")
-    variant("rocblas", default=True, description="Enable rocblas support")
-    variant("rocsparse", default=True, description="Enable rocsparse support")
     variant("scotch", default=True, description="Enable scotch support")
 
 
@@ -50,40 +41,19 @@ class TrilinosShyluNode(TrilinosBaseClass):
     depends_on("kokkos-kernels", when="+shylu-nodehts")
 
     # Optional external (TPL) dependencies
-    depends_on("intel-oneapi-mkl", when="+mkl")
     depends_on("blas", when="+blas")
     depends_on("metis", when="+metis")
     depends_on("lapack", when="+lapack")
-    depends_on("qthread", when="+qthread")
-    depends_on("intel-oneapi-vtune", when="+vtune")
-    depends_on("cuda", when="+cusolver")
-    depends_on("cuda", when="+cusparse")
-    depends_on("cuda", when="+cublas")
     depends_on("cuda", when="+cuda")
-    depends_on("rocsolver", when="+rocsolver")
-    depends_on("rocblas", when="+rocblas")
-    depends_on("rocsparse", when="+rocsparse")
     depends_on("scotch", when="+scotch")
 
     # TPL conflicts: subpackages that require an optional TPL
-    conflicts("~mkl", when="+shylu-nodehts")
-    conflicts("~mkl", when="+shylu-nodetacho")
-    conflicts("~mkl", when="+shylu-nodebasker")
     conflicts("~blas", when="+shylu-nodehts")
     conflicts("~blas", when="+shylu-nodetacho")
     conflicts("~metis", when="+shylu-nodetacho")
     conflicts("~metis", when="+shylu-nodebasker")
     conflicts("~lapack", when="+shylu-nodetacho")
-    conflicts("~qthread", when="+shylu-nodetacho")
-    conflicts("~vtune", when="+shylu-nodetacho")
-    conflicts("~vtune", when="+shylu-nodebasker")
-    conflicts("~cusolver", when="+shylu-nodetacho")
-    conflicts("~cusparse", when="+shylu-nodetacho")
-    conflicts("~cublas", when="+shylu-nodetacho")
     conflicts("~cuda", when="+shylu-nodetacho")
-    conflicts("~rocsolver", when="+shylu-nodetacho")
-    conflicts("~rocblas", when="+shylu-nodetacho")
-    conflicts("~rocsparse", when="+shylu-nodetacho")
     conflicts("~scotch", when="+shylu-nodebasker")
 
     def cmake_args(self):
@@ -105,9 +75,6 @@ class TrilinosShyluNode(TrilinosBaseClass):
         args.append(self.define("TRILINOS_TPL_ENABLE_TrilinosSS", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
 
-        if self.spec.satisfies("+mkl"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MKL", True))
-
         if self.spec.satisfies("+blas"):
             args.append(self.define("TRILINOS_TPL_ENABLE_BLAS", True))
 
@@ -117,32 +84,8 @@ class TrilinosShyluNode(TrilinosBaseClass):
         if self.spec.satisfies("+lapack"):
             args.append(self.define("TRILINOS_TPL_ENABLE_LAPACK", True))
 
-        if self.spec.satisfies("+qthread"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_QTHREAD", True))
-
-        if self.spec.satisfies("+vtune"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_VTune", True))
-
-        if self.spec.satisfies("+cusolver"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUSOLVER", True))
-
-        if self.spec.satisfies("+cusparse"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUSPARSE", True))
-
-        if self.spec.satisfies("+cublas"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUBLAS", True))
-
         if self.spec.satisfies("+cuda"):
             args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
-
-        if self.spec.satisfies("+rocsolver"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ROCSOLVER", True))
-
-        if self.spec.satisfies("+rocblas"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ROCBLAS", True))
-
-        if self.spec.satisfies("+rocsparse"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ROCSPARSE", True))
 
         if self.spec.satisfies("+scotch"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Scotch", True))

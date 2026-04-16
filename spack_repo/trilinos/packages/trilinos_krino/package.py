@@ -21,7 +21,6 @@ class TrilinosKrino(TrilinosBaseClass):
 
     # Optional TPL variants
     variant("parmetis", default=True, description="Enable parmetis support")
-    variant("yamlcpp", default=True, description="Enable yaml-cpp support")
 
 
     # Required package dependencies
@@ -36,7 +35,6 @@ class TrilinosKrino(TrilinosBaseClass):
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
     depends_on("parmetis", when="+parmetis")
-    depends_on("yaml-cpp", when="+yamlcpp")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -51,8 +49,5 @@ class TrilinosKrino(TrilinosBaseClass):
 
         if self.spec.satisfies("+parmetis"):
             args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
-
-        if self.spec.satisfies("+yamlcpp"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_yamlcpp", True))
 
         return args

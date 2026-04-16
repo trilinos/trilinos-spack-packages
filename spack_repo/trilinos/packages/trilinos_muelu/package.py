@@ -21,11 +21,6 @@ class TrilinosMuelu(TrilinosBaseClass):
 
     # Optional TPL variants
     variant("boost", default=True, description="Enable boost support")
-    variant("amgx", default=True, description="Enable amgx support")
-    variant("viennacl", default=True, description="Enable viennacl support")
-    variant("mkl", default=True, description="Enable intel-oneapi-mkl support")
-    variant("cusparse", default=True, description="Enable cuda support")
-    variant("mlpack", default=True, description="Enable mlpack support")
 
 
     # Required package dependencies
@@ -42,7 +37,7 @@ class TrilinosMuelu(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-ifpack2")
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on_trilinos_package("trilinos-zoltan")
-    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
+#    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
     depends_on_trilinos_package("trilinos-stratimikos")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
 
@@ -52,11 +47,6 @@ class TrilinosMuelu(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
-    depends_on("amgx", when="+amgx")
-    depends_on("viennacl", when="+viennacl")
-    depends_on("intel-oneapi-mkl", when="+mkl")
-    depends_on("cuda", when="+cusparse")
-    depends_on("mlpack", when="+mlpack")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -92,20 +82,5 @@ class TrilinosMuelu(TrilinosBaseClass):
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
-
-        if self.spec.satisfies("+amgx"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_AmgX", True))
-
-        if self.spec.satisfies("+viennacl"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ViennaCL", True))
-
-        if self.spec.satisfies("+mkl"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MKL", True))
-
-        if self.spec.satisfies("+cusparse"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUSPARSE", True))
-
-        if self.spec.satisfies("+mlpack"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_mlpack", True))
 
         return args

@@ -25,11 +25,8 @@ class TrilinosZoltan2(TrilinosBaseClass):
 
     # Optional TPL variants
     variant("metis", default=True, description="Enable metis support")
-    variant("patoh", default=True, description="Enable patoh support")
     variant("parmetis", default=True, description="Enable parmetis support")
-    variant("pulp", default=True, description="Enable py-pulp support")
     variant("scotch", default=True, description="Enable scotch support")
-    variant("amd", default=True, description="Enable suite-sparse support")
 
 
     # Required package dependencies
@@ -47,19 +44,13 @@ class TrilinosZoltan2(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
     depends_on("metis", when="+metis")
-    depends_on("patoh", when="+patoh")
     depends_on("parmetis", when="+parmetis")
-    depends_on("py-pulp", when="+pulp")
     depends_on("scotch", when="+scotch")
-    depends_on("suite-sparse", when="+amd")
 
     # TPL conflicts: subpackages that require an optional TPL
     conflicts("~metis", when="+zoltan2core")
-    conflicts("~patoh", when="+zoltan2core")
     conflicts("~parmetis", when="+zoltan2core")
-    conflicts("~pulp", when="+zoltan2core")
     conflicts("~scotch", when="+zoltan2core")
-    conflicts("~amd", when="+zoltan2core")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -91,19 +82,10 @@ class TrilinosZoltan2(TrilinosBaseClass):
         if self.spec.satisfies("+metis"):
             args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))
 
-        if self.spec.satisfies("+patoh"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_PaToH", True))
-
         if self.spec.satisfies("+parmetis"):
             args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
 
-        if self.spec.satisfies("+pulp"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_PuLP", True))
-
         if self.spec.satisfies("+scotch"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Scotch", True))
-
-        if self.spec.satisfies("+amd"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_AMD", True))
 
         return args

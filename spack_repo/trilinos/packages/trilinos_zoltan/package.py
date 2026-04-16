@@ -22,7 +22,6 @@ class TrilinosZoltan(TrilinosBaseClass):
     # Optional TPL variants
     variant("metis", default=True, description="Enable metis support")
     variant("parmetis", default=True, description="Enable parmetis support")
-    variant("patoh", default=True, description="Enable patoh support")
     variant("scotch", default=True, description="Enable scotch support")
     variant("zlib", default=True, description="Enable zlib-api support")
 
@@ -31,7 +30,6 @@ class TrilinosZoltan(TrilinosBaseClass):
     depends_on("mpi", when="+mpi")
     depends_on("metis", when="+metis")
     depends_on("parmetis", when="+parmetis")
-    depends_on("patoh", when="+patoh")
     depends_on("scotch", when="+scotch")
     depends_on("zlib-api", when="+zlib")
 
@@ -48,9 +46,6 @@ class TrilinosZoltan(TrilinosBaseClass):
 
         if self.spec.satisfies("+parmetis"):
             args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
-
-        if self.spec.satisfies("+patoh"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_PaToH", True))
 
         if self.spec.satisfies("+scotch"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Scotch", True))

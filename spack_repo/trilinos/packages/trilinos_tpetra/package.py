@@ -23,12 +23,6 @@ class TrilinosTpetra(TrilinosBaseClass):
     variant("tpetratsqr", default=True, description="Enable the TpetraTSQR subpackage")
     variant("tpetracore", default=True, description="Enable the TpetraCore subpackage")
 
-    # Optional TPL variants
-    variant("cublas", default=True, description="Enable cuda support")
-    variant("cusolver", default=True, description="Enable cuda support")
-    variant("mpi-advance", default=True, description="Enable mpi-advance support")
-
-
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat +teuchoskokkoscomm")
     depends_on("kokkos")
@@ -38,18 +32,12 @@ class TrilinosTpetra(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+tpetracore")
 
     # Optional external (TPL) dependencies
-    depends_on("cuda", when="+cublas")
-    depends_on("cuda", when="+cusolver")
     depends_on("mpi", when="+mpi")
     depends_on("cuda", when="+cuda")
-    depends_on("mpi-advance", when="+mpi-advance")
 
     # TPL conflicts: subpackages that require an optional TPL
-    conflicts("~cublas", when="+tpetratsqr")
-    conflicts("~cusolver", when="+tpetratsqr")
     conflicts("~mpi", when="+tpetracore")
     conflicts("~cuda", when="+tpetracore")
-    conflicts("~mpi-advance", when="+tpetracore")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -68,19 +56,10 @@ class TrilinosTpetra(TrilinosBaseClass):
         if self.spec.satisfies("+tpetracore"):
             args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
 
-        if self.spec.satisfies("+cublas"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUBLAS", True))
-
-        if self.spec.satisfies("+cusolver"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUSOLVER", True))
-
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
 
         if self.spec.satisfies("+cuda"):
             args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
-
-        if self.spec.satisfies("+mpi-advance"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_mpi_advance", True))
 
         return args
