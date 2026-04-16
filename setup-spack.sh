@@ -39,3 +39,6 @@ fi
 
 unset repo_ls_out
 
+spack load python
+spack load py-pytest
+spack load cmake
