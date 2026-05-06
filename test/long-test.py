@@ -53,4 +53,11 @@ def test_spack_spec(packageName):
     print(result)
     assert result.returncode == 0
 
+@pytest.mark.parametrize("packageName", trilinos_packages, ids=trilinos_packages)
+def test_spack_install(packageName):
+    """Test spack spec works on the packages."""
+    result = run_spack_command(f"install {packageName}")
+    print(result)
+    assert result.returncode == 0
+
 # Add more tests as needed
