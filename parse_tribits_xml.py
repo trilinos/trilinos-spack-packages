@@ -253,16 +253,32 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
                     names.append(top)
             return names
 
-        # Collect all required first across all members so required wins dedup
-        for m in members:
-            for dep in m.lib_req_pkgs:
-                for n in _dep_names(dep):
-                    if n != name and n not in seen_req_pkg:
-                        seen_req_pkg.add(n)
-                        req_pkgs.append(n)
-
         # Maps optional package dep → list of subpackage names that introduced it
         opt_pkg_sources: dict[str, list[str]] = {}
+
+        # Collect all required first across all members so required wins dedup.
+        # NOTE: required deps from a subpackage are only needed when that
+        # subpackage is enabled, so they are collected as optional with the
+        # subpackage as source rather than unconditionally required.
+        for m in members:
+            is_subpkg = (m.name != name)
+            for dep in m.lib_req_pkgs:
+                for n in _dep_names(dep):
+                    if n == name:
+                        continue
+                    if is_subpkg:
+                        # treat as optional, gated on the subpackage variant
+                        if n not in seen_req_pkg:
+                            if n not in seen_opt_pkg:
+                                seen_opt_pkg.add(n)
+                                opt_pkgs.append(n)
+                            opt_pkg_sources.setdefault(n, [])
+                            if m.name not in opt_pkg_sources[n]:
+                                opt_pkg_sources[n].append(m.name)
+                    else:
+                        if n not in seen_req_pkg:
+                            seen_req_pkg.add(n)
+                            req_pkgs.append(n)
 
         for m in members:
             for dep in m.lib_opt_pkgs:
@@ -271,8 +287,7 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
                         if n not in seen_opt_pkg:
                             seen_opt_pkg.add(n)
                             opt_pkgs.append(n)
-                            opt_pkg_sources[n] = []
-                        opt_pkg_sources[n].append(m.name)
+                        opt_pkg_sources.setdefault(n, []).append(m.name)
 
         packages.append(TrilinosPackage(
             name=name,
