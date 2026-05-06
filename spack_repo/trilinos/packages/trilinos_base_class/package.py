@@ -48,6 +48,8 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     # ###################### Versions ##########################
     version("jfrye-spack-changes", branch="changes-for-spack")
     trilinos_versions.append("jfrye-spack-changes")
+    version("develop", branch="develop")
+    trilinos_versions.append("develop")
     #version("master", branch="master")
     #trilinos_versions.append("master")
     #version("develop", branch="develop")
@@ -60,8 +62,8 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
 
     variant(
         "cxxstd",
-        values=("17", "20"),
-        default="17",
+        values=("20", "23"),
+        default="20",
         multi=False,
         description="C++ standard to use when building",
     )
@@ -93,9 +95,9 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
-    kokkos_version="4.6.02"
-    #with when ("^kokkos"):
-    #    depends_on(f"kokkos@{kokkos_version}")
+    kokkos_version="5.0.2"
+    with when ("^kokkos"):
+        depends_on(f"kokkos@{kokkos_version}")
     #depends_on("blas")
     #depends_on("lapack")
     #depends_on("kokkos@4.6.02")
@@ -113,8 +115,8 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
 
     def generated_trilinos_base_cmake_args(self):
         args = []
-        args.append("-DTPL_ENABLE_Kokkos=ON")
-        args.append("-DTPL_ENABLE_KokkosKernels=ON")
+        #args.append("-DTPL_ENABLE_Kokkos=ON")
+        #args.append("-DTPL_ENABLE_KokkosKernels=ON")
 
         # Depricated Packages
         args.append("-DTrilinos_ENABLE_AztecOO=OFF")
@@ -137,7 +139,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
         args.append(self.define_from_variant("CMAKE_CXX_STANDARD", "cxxstd"))
         args.append(self.define_from_variant("Trilinos_ENABLE_OpenMP", "openmp"))
         args.append(self.define_from_variant("Trilinos_ENABLE_EXPLICIT_INSTANTIATION", "explicit-instantiation"))
-        args.append(self.define_from_variant("Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES", "all-optional-packages"))
+        #args.append(self.define_from_variant("Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES", "all-optional-packages"))
         #args.append(self.define_from_variant("TPL_ENABLE_MPI", "mpi"))
         
         if "^openblas" in self.spec:
