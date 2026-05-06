@@ -37,7 +37,7 @@ class TrilinosMuelu(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-ifpack2")
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on_trilinos_package("trilinos-zoltan")
-#    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
+    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
     depends_on_trilinos_package("trilinos-stratimikos")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
 

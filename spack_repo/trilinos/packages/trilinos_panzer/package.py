@@ -37,7 +37,7 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-sacado")
     depends_on_trilinos_package("trilinos-thyra +thyracore +thyratpetraadapters")
     depends_on_trilinos_package("trilinos-zoltan")
-    depends_on("stk")
+    depends_on_trilinos_package("trilinos-stk +stkutil +stktools +stktopology +stkmesh +stkio")
     depends_on_trilinos_package("trilinos-stratimikos")
     depends_on_trilinos_package("trilinos-piro")
     depends_on_trilinos_package("trilinos-nox")
@@ -46,7 +46,7 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-muelu")
 
     # Optional package dependencies
-    depends_on("stk", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-stk +stksearch", when="+panzeradaptersstk")
     depends_on("seacas", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-percept", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-ifpack2", when="+panzeradaptersstk")
@@ -94,6 +94,12 @@ class TrilinosPanzer(TrilinosBaseClass):
         args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_ThyraTpetraAdapters", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKUtil", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STK", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKTools", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKTopology", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKMesh", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKIO", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_Piro", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
@@ -102,6 +108,9 @@ class TrilinosPanzer(TrilinosBaseClass):
         args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParser", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_STKSearch", True))
 
         if self.spec.satisfies("+panzeradaptersstk"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Percept", True))

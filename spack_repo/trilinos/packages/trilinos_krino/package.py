@@ -25,7 +25,7 @@ class TrilinosKrino(TrilinosBaseClass):
 
     # Required package dependencies
     depends_on("seacas")
-    depends_on("stk")
+    depends_on_trilinos_package("trilinos-stk +stkbalance +stkexpreval +stkmath +stkio +stksearch +stktopology +stkutil +stktools +stkemend")
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on_trilinos_package("trilinos-sacado")
 
@@ -40,6 +40,16 @@ class TrilinosKrino(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Krino", True))
 
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKBalance", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STK", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKExprEval", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKMath", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKIO", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKSearch", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKTopology", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKUtil", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKTools", True))
+        args.append(self.define("TRILINOS_TPL_ENABLE_STKEmend", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))

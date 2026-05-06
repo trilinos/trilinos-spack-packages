@@ -73,7 +73,6 @@ def _pkg_dep_spec(dep_name: str) -> tuple[str, str | None]:
 EXTERNAL_PACKAGES: dict[str, str] = {
     "Kokkos":        "kokkos",
     "KokkosKernels": "kokkos-kernels",
-    "STK":           "stk",
     "SEACAS":        "seacas",
 }
 
