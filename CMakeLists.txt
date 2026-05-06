@@ -52,3 +52,7 @@ endforeach()
 foreach(package IN LISTS spack_package_names_list)
     add_pytest_test("spack_spec[${package}]")
 endforeach()
+
+foreach(package IN LISTS spack_package_names_list)
+    add_pytest_test("spack_install[${package}]")
+endforeach()
