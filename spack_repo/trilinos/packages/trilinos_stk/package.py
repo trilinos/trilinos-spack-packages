@@ -48,15 +48,21 @@ class TrilinosStk(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
-    # Required package dependencies
-    depends_on("kokkos")
-    depends_on_trilinos_package("trilinos-shards")
-    depends_on("seacas")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist")
-    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
-
     # Optional package dependencies
+    depends_on("kokkos", when="+stkutil")
+    depends_on("kokkos", when="+stkmath")
+    depends_on("kokkos", when="+stksimd")
+    depends_on("kokkos", when="+stkngp-test")
+    depends_on("kokkos", when="+stkexpreval")
+    depends_on("kokkos", when="+stksearch")
+    depends_on("kokkos", when="+stkmesh")
+    depends_on_trilinos_package("trilinos-shards", when="+stkmesh")
+    depends_on("seacas", when="+stkio")
+    depends_on("seacas", when="+stkbalance")
     depends_on("seacas", when="+stkutil")
+    depends_on("seacas", when="+stktools")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist", when="+stkbalance")
+    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core", when="+stkbalance")
     depends_on_trilinos_package("trilinos-intrepid2", when="+stksearchutil")
 
     # Required external (TPL) dependencies
@@ -64,6 +70,9 @@ class TrilinosStk(TrilinosBaseClass):
     depends_on("googletest")
     depends_on("lapack")
     depends_on("blas")
+
+    # added by hand
+    depends_on("cdt")
 
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
@@ -144,16 +153,29 @@ class TrilinosStk(TrilinosBaseClass):
         if self.spec.satisfies("+stkperformance-tests"):
             args.append(self.define("Trilinos_ENABLE_STKPerformance_tests", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Shards", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2Core", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+        args.append(self.define("TPL_ENABLE_MPI", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_gtest", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_LAPACK", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_BLAS", True))
+
+        if self.spec.satisfies("+stkmesh"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Shards", True))
+
+        if self.spec.satisfies("+stkbalance"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+
+        if self.spec.satisfies("+stkbalance"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+stkbalance"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
+
+        if self.spec.satisfies("+stkbalance"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2Core", True))
+
+        if self.spec.satisfies("+stkbalance"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2", True))
 
         if self.spec.satisfies("+stksearchutil"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))

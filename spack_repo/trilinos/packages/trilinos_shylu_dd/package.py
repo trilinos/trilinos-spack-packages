@@ -23,15 +23,13 @@ class TrilinosShyluDd(TrilinosBaseClass):
     variant("shylu-ddfrosch", default=True, description="Enable the ShyLU_DDFROSch subpackage")
     variant("shylu-ddcommon", default=True, description="Enable the ShyLU_DDCommon subpackage")
 
-    # Required package dependencies
-    depends_on_trilinos_package("trilinos-amesos2")
-    depends_on_trilinos_package("trilinos-teuchos")
-    depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-xpetra")
-    depends_on("kokkos")
-    depends_on("kokkos-kernels")
-
     # Optional package dependencies
+    depends_on_trilinos_package("trilinos-amesos2", when="+shylu-ddfrosch")
+    depends_on_trilinos_package("trilinos-teuchos", when="+shylu-ddfrosch")
+    depends_on_trilinos_package("trilinos-tpetra", when="+shylu-ddfrosch")
+    depends_on_trilinos_package("trilinos-xpetra", when="+shylu-ddfrosch")
+    depends_on("kokkos", when="+shylu-ddfrosch")
+    depends_on("kokkos-kernels", when="+shylu-ddfrosch")
     depends_on_trilinos_package("trilinos-belos", when="+shylu-ddfrosch")
     depends_on_trilinos_package("trilinos-ifpack2", when="+shylu-ddfrosch")
     depends_on_trilinos_package("trilinos-muelu", when="+shylu-ddfrosch")
@@ -52,11 +50,21 @@ class TrilinosShyluDd(TrilinosBaseClass):
         if self.spec.satisfies("+shylu-ddcommon"):
             args.append(self.define("Trilinos_ENABLE_ShyLU_DDCommon", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+        #by hand
+        args.append(self.define("TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+shylu-ddfrosch"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
+
+        if self.spec.satisfies("+shylu-ddfrosch"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+shylu-ddfrosch"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+shylu-ddfrosch"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
             args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))

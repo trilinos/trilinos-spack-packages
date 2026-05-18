@@ -23,6 +23,7 @@ class TrilinosMinitensor(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-teuchos +teuchoscore")
     depends_on("kokkos")
     depends_on("kokkos-kernels")
+    depends_on("googletest")
     depends_on_trilinos_package("trilinos-sacado")
 
     def cmake_args(self):

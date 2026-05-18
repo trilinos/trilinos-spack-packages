@@ -33,10 +33,10 @@ class TrilinosTeuchos(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
-    # Required package dependencies
-    depends_on("kokkos")
-
     # Optional package dependencies
+    depends_on("kokkos", when="+teuchoskokkoscompat")
+    depends_on("kokkos", when="+teuchoskokkoscomm")
+    depends_on("kokkos", when="+teuchoscore")
     depends_on_trilinos_package("trilinos-magistrate", when="+teuchoscomm")
 
     # Required external (TPL) dependencies

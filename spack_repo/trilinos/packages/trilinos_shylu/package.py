@@ -20,7 +20,7 @@ class TrilinosShylu(TrilinosBaseClass):
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-shylu-dd")
+    depends_on_trilinos_package("trilinos-shylu-dd +shylu-ddfrosch")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-shylu-node")

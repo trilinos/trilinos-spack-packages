@@ -39,6 +39,7 @@ EXECUTE_PROCESS(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 string(REPLACE "\n" ";" spack_package_names_list "${spack_package_names_list}")
+list(REMOVE_ITEM spack_package_names_list trilinos-catalyst-ioss-adapter)
 
 add_pytest_test("spack_version")
 add_pytest_test("spack_list")

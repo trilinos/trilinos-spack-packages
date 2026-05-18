@@ -22,6 +22,7 @@ class TrilinosCompadre(TrilinosBaseClass):
     # Required package dependencies
     depends_on("kokkos")
     depends_on("kokkos-kernels")
+    depends_on("googletest")
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")

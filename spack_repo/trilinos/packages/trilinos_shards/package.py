@@ -18,6 +18,8 @@ class TrilinosShards(TrilinosBaseClass):
 
     Part of the Trilinos Project (https://trilinos.github.io).
     """
+    depends_on("blas")
+    depends_on("lapack")
 
     def cmake_args(self):
         args = super().cmake_args()

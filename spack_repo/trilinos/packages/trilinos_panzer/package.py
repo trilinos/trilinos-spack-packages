@@ -27,26 +27,34 @@ class TrilinosPanzer(TrilinosBaseClass):
     variant("panzerminiem", default=True, description="Enable the PanzerMiniEM subpackage")
     variant("panzerexpreval", default=True, description="Enable the PanzerExprEval subpackage")
 
-    # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist +teuchosparser")
-    depends_on_trilinos_package("trilinos-tpetra +tpetracore")
-    depends_on_trilinos_package("trilinos-shards")
-    depends_on_trilinos_package("trilinos-intrepid2")
-    depends_on_trilinos_package("trilinos-phalanx")
-    depends_on("kokkos")
-    depends_on_trilinos_package("trilinos-sacado")
-    depends_on_trilinos_package("trilinos-thyra +thyracore +thyratpetraadapters")
-    depends_on_trilinos_package("trilinos-zoltan")
-    depends_on_trilinos_package("trilinos-stk +stkutil +stktools +stktopology +stkmesh +stkio")
-    depends_on_trilinos_package("trilinos-stratimikos")
-    depends_on_trilinos_package("trilinos-piro")
-    depends_on_trilinos_package("trilinos-nox")
-    depends_on_trilinos_package("trilinos-belos")
-    depends_on_trilinos_package("trilinos-teko")
-    depends_on_trilinos_package("trilinos-muelu")
-
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-stk +stksearch", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist", when="+panzercore")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm", when="+panzerdofmgr")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist", when="+panzerdiscfe")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-teuchos +teuchosparser", when="+panzerexpreval")
+    depends_on_trilinos_package("trilinos-tpetra +tpetracore", when="+panzercore")
+    depends_on_trilinos_package("trilinos-shards", when="+panzerdofmgr")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+panzerdofmgr")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+panzerdiscfe")
+    depends_on_trilinos_package("trilinos-phalanx", when="+panzerdofmgr")
+    depends_on_trilinos_package("trilinos-phalanx", when="+panzerdiscfe")
+    depends_on_trilinos_package("trilinos-phalanx", when="+panzerminiem")
+    depends_on("kokkos", when="+panzerdiscfe")
+    depends_on("kokkos", when="+panzerexpreval")
+    depends_on_trilinos_package("trilinos-sacado", when="+panzerdiscfe")
+    depends_on_trilinos_package("trilinos-thyra +thyracore +thyratpetraadapters", when="+panzerdiscfe")
+    depends_on_trilinos_package("trilinos-zoltan", when="+panzerdiscfe")
+    depends_on_trilinos_package("trilinos-zoltan", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-stk +stkutil +stktools +stktopology +stkmesh +stkio +stksearch", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-stratimikos", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-piro", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-nox", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-belos", when="+panzerminiem")
+    depends_on_trilinos_package("trilinos-teko", when="+panzerminiem")
+    depends_on_trilinos_package("trilinos-teko", when="+panzeradaptersstk")
+    depends_on_trilinos_package("trilinos-muelu", when="+panzerminiem")
+    depends_on_trilinos_package("trilinos-muelu", when="+panzeradaptersstk")
     depends_on("seacas", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-percept", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-ifpack2", when="+panzeradaptersstk")
@@ -80,34 +88,90 @@ class TrilinosPanzer(TrilinosBaseClass):
         if self.spec.satisfies("+panzerexpreval"):
             args.append(self.define("Trilinos_ENABLE_PanzerExprEval", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TpetraCore", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Shards", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Phalanx", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraTpetraAdapters", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKUtil", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STK", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKTools", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKTopology", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKMesh", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKIO", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Piro", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teko", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParser", True))
         args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+        #by hand
+        args.append(self.define("TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+panzercore") or self.spec.satisfies("+panzerdofmgr") or self.spec.satisfies("+panzerdiscfe") or self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+
+        if self.spec.satisfies("+panzercore") or self.spec.satisfies("+panzerdofmgr") or self.spec.satisfies("+panzerdiscfe") or self.spec.satisfies("+panzeradaptersstk") or self.spec.satisfies("+panzerexpreval"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+panzercore") or self.spec.satisfies("+panzerdofmgr") or self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
+
+        if self.spec.satisfies("+panzercore") or self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
+
+        if self.spec.satisfies("+panzercore"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TpetraCore", True))
+
+        if self.spec.satisfies("+panzercore") or self.spec.satisfies("+panzerdofmgr") or self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+panzerdofmgr"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Shards", True))
+
+        if self.spec.satisfies("+panzerdofmgr") or self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))
+
+        if self.spec.satisfies("+panzerdofmgr") or self.spec.satisfies("+panzerdiscfe") or self.spec.satisfies("+panzerminiem"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Phalanx", True))
+
+        if self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
+
+        if self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
+
+        if self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+panzerdiscfe"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_ThyraTpetraAdapters", True))
+
+        if self.spec.satisfies("+panzerdiscfe") or self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_STKUtil", True))
+
+        if self.spec.satisfies("+panzeradaptersstk") or self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_STK", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_STKTools", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_STKTopology", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_STKMesh", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_STKIO", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Piro", True))
+
+        if self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+
+        if self.spec.satisfies("+panzerminiem"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+panzerminiem") or self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Teko", True))
+
+        if self.spec.satisfies("+panzerminiem") or self.spec.satisfies("+panzeradaptersstk"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+
+        if self.spec.satisfies("+panzerexpreval"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParser", True))
 
         if self.spec.satisfies("+panzeradaptersstk"):
             args.append(self.define("TRILINOS_TPL_ENABLE_STKSearch", True))

@@ -32,12 +32,13 @@ class TrilinosShyluNode(TrilinosBaseClass):
     variant("scotch", default=True, description="Enable scotch support")
 
 
-    # Required package dependencies
-    depends_on("kokkos")
-    depends_on_trilinos_package("trilinos-trilinosss")
-    depends_on_trilinos_package("trilinos-teuchos")
-
     # Optional package dependencies
+    depends_on("kokkos", when="+shylu-nodetacho")
+    depends_on("kokkos", when="+shylu-nodebasker")
+    depends_on("kokkos", when="+shylu-nodefastilu")
+    depends_on_trilinos_package("trilinos-trilinosss", when="+shylu-nodetacho")
+    depends_on_trilinos_package("trilinos-trilinosss", when="+shylu-nodebasker")
+    depends_on_trilinos_package("trilinos-teuchos", when="+shylu-nodebasker")
     depends_on("kokkos-kernels", when="+shylu-nodehts")
 
     # Optional external (TPL) dependencies
@@ -72,8 +73,12 @@ class TrilinosShyluNode(TrilinosBaseClass):
         if self.spec.satisfies("+shylu-nodefastilu"):
             args.append(self.define("Trilinos_ENABLE_ShyLU_NodeFastILU", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_TrilinosSS", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+shylu-nodetacho") or self.spec.satisfies("+shylu-nodebasker"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TrilinosSS", True))
+
+        if self.spec.satisfies("+shylu-nodebasker"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+blas"):
             args.append(self.define("TRILINOS_TPL_ENABLE_BLAS", True))

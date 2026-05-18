@@ -98,6 +98,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     kokkos_version="5.0.2"
     with when ("^kokkos"):
         depends_on(f"kokkos@{kokkos_version}")
+
     #depends_on("blas")
     #depends_on("lapack")
     #depends_on("kokkos@4.6.02")
@@ -140,7 +141,9 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
         args.append(self.define_from_variant("Trilinos_ENABLE_OpenMP", "openmp"))
         args.append(self.define_from_variant("Trilinos_ENABLE_EXPLICIT_INSTANTIATION", "explicit-instantiation"))
         #args.append(self.define_from_variant("Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES", "all-optional-packages"))
-        #args.append(self.define_from_variant("TPL_ENABLE_MPI", "mpi"))
+
+        if "^mpi" in self.spec:
+            args.append(self.define_from_variant("TPL_ENABLE_MPI", "mpi"))
         
         if "^openblas" in self.spec:
             args.append(f"-DBLAS_LIBRARY_NAMES=openblas")

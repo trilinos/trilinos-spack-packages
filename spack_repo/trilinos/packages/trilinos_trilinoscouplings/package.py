@@ -28,6 +28,9 @@ class TrilinosTrilinoscouplings(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-zoltan")
     depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
 
+    #by hand
+    depends_on("netcdf-c")
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_TrilinosCouplings", True))

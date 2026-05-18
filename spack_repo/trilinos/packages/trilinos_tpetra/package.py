@@ -23,13 +23,12 @@ class TrilinosTpetra(TrilinosBaseClass):
     variant("tpetratsqr", default=True, description="Enable the TpetraTSQR subpackage")
     variant("tpetracore", default=True, description="Enable the TpetraCore subpackage")
 
-    # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat +teuchoskokkoscomm")
-    depends_on("kokkos")
-    depends_on("kokkos-kernels")
-
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+tpetracore")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat +teuchoskokkoscomm +teuchosnumerics", when="+tpetracore")
+    depends_on("kokkos", when="+tpetratsqr")
+    depends_on("kokkos", when="+tpetracore")
+    depends_on("kokkos-kernels", when="+tpetratsqr")
+    depends_on("kokkos-kernels", when="+tpetracore")
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
@@ -49,9 +48,15 @@ class TrilinosTpetra(TrilinosBaseClass):
         if self.spec.satisfies("+tpetracore"):
             args.append(self.define("Trilinos_ENABLE_TpetraCore", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosCompat", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosComm", True))
+
+        if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore") or self.spec.satisfies("+tpetracore"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+tpetracore"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosCompat", True))
+
+        if self.spec.satisfies("+tpetracore"):
+            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosComm", True))
 
         if self.spec.satisfies("+tpetracore"):
             args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
