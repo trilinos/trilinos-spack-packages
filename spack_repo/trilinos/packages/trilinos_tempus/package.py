@@ -28,8 +28,8 @@ class TrilinosTempus(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Tempus", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Thyra", True))
+        args.append(self.define("TPL_ENABLE_NOX", True))
 
         return args

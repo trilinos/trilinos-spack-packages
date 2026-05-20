@@ -40,24 +40,24 @@ class TrilinosThyra(TrilinosBaseClass):
 
 
         if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
 
         if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
+            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
 
         if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
+            args.append(self.define("TPL_ENABLE_TeuchosComm", True))
 
         if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
+            args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
 
         if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_RTOp", True))
+            args.append(self.define("TPL_ENABLE_RTOp", True))
 
         if self.spec.satisfies("+thyratpetraadapters"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         return args

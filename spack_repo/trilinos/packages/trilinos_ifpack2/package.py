@@ -26,14 +26,14 @@ class TrilinosIfpack2(TrilinosBaseClass):
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-tpetra")
+    depends_on("kokkos")
     depends_on("kokkos-kernels")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-xpetra")
-    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
+    depends_on_trilinos_package("trilinos-zoltan2core")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
     depends_on_trilinos_package("trilinos-amesos2")
-    depends_on_trilinos_package("trilinos-shylu-node +shylu-nodebasker +shylu-nodehts +shylu-nodefastilu")
 
     # Optional external (TPL) dependencies
     depends_on("metis", when="+metis")
@@ -43,33 +43,25 @@ class TrilinosIfpack2(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
+        args.append(self.define("TPL_ENABLE_Xpetra", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2Core", True))
+        args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2", True))
+        args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraTpetraAdapters", True))
+        args.append(self.define("TPL_ENABLE_Thyra", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_NodeBasker", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_Node", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_NodeHTS", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_NodeFastILU", True))
+        args.append(self.define("TPL_ENABLE_Amesos2", True))
 
         if self.spec.satisfies("+metis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))
+            args.append(self.define("TPL_ENABLE_METIS", True))
 
         if self.spec.satisfies("+mpi"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+            args.append(self.define("TPL_ENABLE_MPI", True))
 
         return args

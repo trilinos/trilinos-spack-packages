@@ -84,10 +84,7 @@ _EXTERNAL_NAMES: set[str] = set(EXTERNAL_PACKAGES.keys())
 # Key   = subpackage TriBITS name
 # Value = parent TriBITS package name
 # These are injected into _SUBPKG_PARENT at startup alongside the XML-derived ones.
-EXTRA_SUBPACKAGES: dict[str, str] = {
-    "Zoltan2Core":   "Zoltan2",
-    "Zoltan2Sphynx": "Zoltan2",
-}
+EXTRA_SUBPACKAGES: dict[str, str] = {}
 
 # Variant names already declared as trilinos_variant() in TrilinosBaseClass.
 # Generated packages must not re-declare these — the base class owns them.
@@ -120,11 +117,11 @@ INCLUDE_TPLS: dict[str, str] = {
     "Parmetis":     "parmetis",
     "Zlib":         "zlib-api",
     "ZLIB":         "zlib-api",
-    "SuperLU":      "superlu",
+    # "SuperLU":      "superlu",  # Disabled - incompatible version
     "SuperLUDist":  "superlu-dist",
     "SuperLU_Dist": "superlu-dist",
     "Scotch":       "scotch",
-    "CUDA":         "cuda",
+    "CDT":          "cdt",
     "OpenMP":       "llvm-openmp",
     "Gtest":        "googletest",
     "gtest":        "googletest",
@@ -133,6 +130,15 @@ INCLUDE_TPLS: dict[str, str] = {
     "KokkosKernels":"kokkos-kernels",
     "Python":       "python",
     "Pnetcdf":      "parallel-netcdf",
+}
+
+# Package exclusion list: optional package dependencies to skip when generating.
+# Use this to exclude broken or incompatible optional dependencies.
+# Format: set of TriBITS package names (as they appear in the XML)
+EXCLUDE_OPTIONAL_PACKAGES: set[str] = {
+    "ShyLU_Node",        # Disabled - header bugs in shylubasker_order_scotch.hpp (line 1225, 1254, 1259, 1283)
+    "ShyLU_NodeBasker",  # Part of ShyLU_Node
+    "ShyLU_NodeTacho",   # Part of ShyLU_Node
 }
 
 
@@ -200,6 +206,10 @@ def _header(pkg: TrilinosPackage) -> list[str]:
     class_name = "".join(
         w.title() for w in f"trilinos_{pkg.name.lower()}".split("_")
     )
+    if class_name == "TrilinosZoltan2Core":
+        class_name = "TrilinosZoltan2core"
+    elif class_name == "TrilinosZoltan2Sphynx":
+        class_name="TrilinosZoltan2sphynx"
 
     lines += [
         "# Copyright Spack Project Developers. See COPYRIGHT file for details.",
@@ -274,8 +284,18 @@ def _required_package_deps(pkg: TrilinosPackage) -> list[str]:
         TeuchosCore + TeuchosComm → depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm")
         Teuchos (bare, already covered above) → suppressed
         Kokkos → depends_on("kokkos")
+
+    Also includes TEST_REQUIRED dependencies that are external packages, since
+    TriBITS will auto-enable them when their Config files are found in CMAKE_PREFIX_PATH.
     """
-    if not pkg.required_package_deps:
+    # Merge test-required external packages into required deps
+    all_required = list(pkg.required_package_deps)
+    for test_dep in pkg.test_required_package_deps:
+        effective = _SUBPKG_PARENT.get(test_dep, test_dep)
+        if effective in EXTERNAL_PACKAGES and test_dep not in all_required:
+            all_required.append(test_dep)
+
+    if not all_required:
         return []
 
     # Group variants by (fn, spack_name), preserving first-seen order
@@ -285,7 +305,7 @@ def _required_package_deps(pkg: TrilinosPackage) -> list[str]:
     variants: dict[tuple[str,str], list[str]] = defaultdict(list)
     bare_parents: set[str] = set()
 
-    for dep in pkg.required_package_deps:
+    for dep in all_required:
         spack_name, variant = _pkg_dep_spec(dep)
         fn = _dep_call(dep)
         key = (fn, spack_name)
@@ -328,6 +348,11 @@ def _optional_package_deps(pkg: TrilinosPackage) -> list[str]:
     bare_parents: set[str] = set()
 
     for dep in pkg.optional_package_deps:
+        # Skip excluded packages
+        effective = _SUBPKG_PARENT.get(dep, dep)
+        if effective in EXCLUDE_OPTIONAL_PACKAGES or dep in EXCLUDE_OPTIONAL_PACKAGES:
+            continue
+
         spack_name, variant = _pkg_dep_spec(dep)
         fn = _dep_call(dep)
         if variant:
@@ -450,13 +475,13 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
     """Render cmake_args.
 
     Self:         Trilinos_ENABLE_<ThisPackage>=ON      (always, unconditional)
-    Every dep:    TRILINOS_TPL_ENABLE_<Name>=ON
+    Every dep:    TPL_ENABLE_<Name>=ON
       - Required deps go in the args=[...] list (unconditional)
       - Optional deps are appended conditionally
       - Externals (Kokkos, STK, SEACAS) and their subpackages are skipped —
         they are not Trilinos cmake knobs
       - For subpackage deps the cmake name is the subpackage itself
-        e.g. TeuchosKokkosComm → TRILINOS_TPL_ENABLE_TeuchosKokkosComm
+        e.g. TeuchosKokkosComm → TPL_ENABLE_TeuchosKokkosComm
       - Optional Trilinos package deps are gated on the subpackage variant(s)
         that introduced them
       - Optional TPL deps are gated on their with-<tpl> variant AND the
@@ -465,12 +490,13 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
     sp_variant_names: set[str] = {_variant_name(sp) for sp in pkg.subpackages}
     seen: set[str] = set()   # cmake names already emitted, for dedup
 
-    def _is_external(dep: str) -> bool:
-        """True if dep is an external package or a subpackage of one."""
-        if dep in EXTERNAL_PACKAGES:
-            return True
-        parent = _SUBPKG_PARENT.get(dep)
-        return parent in EXTERNAL_PACKAGES if parent else False
+    def _pkg_cmake_name(dep: str) -> str:
+        """Return the CMake enable name for a Trilinos package dep.
+
+        Subpackages resolve to themselves (Trilinos_ENABLE_TeuchosCore).
+        Top-level packages resolve to themselves (Trilinos_ENABLE_Kokkos).
+        """
+        return dep
 
     lines: list[str] = [
         "    def cmake_args(self):",
@@ -488,39 +514,57 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             '',
         ]
 
-    # ---- Required package deps — unconditional TRILINOS_TPL_ENABLE_ ----------
+    # ---- Required package deps — TPL_ENABLE_ only (all deps are external) -
     for dep in pkg.required_package_deps:
-        if _is_external(dep):
-            continue
-        if dep not in seen:
-            seen.add(dep)
-            lines.append(f'        args.append(self.define("TRILINOS_TPL_ENABLE_{dep}", True))')
+        cmake_name = _pkg_cmake_name(dep)
+        if cmake_name not in seen:
+            seen.add(cmake_name)
+            # All dependencies (whether external like Kokkos or already-built Trilinos packages)
+            # are treated as TPLs - only the current package gets Trilinos_ENABLE_
+            lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
 
-    # ---- Required TPL deps — unconditional TRILINOS_TPL_ENABLE_ --------------
+    # ---- Test-required external package deps — TPL_ENABLE_ to prevent internal build ----
+    # When test dependencies are external packages (Kokkos, KokkosKernels), TriBITS
+    # auto-enables them when their Config files are found, even with tests disabled.
+    # We must set TPL_ENABLE to treat them as external.
+    for dep in pkg.test_required_package_deps:
+        effective = _SUBPKG_PARENT.get(dep, dep)
+        if effective in EXTERNAL_PACKAGES:
+            cmake_name = _pkg_cmake_name(dep)
+            if cmake_name not in seen:
+                seen.add(cmake_name)
+                lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
+
+    # ---- Required TPL deps — unconditional TPL_ENABLE_ --------------
     for tpl in pkg.required_tpl_deps:
         if _tpl_to_spack(tpl) is None:
             continue
         if tpl not in seen:
             seen.add(tpl)
-            lines.append(f'        args.append(self.define("TRILINOS_TPL_ENABLE_{tpl}", True))')
+            lines.append(f'        args.append(self.define("TPL_ENABLE_{tpl}", True))')
 
     lines.append("")
 
-    # ---- Optional package deps — conditional TRILINOS_TPL_ENABLE_ ------------
+    # ---- Optional package deps — conditional, TPL_ENABLE_ only for externals ----------------
     for dep in pkg.optional_package_deps:
-        if _is_external(dep):
+        # Skip excluded packages
+        effective = _SUBPKG_PARENT.get(dep, dep)
+        if effective in EXCLUDE_OPTIONAL_PACKAGES or dep in EXCLUDE_OPTIONAL_PACKAGES:
             continue
-        if dep in seen:
+
+        cmake_name = _pkg_cmake_name(dep)
+        if cmake_name in seen:
             continue
 
         sources: list[str] = pkg.optional_package_sources.get(dep, [])
         sp_sources = [sp for sp in sources if _variant_name(sp) in sp_variant_names]
         non_sp_sources = [sp for sp in sources if _variant_name(sp) not in sp_variant_names]
 
-        seen.add(dep)
+        # All dependencies are treated as TPLs
+        seen.add(cmake_name)
         if not sp_sources or non_sp_sources:
             lines += [
-                f'        args.append(self.define("TRILINOS_TPL_ENABLE_{dep}", True))',
+                f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
                 '',
             ]
         else:
@@ -530,11 +574,11 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             )
             lines += [
                 f'        if {condition}:',
-                f'            args.append(self.define("TRILINOS_TPL_ENABLE_{dep}", True))',
+                f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
                 '',
             ]
 
-    # ---- Optional TPL deps — conditional TRILINOS_TPL_ENABLE_ ----------------
+    # ---- Optional TPL deps — conditional TPL_ENABLE_ ----------------
     for tpl in pkg.optional_tpl_deps:
         if _tpl_to_spack(tpl) is None:
             continue
@@ -545,7 +589,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         seen.add(tpl)
         lines += [
             f'        if self.spec.satisfies("+{tpl_vname}"):',
-            f'            args.append(self.define("TRILINOS_TPL_ENABLE_{tpl}", True))',
+            f'            args.append(self.define("TPL_ENABLE_{tpl}", True))',
             '',
         ]
 

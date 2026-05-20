@@ -19,83 +19,18 @@ class TrilinosZoltan2(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
-    # Subpackage variants
-    variant("zoltan2core", default=True, description="Enable the Zoltan2Core subpackage")
-    variant("zoltan2sphynx", default=True, description="Enable the Zoltan2Sphynx subpackage")
-
-    # Optional TPL variants
-    variant("metis", default=True, description="Enable metis support")
-    variant("parmetis", default=True, description="Enable parmetis support")
-    variant("scotch", default=True, description="Enable scotch support")
-
+    # Required package dependencies
+    depends_on_trilinos_package("trilinos-zoltan2core")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-tpetra", when="+zoltan2core")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist", when="+zoltan2core")
-    depends_on_trilinos_package("trilinos-xpetra", when="+zoltan2core")
-    depends_on_trilinos_package("trilinos-zoltan", when="+zoltan2core")
-    depends_on_trilinos_package("trilinos-anasazi", when="+zoltan2sphynx")
-    depends_on_trilinos_package("trilinos-belos", when="+zoltan2sphynx")
-    depends_on_trilinos_package("trilinos-galeri", when="+zoltan2sphynx")
-
-    # Optional external (TPL) dependencies
-    depends_on("metis", when="+metis")
-    depends_on("parmetis", when="+parmetis")
-    depends_on("scotch", when="+scotch")
-
-    # TPL conflicts: subpackages that require an optional TPL
-    conflicts("~metis", when="+zoltan2core")
-    conflicts("~parmetis", when="+zoltan2core")
-    conflicts("~scotch", when="+zoltan2core")
+    depends_on_trilinos_package("trilinos-zoltan2sphynx")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Zoltan2", True))
 
-        if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
+        args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        if self.spec.satisfies("+zoltan2sphynx"):
-            args.append(self.define("Trilinos_ENABLE_Zoltan2Sphynx", True))
-
-
-        if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
-
-        if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
-
-        if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-
-        if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
-
-        if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
-
-        if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
-
-        if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
-
-        if self.spec.satisfies("+zoltan2sphynx"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Anasazi", True))
-
-        if self.spec.satisfies("+zoltan2sphynx"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
-
-        if self.spec.satisfies("+zoltan2sphynx"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Galeri", True))
-
-        if self.spec.satisfies("+metis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))
-
-        if self.spec.satisfies("+parmetis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
-
-        if self.spec.satisfies("+scotch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Scotch", True))
+        args.append(self.define("TPL_ENABLE_Zoltan2Sphynx", True))
 
         return args

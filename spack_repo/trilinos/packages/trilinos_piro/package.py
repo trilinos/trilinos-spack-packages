@@ -37,21 +37,21 @@ class TrilinosPiro(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Piro", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teko", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Stratimikos", True))
+        args.append(self.define("TPL_ENABLE_ThyraCore", True))
+        args.append(self.define("TPL_ENABLE_Thyra", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Teko", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+        args.append(self.define("TPL_ENABLE_NOX", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tempus", True))
+        args.append(self.define("TPL_ENABLE_Tempus", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_ROL", True))
+        args.append(self.define("TPL_ENABLE_ROL", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+        args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+        args.append(self.define("TPL_ENABLE_MueLu", True))
 
         return args

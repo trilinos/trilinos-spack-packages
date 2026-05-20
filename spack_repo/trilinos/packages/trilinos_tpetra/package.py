@@ -32,11 +32,9 @@ class TrilinosTpetra(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
-    depends_on("cuda", when="+cuda")
 
     # TPL conflicts: subpackages that require an optional TPL
     conflicts("~mpi", when="+tpetracore")
-    conflicts("~cuda", when="+tpetracore")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -49,22 +47,25 @@ class TrilinosTpetra(TrilinosBaseClass):
             args.append(self.define("Trilinos_ENABLE_TpetraCore", True))
 
 
-        if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore") or self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
+            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosCompat", True))
+            args.append(self.define("TPL_ENABLE_TeuchosKokkosCompat", True))
 
         if self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosComm", True))
+            args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
 
         if self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
+            args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
 
         if self.spec.satisfies("+mpi"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
-
-        if self.spec.satisfies("+cuda"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
+            args.append(self.define("TPL_ENABLE_MPI", True))
 
         return args

@@ -46,6 +46,9 @@ class TrilinosPackage:
     optional_package_deps:    list[str] = field(default_factory=list)
     # Maps optional package dep name → list of subpackage names that introduced it.
     optional_package_sources: dict[str, list[str]] = field(default_factory=dict)
+    # Test-only dependencies (needed when tests are enabled)
+    test_required_package_deps: list[str] = field(default_factory=list)
+    test_required_tpl_deps:     list[str] = field(default_factory=list)
 
     def __repr__(self) -> str:
         lines = [f"TrilinosPackage({self.name!r})"]
@@ -90,6 +93,8 @@ class _RawPackage:
     lib_opt_pkgs:  list[str]
     lib_req_tpls:  list[str]
     lib_opt_tpls:  list[str]
+    test_req_pkgs: list[str] = field(default_factory=list)
+    test_req_tpls: list[str] = field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -156,6 +161,8 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
             lib_opt_pkgs=_get("LIB_OPTIONAL_DEP_PACKAGES"),
             lib_req_tpls=_get("LIB_REQUIRED_DEP_TPLS"),
             lib_opt_tpls=_get("LIB_OPTIONAL_DEP_TPLS"),
+            test_req_pkgs=_get("TEST_REQUIRED_DEP_PACKAGES"),
+            test_req_tpls=_get("TEST_REQUIRED_DEP_TPLS"),
         )
 
     # Inject any extra subpackage relationships not present in the XML
@@ -228,7 +235,8 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
                         opt_tpls.append(t)
                         opt_tpl_sources[t] = []
                     # Record which member (subpackage or parent) introduced this TPL
-                    opt_tpl_sources[t].append(m.name)
+                    if m.name not in opt_tpl_sources[t]:
+                        opt_tpl_sources[t].append(m.name)
 
         # Aggregate intra-Trilinos package deps across all members.
         # If a dep is a sub-package, we record BOTH the sub-package name AND
@@ -287,7 +295,29 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
                         if n not in seen_opt_pkg:
                             seen_opt_pkg.add(n)
                             opt_pkgs.append(n)
-                        opt_pkg_sources.setdefault(n, []).append(m.name)
+                        if m.name not in opt_pkg_sources.setdefault(n, []):
+                            opt_pkg_sources[n].append(m.name)
+
+        # Collect test-required dependencies (packages and TPLs)
+        test_req_pkgs: list[str] = []
+        test_req_tpls: list[str] = []
+        seen_test_pkg: set[str] = set()
+        seen_test_tpl: set[str] = set()
+
+        for m in members:
+            for dep in m.test_req_pkgs:
+                for n in _dep_names(dep):
+                    if n != name and n not in seen_req_pkg and n not in seen_opt_pkg:
+                        if n not in seen_test_pkg:
+                            seen_test_pkg.add(n)
+                            test_req_pkgs.append(n)
+
+        for m in members:
+            for t in m.test_req_tpls:
+                if t not in seen_req_tpl and t not in seen_opt_tpl:
+                    if t not in seen_test_tpl:
+                        seen_test_tpl.add(t)
+                        test_req_tpls.append(t)
 
         packages.append(TrilinosPackage(
             name=name,
@@ -298,6 +328,8 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
             required_package_deps=req_pkgs,
             optional_package_deps=opt_pkgs,
             optional_package_sources=opt_pkg_sources,
+            test_required_package_deps=test_req_pkgs,
+            test_required_tpl_deps=test_req_tpls,
         ))
 
     return packages, dict(parent_of)

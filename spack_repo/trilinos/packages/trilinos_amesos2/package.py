@@ -20,7 +20,6 @@ class TrilinosAmesos2(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("superlu", default=True, description="Enable superlu support")
     variant("superludist", default=True, description="Enable superlu-dist support")
     variant("lapack", default=True, description="Enable lapack support")
     variant("parmetis", default=True, description="Enable parmetis support")
@@ -32,13 +31,12 @@ class TrilinosAmesos2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-trilinosss")
     depends_on("kokkos")
+    depends_on("kokkos-kernels")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-shylu-node +shylu-nodebasker +shylu-nodetacho")
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
-    depends_on("superlu", when="+superlu")
     depends_on("superlu-dist", when="+superludist")
     depends_on("lapack", when="+lapack")
     depends_on("parmetis", when="+parmetis")
@@ -48,32 +46,25 @@ class TrilinosAmesos2(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Amesos2", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TrilinosSS", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_NodeBasker", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_Node", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_ShyLU_NodeTacho", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_TrilinosSS", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+mpi"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
-
-        if self.spec.satisfies("+superlu"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_SuperLU", True))
+            args.append(self.define("TPL_ENABLE_MPI", True))
 
         if self.spec.satisfies("+superludist"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_SuperLUDist", True))
+            args.append(self.define("TPL_ENABLE_SuperLUDist", True))
 
         if self.spec.satisfies("+lapack"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_LAPACK", True))
+            args.append(self.define("TPL_ENABLE_LAPACK", True))
 
         if self.spec.satisfies("+parmetis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
+            args.append(self.define("TPL_ENABLE_ParMETIS", True))
 
         if self.spec.satisfies("+metis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))
+            args.append(self.define("TPL_ENABLE_METIS", True))
 
         return args

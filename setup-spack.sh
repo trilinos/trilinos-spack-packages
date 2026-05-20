@@ -39,6 +39,11 @@ fi
 
 unset repo_ls_out
 
+spack -k install python
+spack -k install py-pytest
+spack -k install cmake
+spack -k install emacs
+
 spack load python
 spack load py-pytest
 spack load cmake

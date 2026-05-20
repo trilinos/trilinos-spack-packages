@@ -8,8 +8,8 @@
 
 SET(CTEST_BUILD_NAME "Trilinos_Spack_Packages")
 SET(CTEST_NIGHTLY_START_TIME 04:00:00 UTC)
-SET(CTEST_DROP_METHOD "https")
-SET(CTEST_DROP_SITE "sems-cdash-son.sandia.gov/cdash")
+SET(CTEST_DROP_METHOD "http")
+SET(CTEST_DROP_SITE "my.cdash.org")
 SET(CTEST_PROJECT_NAME "Trilinos")
 SET(CTEST_DROP_LOCATION "/submit.php?project=Trilinos")
 SET(CTEST_TRIGGER_SITE "")

@@ -42,41 +42,39 @@ class TrilinosStokhos(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-xpetra")
 
     # Optional external (TPL) dependencies
-    depends_on("cuda", when="+cuda")
     depends_on("boost", when="+boost")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Stokhos", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Anasazi", True))
+        args.append(self.define("TPL_ENABLE_Anasazi", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Sacado", True))
+        args.append(self.define("TPL_ENABLE_Sacado", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+        args.append(self.define("TPL_ENABLE_NOX", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosKokkosComm", True))
+        args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+        args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+        args.append(self.define("TPL_ENABLE_MueLu", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+        args.append(self.define("TPL_ENABLE_Belos", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
+        args.append(self.define("TPL_ENABLE_Amesos2", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+        args.append(self.define("TPL_ENABLE_Thyra", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
-
-        if self.spec.satisfies("+cuda"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
+        args.append(self.define("TPL_ENABLE_Xpetra", True))
 
         if self.spec.satisfies("+boost"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
+            args.append(self.define("TPL_ENABLE_Boost", True))
 
         return args

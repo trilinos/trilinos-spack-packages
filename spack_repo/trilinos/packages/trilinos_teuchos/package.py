@@ -80,16 +80,19 @@ class TrilinosTeuchos(TrilinosBaseClass):
         if self.spec.satisfies("+teuchoskokkoscomm"):
             args.append(self.define("Trilinos_ENABLE_TeuchosKokkosComm", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_BLAS", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_LAPACK", True))
+        args.append(self.define("TPL_ENABLE_BLAS", True))
+        args.append(self.define("TPL_ENABLE_LAPACK", True))
+
+        if self.spec.satisfies("+teuchoskokkoscompat") or self.spec.satisfies("+teuchoskokkoscomm") or self.spec.satisfies("+teuchoscore"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+teuchoscomm"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_magistrate", True))
+            args.append(self.define("TPL_ENABLE_magistrate", True))
 
         if self.spec.satisfies("+boost"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
+            args.append(self.define("TPL_ENABLE_Boost", True))
 
         if self.spec.satisfies("+mpi"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+            args.append(self.define("TPL_ENABLE_MPI", True))
 
         return args

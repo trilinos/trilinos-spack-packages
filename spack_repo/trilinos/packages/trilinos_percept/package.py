@@ -20,9 +20,13 @@ class TrilinosPercept(TrilinosBaseClass):
     """
 
     # Required package dependencies
+    depends_on_trilinos_package("trilinos-anasazi")
+    depends_on("kokkos")
     depends_on_trilinos_package("trilinos-intrepid2")
+    depends_on_trilinos_package("trilinos-shards")
     depends_on("seacas")
-    depends_on_trilinos_package("trilinos-stk +stkutil +stkio +stkmesh +stkexpreval +stksearch +stktransfer")
+    depends_on_trilinos_package("trilinos-stk +stkutil +stkio +stkmesh +stkexpreval +stksearch +stktransfer +stktopology")
+    depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-zoltan")
 
     # Optional external (TPL) dependencies
@@ -31,14 +35,21 @@ class TrilinosPercept(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Percept", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Intrepid2", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKUtil", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STK", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKIO", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKMesh", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKExprEval", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKSearch", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_STKTransfer", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
+        args.append(self.define("TPL_ENABLE_Anasazi", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_Intrepid2", True))
+        args.append(self.define("TPL_ENABLE_Shards", True))
+        args.append(self.define("TPL_ENABLE_SEACASIoss", True))
+        args.append(self.define("TPL_ENABLE_SEACAS", True))
+        args.append(self.define("TPL_ENABLE_STKUtil", True))
+        args.append(self.define("TPL_ENABLE_STK", True))
+        args.append(self.define("TPL_ENABLE_STKIO", True))
+        args.append(self.define("TPL_ENABLE_STKMesh", True))
+        args.append(self.define("TPL_ENABLE_STKExprEval", True))
+        args.append(self.define("TPL_ENABLE_STKSearch", True))
+        args.append(self.define("TPL_ENABLE_STKTransfer", True))
+        args.append(self.define("TPL_ENABLE_STKTopology", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Zoltan", True))
 
         return args

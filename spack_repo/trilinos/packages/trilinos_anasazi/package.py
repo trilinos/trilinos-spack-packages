@@ -34,17 +34,17 @@ class TrilinosAnasazi(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Anasazi", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_ThyraCore", True))
+        args.append(self.define("TPL_ENABLE_ThyraCore", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+        args.append(self.define("TPL_ENABLE_Thyra", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+        args.append(self.define("TPL_ENABLE_Belos", True))
 
         if self.spec.satisfies("+mpi"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+            args.append(self.define("TPL_ENABLE_MPI", True))
 
         return args

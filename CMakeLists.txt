@@ -20,17 +20,24 @@ endif()
 
 set(BUILDNAME "Trilinos_Spack_Packages-${GIT_BRANCH}" CACHE STRING "CDash build name" FORCE)
 
+# Disable SSL verification for CDash submission (corporate SSL workaround)
+set(CTEST_CURL_OPTIONS "CURLOPT_SSL_VERIFYPEER;0;CURLOPT_SSL_VERIFYHOST;0" CACHE STRING "Curl options for CTest" FORCE)
+
 INCLUDE(CTest)
 ENABLE_TESTING()
 
 # Set a variable so we can use it later
-set(test_file "long-test.py")
+set(test_file "long_test.py")
 
 find_program(PYTEST_EXEC pytest pytest.exe)
 
 function(add_pytest_test testName)
   add_test(test_${testName} ${PYTEST_EXEC} ${CMAKE_SOURCE_DIR}/test/${test_file} -k ${testName})
   set_property(TEST test_${testName} PROPERTY FAIL_REGULAR_EXPRESSION "FAILED")
+  # Set longer timeout for install tests (3600 seconds = 1 hour)
+  if(testName MATCHES "spack_install")
+    set_property(TEST test_${testName} PROPERTY TIMEOUT 3600)
+  endif()
 endfunction()
 
 EXECUTE_PROCESS(
