@@ -228,7 +228,8 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
                         opt_tpls.append(t)
                         opt_tpl_sources[t] = []
                     # Record which member (subpackage or parent) introduced this TPL
-                    opt_tpl_sources[t].append(m.name)
+                    if m.name not in opt_tpl_sources[t]:
+                        opt_tpl_sources[t].append(m.name)
 
         # Aggregate intra-Trilinos package deps across all members.
         # If a dep is a sub-package, we record BOTH the sub-package name AND
@@ -287,7 +288,8 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
                         if n not in seen_opt_pkg:
                             seen_opt_pkg.add(n)
                             opt_pkgs.append(n)
-                        opt_pkg_sources.setdefault(n, []).append(m.name)
+                        if m.name not in opt_pkg_sources.setdefault(n, []):
+                            opt_pkg_sources[n].append(m.name)
 
         packages.append(TrilinosPackage(
             name=name,
