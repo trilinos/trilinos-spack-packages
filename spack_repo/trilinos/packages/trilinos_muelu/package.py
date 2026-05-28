@@ -53,48 +53,48 @@ class TrilinosMuelu(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_MueLu", True))
 
         args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        #args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("Trilinos_ENABLE_Tpetra", True))
-        args.append(self.define("TPL_ENABLE_Tpetra", True))
+        #args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("Trilinos_ENABLE_Xpetra", True))
-        args.append(self.define("TPL_ENABLE_Xpetra", True))
+        #args.append(self.define("TPL_ENABLE_Xpetra", True))
         args.append(self.define("Trilinos_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
         args.append(self.define("Trilinos_ENABLE_Amesos2", True))
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
+        #args.append(self.define("TPL_ENABLE_Amesos2", True))
         args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
-        args.append(self.define("TPL_ENABLE_Ifpack2", True))
+        #args.append(self.define("TPL_ENABLE_Ifpack2", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
         args.append(self.define("Trilinos_ENABLE_Belos", True))
-        args.append(self.define("TPL_ENABLE_Belos", True))
+        #args.append(self.define("TPL_ENABLE_Belos", True))
 
         args.append(self.define("Trilinos_ENABLE_Teko", True))
-        args.append(self.define("TPL_ENABLE_Teko", True))
+        #args.append(self.define("TPL_ENABLE_Teko", True))
 
         args.append(self.define("Trilinos_ENABLE_Intrepid2", True))
-        args.append(self.define("TPL_ENABLE_Intrepid2", True))
+        #args.append(self.define("TPL_ENABLE_Intrepid2", True))
 
         args.append(self.define("Trilinos_ENABLE_Zoltan", True))
-        args.append(self.define("TPL_ENABLE_Zoltan", True))
+        #args.append(self.define("TPL_ENABLE_Zoltan", True))
 
         args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
-        args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+        #args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
         args.append(self.define("Trilinos_ENABLE_Zoltan2", True))
-        args.append(self.define("TPL_ENABLE_Zoltan2", True))
+        #args.append(self.define("TPL_ENABLE_Zoltan2", True))
 
         args.append(self.define("Trilinos_ENABLE_Stratimikos", True))
-        args.append(self.define("TPL_ENABLE_Stratimikos", True))
+        #args.append(self.define("TPL_ENABLE_Stratimikos", True))
 
         args.append(self.define("Trilinos_ENABLE_Thyra", True))
-        args.append(self.define("TPL_ENABLE_Thyra", True))
+        #args.append(self.define("TPL_ENABLE_Thyra", True))
 
         args.append(self.define("Trilinos_ENABLE_ThyraTpetraAdapters", True))
-        args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+        #args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))

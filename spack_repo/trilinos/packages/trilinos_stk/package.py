@@ -172,59 +172,59 @@ class TrilinosStk(TrilinosBaseClass):
 
         if self.spec.satisfies("+stkmesh"):
             args.append(self.define("Trilinos_ENABLE_Shards", True))
-            args.append(self.define("TPL_ENABLE_Shards", True))
+            #args.append(self.define("TPL_ENABLE_Shards", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_SEACASIoss", True))
-            args.append(self.define("TPL_ENABLE_SEACASIoss", True))
+            #args.append(self.define("TPL_ENABLE_SEACASIoss", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkutil") or self.spec.satisfies("+stktools"):
             args.append(self.define("Trilinos_ENABLE_SEACAS", True))
-            args.append(self.define("TPL_ENABLE_SEACAS", True))
+            #args.append(self.define("TPL_ENABLE_SEACAS", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_SEACASExodus", True))
-            args.append(self.define("TPL_ENABLE_SEACASExodus", True))
+            #args.append(self.define("TPL_ENABLE_SEACASExodus", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
-            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+            #args.append(self.define("TPL_ENABLE_TeuchosCore", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
+            #args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_TeuchosParameterList", True))
-            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
+            #args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
 
         if self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stktools"):
             args.append(self.define("Trilinos_ENABLE_SEACASNemesis", True))
-            args.append(self.define("TPL_ENABLE_SEACASNemesis", True))
+            #args.append(self.define("TPL_ENABLE_SEACASNemesis", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
-            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+            #args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_Zoltan2", True))
-            args.append(self.define("TPL_ENABLE_Zoltan2", True))
+            #args.append(self.define("TPL_ENABLE_Zoltan2", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_Tpetra", True))
-            args.append(self.define("TPL_ENABLE_Tpetra", True))
+            #args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_Zoltan", True))
-            args.append(self.define("TPL_ENABLE_Zoltan", True))
+            #args.append(self.define("TPL_ENABLE_Zoltan", True))
 
         if self.spec.satisfies("+stkutil"):
             args.append(self.define("Trilinos_ENABLE_SEACASAprepro_lib", True))
-            args.append(self.define("TPL_ENABLE_SEACASAprepro_lib", True))
+            #args.append(self.define("TPL_ENABLE_SEACASAprepro_lib", True))
 
         if self.spec.satisfies("+stksearchutil"):
             args.append(self.define("Trilinos_ENABLE_Intrepid2", True))
-            args.append(self.define("TPL_ENABLE_Intrepid2", True))
+            #args.append(self.define("TPL_ENABLE_Intrepid2", True))
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))

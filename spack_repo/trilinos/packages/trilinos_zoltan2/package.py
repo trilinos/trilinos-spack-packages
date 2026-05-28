@@ -71,43 +71,43 @@ class TrilinosZoltan2(TrilinosBaseClass):
 
         if self.spec.satisfies("+zoltan2core"):
             args.append(self.define("Trilinos_ENABLE_Tpetra", True))
-            args.append(self.define("TPL_ENABLE_Tpetra", True))
+            #args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         if self.spec.satisfies("+zoltan2core"):
             args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
-            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+            #args.append(self.define("TPL_ENABLE_TeuchosCore", True))
 
         if self.spec.satisfies("+zoltan2core"):
             args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
+            #args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+zoltan2core"):
             args.append(self.define("Trilinos_ENABLE_TeuchosComm", True))
-            args.append(self.define("TPL_ENABLE_TeuchosComm", True))
+            #args.append(self.define("TPL_ENABLE_TeuchosComm", True))
 
         if self.spec.satisfies("+zoltan2core"):
             args.append(self.define("Trilinos_ENABLE_TeuchosParameterList", True))
-            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
+            #args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
 
         if self.spec.satisfies("+zoltan2core"):
             args.append(self.define("Trilinos_ENABLE_Xpetra", True))
-            args.append(self.define("TPL_ENABLE_Xpetra", True))
+            #args.append(self.define("TPL_ENABLE_Xpetra", True))
 
         if self.spec.satisfies("+zoltan2core"):
             args.append(self.define("Trilinos_ENABLE_Zoltan", True))
-            args.append(self.define("TPL_ENABLE_Zoltan", True))
+            #args.append(self.define("TPL_ENABLE_Zoltan", True))
 
         if self.spec.satisfies("+zoltan2sphynx"):
             args.append(self.define("Trilinos_ENABLE_Anasazi", True))
-            args.append(self.define("TPL_ENABLE_Anasazi", True))
+            #args.append(self.define("TPL_ENABLE_Anasazi", True))
 
         if self.spec.satisfies("+zoltan2sphynx"):
             args.append(self.define("Trilinos_ENABLE_Belos", True))
-            args.append(self.define("TPL_ENABLE_Belos", True))
+            #args.append(self.define("TPL_ENABLE_Belos", True))
 
         if self.spec.satisfies("+zoltan2sphynx"):
             args.append(self.define("Trilinos_ENABLE_Galeri", True))
-            args.append(self.define("TPL_ENABLE_Galeri", True))
+            #args.append(self.define("TPL_ENABLE_Galeri", True))
 
         if self.spec.satisfies("+metis"):
             args.append(self.define("TPL_ENABLE_METIS", True))

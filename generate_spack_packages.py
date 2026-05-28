@@ -496,7 +496,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         if cmake_name not in seen:
             seen.add(cmake_name)
             lines.append(f'        args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))')
-            lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
+            lines.append(f'        #args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
 
     # ---- Required TPL deps — unconditional TPL_ENABLE_ --------------
     for tpl in pkg.required_tpl_deps:
@@ -522,7 +522,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         if not sp_sources or non_sp_sources:
             lines += [
                 f'        args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))',
-                f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                f'        #args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
                 '',
             ]
         else:
@@ -533,7 +533,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             lines += [
                 f'        if {condition}:',
                 f'            args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))',
-                f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                f'            #args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
                 '',
             ]
 

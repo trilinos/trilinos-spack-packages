@@ -51,31 +51,27 @@ class TrilinosTpetra(TrilinosBaseClass):
 
         if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
             args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-            args.append(self.define("Trilinos_TPL_ENABLE_Teuchos", True))
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
+            #args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
             args.append(self.define("Trilinos_ENABLE_Kokkos", True))
-            args.append(self.define("Trilinos_TPL_ENABLE_Kokkos", True))
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
             args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
-            args.append(self.define("Trilinos_TPL_ENABLE_KokkosKernels", True))
             args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+tpetracore"):
             args.append(self.define("Trilinos_ENABLE_TeuchosKokkosCompat", True))
-            args.append(self.define("TPL_ENABLE_TeuchosKokkosCompat", True))
+            #args.append(self.define("TPL_ENABLE_TeuchosKokkosCompat", True))
 
         if self.spec.satisfies("+tpetracore"):
             args.append(self.define("Trilinos_ENABLE_TeuchosKokkosComm", True))
-            args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
+            #args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
 
         if self.spec.satisfies("+tpetracore"):
             args.append(self.define("Trilinos_ENABLE_TeuchosNumerics", True))
-            args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
+            #args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))

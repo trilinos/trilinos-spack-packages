@@ -117,8 +117,6 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
 
     def generated_trilinos_base_cmake_args(self):
         args = []
-        #args.append("-DTPL_ENABLE_Kokkos=ON")
-        #args.append("-DTPL_ENABLE_KokkosKernels=ON")
 
         # Depricated Packages
         args.append("-DTrilinos_ENABLE_AztecOO=OFF")

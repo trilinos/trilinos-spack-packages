@@ -33,20 +33,20 @@ class TrilinosStratimikos(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_Stratimikos", True))
 
         args.append(self.define("Trilinos_ENABLE_ThyraCore", True))
-        args.append(self.define("TPL_ENABLE_ThyraCore", True))
+        #args.append(self.define("TPL_ENABLE_ThyraCore", True))
         args.append(self.define("Trilinos_ENABLE_Thyra", True))
-        args.append(self.define("TPL_ENABLE_Thyra", True))
+        #args.append(self.define("TPL_ENABLE_Thyra", True))
 
         args.append(self.define("Trilinos_ENABLE_Amesos2", True))
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
+        #args.append(self.define("TPL_ENABLE_Amesos2", True))
 
         args.append(self.define("Trilinos_ENABLE_Belos", True))
-        args.append(self.define("TPL_ENABLE_Belos", True))
+        #args.append(self.define("TPL_ENABLE_Belos", True))
 
         args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
-        args.append(self.define("TPL_ENABLE_Ifpack2", True))
+        #args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
         args.append(self.define("Trilinos_ENABLE_ThyraTpetraAdapters", True))
-        args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+        #args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
 
         return args

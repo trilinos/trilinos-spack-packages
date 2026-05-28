@@ -32,18 +32,18 @@ class TrilinosSacado(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
-        args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+        #args.append(self.define("TPL_ENABLE_TeuchosCore", True))
 
         args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        #args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         args.append(self.define("Trilinos_ENABLE_TeuchosNumerics", True))
-        args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
+        #args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
 
         args.append(self.define("Trilinos_ENABLE_TeuchosComm", True))
-        args.append(self.define("TPL_ENABLE_TeuchosComm", True))
+        #args.append(self.define("TPL_ENABLE_TeuchosComm", True))
 
         args.append(self.define("Trilinos_ENABLE_TeuchosKokkosComm", True))
-        args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
+        #args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
 
         return args

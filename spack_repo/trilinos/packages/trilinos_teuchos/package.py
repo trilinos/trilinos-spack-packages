@@ -85,13 +85,11 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
         if self.spec.satisfies("+teuchoskokkoscompat") or self.spec.satisfies("+teuchoskokkoscomm") or self.spec.satisfies("+teuchoscore"):
             args.append(self.define("Trilinos_ENABLE_Kokkos", True))
-            args.append(self.define("Trilinos_TPL_ENABLE_Kokkos", True))
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+teuchoscomm"):
             args.append(self.define("Trilinos_ENABLE_magistrate", True))
-            args.append(self.define("Trilinos_TPL_ENABLE_magistrate", True))
-            args.append(self.define("TPL_ENABLE_magistrate", True))
+            #args.append(self.define("TPL_ENABLE_magistrate", True))
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
