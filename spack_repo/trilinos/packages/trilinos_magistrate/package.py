@@ -28,4 +28,10 @@ class TrilinosMagistrate(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_magistrate", True))
 
 
+        args.append(self.define("Trilinos_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
         return args

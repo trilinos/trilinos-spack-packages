@@ -28,28 +28,33 @@ class TrilinosTrilinoscouplings(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-zoltan")
     depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core")
 
-    #by hand
-    depends_on("netcdf-c")
-
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_TrilinosCouplings", True))
 
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+        args.append(self.define("Trilinos_ENABLE_Belos", True))
+        args.append(self.define("TPL_ENABLE_Belos", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+        args.append(self.define("Trilinos_ENABLE_MueLu", True))
+        args.append(self.define("TPL_ENABLE_MueLu", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_NOX", True))
+        args.append(self.define("Trilinos_ENABLE_NOX", True))
+        args.append(self.define("TPL_ENABLE_NOX", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Stokhos", True))
+        args.append(self.define("Trilinos_ENABLE_Stokhos", True))
+        args.append(self.define("TPL_ENABLE_Stokhos", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("Trilinos_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
+        args.append(self.define("Trilinos_ENABLE_Zoltan", True))
+        args.append(self.define("TPL_ENABLE_Zoltan", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2Core", True))
+        args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
+        args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2", True))
+        args.append(self.define("Trilinos_ENABLE_Zoltan2", True))
+        args.append(self.define("TPL_ENABLE_Zoltan2", True))
 
         return args

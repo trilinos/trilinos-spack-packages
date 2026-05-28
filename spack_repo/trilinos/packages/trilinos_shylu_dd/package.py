@@ -50,38 +50,54 @@ class TrilinosShyluDd(TrilinosBaseClass):
         if self.spec.satisfies("+shylu-ddcommon"):
             args.append(self.define("Trilinos_ENABLE_ShyLU_DDCommon", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
-        #by hand
         args.append(self.define("TPL_ENABLE_MPI", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Amesos2", True))
+            args.append(self.define("Trilinos_ENABLE_Amesos2", True))
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+            args.append(self.define("Trilinos_ENABLE_Teuchos", True))
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+            args.append(self.define("Trilinos_ENABLE_Tpetra", True))
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
+            args.append(self.define("Trilinos_ENABLE_Xpetra", True))
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+            args.append(self.define("Trilinos_ENABLE_Kokkos", True))
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Ifpack2", True))
+            args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
+            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MueLu", True))
+            args.append(self.define("Trilinos_ENABLE_Belos", True))
+            args.append(self.define("TPL_ENABLE_Belos", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Stratimikos", True))
+            args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Thyra", True))
+            args.append(self.define("Trilinos_ENABLE_MueLu", True))
+            args.append(self.define("TPL_ENABLE_MueLu", True))
 
         if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan2", True))
+            args.append(self.define("Trilinos_ENABLE_Stratimikos", True))
+            args.append(self.define("TPL_ENABLE_Stratimikos", True))
+
+        if self.spec.satisfies("+shylu-ddfrosch"):
+            args.append(self.define("Trilinos_ENABLE_Thyra", True))
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+shylu-ddfrosch"):
+            args.append(self.define("Trilinos_ENABLE_Zoltan2", True))
+            args.append(self.define("TPL_ENABLE_Zoltan2", True))
 
         return args

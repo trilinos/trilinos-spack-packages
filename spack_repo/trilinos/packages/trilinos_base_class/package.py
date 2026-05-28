@@ -88,6 +88,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     
     # List of variants we want to be the same between all packages built together
     trilinos_variant("mpi", default=True, description="Enable mpi")
+    trilinos_variant("cuda", default=False, description="Enable cuda")
     trilinos_variant("fortran", default=True, description="Enable fortran")
     trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
     trilinos_variant("openmp", default=False, description="use openmp")
@@ -95,7 +96,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
-    kokkos_version="5.0.2"
+    kokkos_version="5.1.1"
     with when ("^kokkos"):
         depends_on(f"kokkos@{kokkos_version}")
 

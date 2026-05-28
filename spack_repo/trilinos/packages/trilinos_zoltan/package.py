@@ -39,18 +39,18 @@ class TrilinosZoltan(TrilinosBaseClass):
 
 
         if self.spec.satisfies("+mpi"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+            args.append(self.define("TPL_ENABLE_MPI", True))
 
         if self.spec.satisfies("+metis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))
+            args.append(self.define("TPL_ENABLE_METIS", True))
 
         if self.spec.satisfies("+parmetis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
+            args.append(self.define("TPL_ENABLE_ParMETIS", True))
 
         if self.spec.satisfies("+scotch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Scotch", True))
+            args.append(self.define("TPL_ENABLE_Scotch", True))
 
         if self.spec.satisfies("+zlib"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Zlib", True))
+            args.append(self.define("TPL_ENABLE_Zlib", True))
 
         return args

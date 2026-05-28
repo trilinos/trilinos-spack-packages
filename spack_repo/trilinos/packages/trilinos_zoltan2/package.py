@@ -30,6 +30,8 @@ class TrilinosZoltan2(TrilinosBaseClass):
 
 
     # Optional package dependencies
+    depends_on("kokkos", when="+zoltan2core")
+    depends_on("kokkos-kernels", when="+zoltan2core")
     depends_on_trilinos_package("trilinos-tpetra", when="+zoltan2core")
     depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist", when="+zoltan2core")
     depends_on_trilinos_package("trilinos-xpetra", when="+zoltan2core")
@@ -60,42 +62,60 @@ class TrilinosZoltan2(TrilinosBaseClass):
 
 
         if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+            args.append(self.define("Trilinos_ENABLE_Kokkos", True))
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
+            args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
+            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+            args.append(self.define("Trilinos_ENABLE_Tpetra", True))
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
+            args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
+            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
 
         if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosParameterList", True))
+            args.append(self.define("Trilinos_ENABLE_Teuchos", True))
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
+            args.append(self.define("Trilinos_ENABLE_TeuchosComm", True))
+            args.append(self.define("TPL_ENABLE_TeuchosComm", True))
 
         if self.spec.satisfies("+zoltan2core"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Zoltan", True))
+            args.append(self.define("Trilinos_ENABLE_TeuchosParameterList", True))
+            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
+
+        if self.spec.satisfies("+zoltan2core"):
+            args.append(self.define("Trilinos_ENABLE_Xpetra", True))
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if self.spec.satisfies("+zoltan2core"):
+            args.append(self.define("Trilinos_ENABLE_Zoltan", True))
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
 
         if self.spec.satisfies("+zoltan2sphynx"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Anasazi", True))
+            args.append(self.define("Trilinos_ENABLE_Anasazi", True))
+            args.append(self.define("TPL_ENABLE_Anasazi", True))
 
         if self.spec.satisfies("+zoltan2sphynx"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Belos", True))
+            args.append(self.define("Trilinos_ENABLE_Belos", True))
+            args.append(self.define("TPL_ENABLE_Belos", True))
 
         if self.spec.satisfies("+zoltan2sphynx"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Galeri", True))
+            args.append(self.define("Trilinos_ENABLE_Galeri", True))
+            args.append(self.define("TPL_ENABLE_Galeri", True))
 
         if self.spec.satisfies("+metis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_METIS", True))
+            args.append(self.define("TPL_ENABLE_METIS", True))
 
         if self.spec.satisfies("+parmetis"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_ParMETIS", True))
+            args.append(self.define("TPL_ENABLE_ParMETIS", True))
 
         if self.spec.satisfies("+scotch"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Scotch", True))
+            args.append(self.define("TPL_ENABLE_Scotch", True))
 
         return args

@@ -21,21 +21,27 @@ class TrilinosGaleri(TrilinosBaseClass):
 
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
-
-    # Optional package dependencies
-    depends_on_trilinos_package("trilinos-xpetra")
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on("kokkos")
     depends_on("kokkos-kernels")
+
+    # Optional package dependencies
+    depends_on_trilinos_package("trilinos-xpetra")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Galeri", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
+        args.append(self.define("Trilinos_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("Trilinos_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
+        args.append(self.define("Trilinos_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_Xpetra", True))
-
-        args.append(self.define("TRILINOS_TPL_ENABLE_Tpetra", True))
+        args.append(self.define("Trilinos_ENABLE_Xpetra", True))
+        args.append(self.define("TPL_ENABLE_Xpetra", True))
 
         return args

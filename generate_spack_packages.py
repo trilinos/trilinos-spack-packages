@@ -125,6 +125,7 @@ INCLUDE_TPLS: dict[str, str] = {
     "SuperLU_Dist": "superlu-dist",
     "Scotch":       "scotch",
     "CUDA":         "cuda",
+    "CDT":          "cdt",
     "OpenMP":       "llvm-openmp",
     "Gtest":        "googletest",
     "gtest":        "googletest",

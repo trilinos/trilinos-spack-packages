@@ -22,7 +22,6 @@ class TrilinosCompadre(TrilinosBaseClass):
     # Required package dependencies
     depends_on("kokkos")
     depends_on("kokkos-kernels")
-    depends_on("googletest")
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
@@ -32,11 +31,15 @@ class TrilinosCompadre(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Compadre", True))
 
+        args.append(self.define("Trilinos_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+mpi"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_MPI", True))
+            args.append(self.define("TPL_ENABLE_MPI", True))
 
         if self.spec.satisfies("+cuda"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_CUDA", True))
+            args.append(self.define("TPL_ENABLE_CUDA", True))
 
         return args

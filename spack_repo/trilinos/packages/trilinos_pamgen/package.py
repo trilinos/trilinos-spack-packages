@@ -32,6 +32,6 @@ class TrilinosPamgen(TrilinosBaseClass):
 
 
         if self.spec.satisfies("+boost"):
-            args.append(self.define("TRILINOS_TPL_ENABLE_Boost", True))
+            args.append(self.define("TPL_ENABLE_Boost", True))
 
         return args

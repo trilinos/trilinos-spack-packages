@@ -30,6 +30,10 @@ class TrilinosAdelus(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Adelus", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_BLAS", True))
+        args.append(self.define("Trilinos_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+        args.append(self.define("TPL_ENABLE_BLAS", True))
 
         return args

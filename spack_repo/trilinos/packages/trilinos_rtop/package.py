@@ -26,9 +26,13 @@ class TrilinosRtop(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_RTOp", True))
 
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosCore", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosComm", True))
-        args.append(self.define("TRILINOS_TPL_ENABLE_TeuchosNumerics", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
+        args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+        args.append(self.define("Trilinos_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosComm", True))
+        args.append(self.define("TPL_ENABLE_TeuchosComm", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosNumerics", True))
+        args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
 
         return args
