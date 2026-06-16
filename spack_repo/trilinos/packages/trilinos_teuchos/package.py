@@ -89,7 +89,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
         if self.spec.satisfies("+teuchoscomm"):
             args.append(self.define("Trilinos_ENABLE_magistrate", True))
-            #args.append(self.define("TPL_ENABLE_magistrate", True))
+            args.append(self.define("TPL_ENABLE_magistrate", True))
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))

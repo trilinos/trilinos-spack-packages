@@ -47,40 +47,40 @@ class TrilinosRol(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_ROL", True))
 
         args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-        #args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         args.append(self.define("Trilinos_ENABLE_Belos", True))
-        #args.append(self.define("TPL_ENABLE_Belos", True))
+        args.append(self.define("TPL_ENABLE_Belos", True))
 
         args.append(self.define("Trilinos_ENABLE_Tpetra", True))
-        #args.append(self.define("TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         args.append(self.define("Trilinos_ENABLE_Thyra", True))
-        #args.append(self.define("TPL_ENABLE_Thyra", True))
+        args.append(self.define("TPL_ENABLE_Thyra", True))
 
         args.append(self.define("Trilinos_ENABLE_Sacado", True))
-        #args.append(self.define("TPL_ENABLE_Sacado", True))
+        args.append(self.define("TPL_ENABLE_Sacado", True))
 
         args.append(self.define("Trilinos_ENABLE_Intrepid2", True))
-        #args.append(self.define("TPL_ENABLE_Intrepid2", True))
+        args.append(self.define("TPL_ENABLE_Intrepid2", True))
 
         args.append(self.define("Trilinos_ENABLE_MiniTensor", True))
-        #args.append(self.define("TPL_ENABLE_MiniTensor", True))
+        args.append(self.define("TPL_ENABLE_MiniTensor", True))
 
         args.append(self.define("Trilinos_ENABLE_Shards", True))
-        #args.append(self.define("TPL_ENABLE_Shards", True))
+        args.append(self.define("TPL_ENABLE_Shards", True))
 
         args.append(self.define("Trilinos_ENABLE_Amesos2", True))
-        #args.append(self.define("TPL_ENABLE_Amesos2", True))
+        args.append(self.define("TPL_ENABLE_Amesos2", True))
 
         args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
-        #args.append(self.define("TPL_ENABLE_Ifpack2", True))
+        args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
         args.append(self.define("Trilinos_ENABLE_MueLu", True))
-        #args.append(self.define("TPL_ENABLE_MueLu", True))
+        args.append(self.define("TPL_ENABLE_MueLu", True))
 
         args.append(self.define("Trilinos_ENABLE_Tempus", True))
-        #args.append(self.define("TPL_ENABLE_Tempus", True))
+        args.append(self.define("TPL_ENABLE_Tempus", True))
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))

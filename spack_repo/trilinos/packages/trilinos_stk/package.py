@@ -56,22 +56,13 @@ class TrilinosStk(TrilinosBaseClass):
     depends_on("kokkos", when="+stkexpreval")
     depends_on("kokkos", when="+stksearch")
     depends_on("kokkos", when="+stkmesh")
-    depends_on("kokkos", when="+stksearchutil")
-    depends_on("kokkos", when="+stktools")
-    depends_on("kokkos", when="+stkbalance")
-    depends_on("kokkos", when="+stkunit-test-utils")
-    depends_on("kokkos", when="+stkdoc-tests")
-    depends_on("kokkos", when="+stkintegration-tests")
-    depends_on("kokkos", when="+stkperformance-tests")
     depends_on_trilinos_package("trilinos-shards", when="+stkmesh")
     depends_on("seacas", when="+stkio")
     depends_on("seacas", when="+stkbalance")
     depends_on("seacas", when="+stkutil")
     depends_on("seacas", when="+stktools")
     depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-zoltan2 +zoltan2core", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-tpetra", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-zoltan", when="+stkbalance")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+stkbalance")
     depends_on_trilinos_package("trilinos-intrepid2", when="+stksearchutil")
 
     # Required external (TPL) dependencies
@@ -166,65 +157,53 @@ class TrilinosStk(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_LAPACK", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
 
-        if self.spec.satisfies("+stkutil") or self.spec.satisfies("+stkmath") or self.spec.satisfies("+stksimd") or self.spec.satisfies("+stkngp-test") or self.spec.satisfies("+stkexpreval") or self.spec.satisfies("+stksearch") or self.spec.satisfies("+stkmesh") or self.spec.satisfies("+stksearchutil") or self.spec.satisfies("+stktools") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkunit-test-utils") or self.spec.satisfies("+stkdoc-tests") or self.spec.satisfies("+stkintegration-tests") or self.spec.satisfies("+stkperformance-tests"):
+        if self.spec.satisfies("+stkutil") or self.spec.satisfies("+stkmath") or self.spec.satisfies("+stksimd") or self.spec.satisfies("+stkngp-test") or self.spec.satisfies("+stkexpreval") or self.spec.satisfies("+stksearch") or self.spec.satisfies("+stkmesh"):
             args.append(self.define("Trilinos_ENABLE_Kokkos", True))
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+stkmesh"):
             args.append(self.define("Trilinos_ENABLE_Shards", True))
-            #args.append(self.define("TPL_ENABLE_Shards", True))
+            args.append(self.define("TPL_ENABLE_Shards", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_SEACASIoss", True))
-            #args.append(self.define("TPL_ENABLE_SEACASIoss", True))
+            args.append(self.define("TPL_ENABLE_SEACASIoss", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkutil") or self.spec.satisfies("+stktools"):
             args.append(self.define("Trilinos_ENABLE_SEACAS", True))
-            #args.append(self.define("TPL_ENABLE_SEACAS", True))
+            args.append(self.define("TPL_ENABLE_SEACAS", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_SEACASExodus", True))
-            #args.append(self.define("TPL_ENABLE_SEACASExodus", True))
+            args.append(self.define("TPL_ENABLE_SEACASExodus", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
-            #args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-            #args.append(self.define("TPL_ENABLE_Teuchos", True))
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_TeuchosParameterList", True))
-            #args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
+            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
 
         if self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stktools"):
             args.append(self.define("Trilinos_ENABLE_SEACASNemesis", True))
-            #args.append(self.define("TPL_ENABLE_SEACASNemesis", True))
+            args.append(self.define("TPL_ENABLE_SEACASNemesis", True))
 
         if self.spec.satisfies("+stkbalance"):
             args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
-            #args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("Trilinos_ENABLE_Zoltan2", True))
-            #args.append(self.define("TPL_ENABLE_Zoltan2", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("Trilinos_ENABLE_Tpetra", True))
-            #args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("Trilinos_ENABLE_Zoltan", True))
-            #args.append(self.define("TPL_ENABLE_Zoltan", True))
+            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
         if self.spec.satisfies("+stkutil"):
             args.append(self.define("Trilinos_ENABLE_SEACASAprepro_lib", True))
-            #args.append(self.define("TPL_ENABLE_SEACASAprepro_lib", True))
+            args.append(self.define("TPL_ENABLE_SEACASAprepro_lib", True))
 
         if self.spec.satisfies("+stksearchutil"):
             args.append(self.define("Trilinos_ENABLE_Intrepid2", True))
-            #args.append(self.define("TPL_ENABLE_Intrepid2", True))
+            args.append(self.define("TPL_ENABLE_Intrepid2", True))
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))

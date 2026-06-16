@@ -30,14 +30,14 @@ class TrilinosMinitensor(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_MiniTensor", True))
 
         args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
-        #args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+        args.append(self.define("TPL_ENABLE_TeuchosCore", True))
         args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-        #args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("Trilinos_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
         args.append(self.define("Trilinos_ENABLE_Sacado", True))
-        #args.append(self.define("TPL_ENABLE_Sacado", True))
+        args.append(self.define("TPL_ENABLE_Sacado", True))
 
         return args

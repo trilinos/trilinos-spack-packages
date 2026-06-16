@@ -25,7 +25,6 @@ class TrilinosCompadre(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
-    depends_on("cuda", when="+cuda")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -38,8 +37,5 @@ class TrilinosCompadre(TrilinosBaseClass):
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
-
-        if self.spec.satisfies("+cuda"):
-            args.append(self.define("TPL_ENABLE_CUDA", True))
 
         return args

@@ -84,10 +84,7 @@ _EXTERNAL_NAMES: set[str] = set(EXTERNAL_PACKAGES.keys())
 # Key   = subpackage TriBITS name
 # Value = parent TriBITS package name
 # These are injected into _SUBPKG_PARENT at startup alongside the XML-derived ones.
-EXTRA_SUBPACKAGES: dict[str, str] = {
-    "Zoltan2Core":   "Zoltan2",
-    "Zoltan2Sphynx": "Zoltan2",
-}
+EXTRA_SUBPACKAGES: dict[str, str] = {}
 
 # Variant names already declared as trilinos_variant() in TrilinosBaseClass.
 # Generated packages must not re-declare these — the base class owns them.
@@ -124,7 +121,6 @@ INCLUDE_TPLS: dict[str, str] = {
     "SuperLUDist":  "superlu-dist",
     "SuperLU_Dist": "superlu-dist",
     "Scotch":       "scotch",
-    "CUDA":         "cuda",
     "CDT":          "cdt",
     "OpenMP":       "llvm-openmp",
     "Gtest":        "googletest",
@@ -496,7 +492,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         if cmake_name not in seen:
             seen.add(cmake_name)
             lines.append(f'        args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))')
-            lines.append(f'        #args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
+            lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
 
     # ---- Required TPL deps — unconditional TPL_ENABLE_ --------------
     for tpl in pkg.required_tpl_deps:
@@ -522,7 +518,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         if not sp_sources or non_sp_sources:
             lines += [
                 f'        args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))',
-                f'        #args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
                 '',
             ]
         else:
@@ -533,7 +529,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             lines += [
                 f'        if {condition}:',
                 f'            args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))',
-                f'            #args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
                 '',
             ]
 

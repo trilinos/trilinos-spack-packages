@@ -36,25 +36,25 @@ class TrilinosTeko(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_Teko", True))
 
         args.append(self.define("Trilinos_ENABLE_Teuchos", True))
-        #args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("Trilinos_ENABLE_Thyra", True))
-        #args.append(self.define("TPL_ENABLE_Thyra", True))
+        args.append(self.define("TPL_ENABLE_Thyra", True))
         args.append(self.define("Trilinos_ENABLE_Stratimikos", True))
-        #args.append(self.define("TPL_ENABLE_Stratimikos", True))
+        args.append(self.define("TPL_ENABLE_Stratimikos", True))
         args.append(self.define("Trilinos_ENABLE_Anasazi", True))
-        #args.append(self.define("TPL_ENABLE_Anasazi", True))
+        args.append(self.define("TPL_ENABLE_Anasazi", True))
         args.append(self.define("Trilinos_ENABLE_Tpetra", True))
-        #args.append(self.define("TPL_ENABLE_Tpetra", True))
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("Trilinos_ENABLE_ThyraTpetraAdapters", True))
-        #args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+        args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
 
         args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
-        #args.append(self.define("TPL_ENABLE_Ifpack2", True))
+        args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
         args.append(self.define("Trilinos_ENABLE_Amesos2", True))
-        #args.append(self.define("TPL_ENABLE_Amesos2", True))
+        args.append(self.define("TPL_ENABLE_Amesos2", True))
 
         args.append(self.define("Trilinos_ENABLE_Belos", True))
-        #args.append(self.define("TPL_ENABLE_Belos", True))
+        args.append(self.define("TPL_ENABLE_Belos", True))
 
         return args

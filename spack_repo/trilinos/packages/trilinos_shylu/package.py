@@ -30,9 +30,9 @@ class TrilinosShylu(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_ShyLU", True))
 
         args.append(self.define("Trilinos_ENABLE_ShyLU_DD", True))
-        #args.append(self.define("TPL_ENABLE_ShyLU_DD", True))
+        args.append(self.define("TPL_ENABLE_ShyLU_DD", True))
 
         args.append(self.define("Trilinos_ENABLE_ShyLU_Node", True))
-        #args.append(self.define("TPL_ENABLE_ShyLU_Node", True))
+        args.append(self.define("TPL_ENABLE_ShyLU_Node", True))
 
         return args

@@ -33,7 +33,7 @@ def depends_on_trilinos_package(trilinos_package_spec, when=None):
         #depends_on(f"{pkg_name}+{t_variant}", when=f"+{t_variant}")
         #depends_on(f"{pkg_name}~{t_variant}", when=f"~{t_variant}")
     
-class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
+class TrilinosBaseClass(CMakePackage):
     """The Trilinos Project is an effort to develop algorithms and enabling
     technologies within an object-oriented software framework for the solution
     of large-scale, complex multi-physics engineering and scientific problems.
@@ -97,9 +97,17 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
 
     # ###################### Dependencies ##########################
     kokkos_version="5.1.1"
+    openmpi_version="4.1.6"
+    
     with when ("^kokkos"):
         depends_on(f"kokkos@{kokkos_version}")
 
+    with when ("^kokkos" and "+cuda"):
+        depends_on(f"kokkos@{kokkos_version} +cuda")
+
+    with when ("^openmpi"):
+        depends_on(f"openmpi@{openmpi_version}")
+        
     #depends_on("blas")
     #depends_on("lapack")
     #depends_on("kokkos@4.6.02")

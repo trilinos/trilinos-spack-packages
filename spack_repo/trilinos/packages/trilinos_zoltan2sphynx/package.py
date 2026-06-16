@@ -13,40 +13,39 @@ from ..trilinos_base_class.package import trilinos_variant
 from ..trilinos_base_class.package import list_of_trilinos_variants
 
 
-class TrilinosStratimikos(TrilinosBaseClass):
-    """Trilinos Stratimikos package.
+class TrilinosZoltan2sphynx(TrilinosBaseClass):
+    """Trilinos Zoltan2Sphynx package.
 
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-thyra +thyracore")
-
-    # Optional package dependencies
-    depends_on_trilinos_package("trilinos-amesos2")
+    depends_on_trilinos_package("trilinos-anasazi")
     depends_on_trilinos_package("trilinos-belos")
     depends_on_trilinos_package("trilinos-ifpack2")
-    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-zoltan2core")
+
+    # Optional package dependencies
+    depends_on_trilinos_package("trilinos-muelu")
+    depends_on_trilinos_package("trilinos-galeri")
 
     def cmake_args(self):
         args = super().cmake_args()
-        args.append(self.define("Trilinos_ENABLE_Stratimikos", True))
+        args.append(self.define("Trilinos_ENABLE_Zoltan2Sphynx", True))
 
-        args.append(self.define("Trilinos_ENABLE_ThyraCore", True))
-        args.append(self.define("TPL_ENABLE_ThyraCore", True))
-        args.append(self.define("Trilinos_ENABLE_Thyra", True))
-        args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("Trilinos_ENABLE_Amesos2", True))
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
-
+        args.append(self.define("Trilinos_ENABLE_Anasazi", True))
+        args.append(self.define("TPL_ENABLE_Anasazi", True))
         args.append(self.define("Trilinos_ENABLE_Belos", True))
         args.append(self.define("TPL_ENABLE_Belos", True))
-
         args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
+        args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
+        args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define("Trilinos_ENABLE_ThyraTpetraAdapters", True))
-        args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+        args.append(self.define("Trilinos_ENABLE_MueLu", True))
+        args.append(self.define("TPL_ENABLE_MueLu", True))
+
+        args.append(self.define("Trilinos_ENABLE_Galeri", True))
+        args.append(self.define("TPL_ENABLE_Galeri", True))
 
         return args
