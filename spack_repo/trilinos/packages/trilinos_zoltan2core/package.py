@@ -26,6 +26,8 @@ class TrilinosZoltan2core(TrilinosBaseClass):
 
 
     # Required package dependencies
+    depends_on("kokkos")
+    depends_on("kokkos-kernels")
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist")
     depends_on_trilinos_package("trilinos-xpetra")
@@ -40,6 +42,10 @@ class TrilinosZoltan2core(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
 
+        args.append(self.define("Trilinos_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
         args.append(self.define("Trilinos_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))

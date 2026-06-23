@@ -60,6 +60,7 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-ifpack2", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-tempus", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-shylu-node +shylu-nodetacho", when="+panzerminiem")
+    depends_on_trilinos_package("trilinos-pamgen", when="+panzerminiem")
 
     # Required external (TPL) dependencies
     depends_on("mpi")
@@ -237,5 +238,9 @@ class TrilinosPanzer(TrilinosBaseClass):
         if self.spec.satisfies("+panzerminiem"):
             args.append(self.define("Trilinos_ENABLE_ShyLU_Node", True))
             args.append(self.define("TPL_ENABLE_ShyLU_Node", True))
+
+        if self.spec.satisfies("+panzerminiem"):
+            args.append(self.define("Trilinos_ENABLE_Pamgen", True))
+            args.append(self.define("TPL_ENABLE_Pamgen", True))
 
         return args

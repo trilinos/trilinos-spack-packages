@@ -31,8 +31,6 @@ class TrilinosShyluNode(TrilinosBaseClass):
     variant("lapack", default=True, description="Enable lapack support")
     variant("scotch", default=True, description="Enable scotch support")
 
-    # Jfrye added by hand
-    depends_on("googletest")
 
     # Optional package dependencies
     depends_on("kokkos", when="+shylu-nodetacho")
@@ -41,7 +39,9 @@ class TrilinosShyluNode(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-trilinosss", when="+shylu-nodetacho")
     depends_on_trilinos_package("trilinos-trilinosss", when="+shylu-nodebasker")
     depends_on_trilinos_package("trilinos-teuchos", when="+shylu-nodebasker")
+    depends_on("kokkos-kernels", when="+shylu-nodefastilu")
     depends_on("kokkos-kernels", when="+shylu-nodehts")
+    depends_on_trilinos_package("trilinos-tpetra", when="+shylu-nodefastilu")
 
     # Optional external (TPL) dependencies
     depends_on("blas", when="+blas")
@@ -86,9 +86,13 @@ class TrilinosShyluNode(TrilinosBaseClass):
             args.append(self.define("Trilinos_ENABLE_Teuchos", True))
             args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        if self.spec.satisfies("+shylu-nodehts"):
+        if self.spec.satisfies("+shylu-nodefastilu") or self.spec.satisfies("+shylu-nodehts"):
             args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
             args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
+        if self.spec.satisfies("+shylu-nodefastilu"):
+            args.append(self.define("Trilinos_ENABLE_Tpetra", True))
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         if self.spec.satisfies("+blas"):
             args.append(self.define("TPL_ENABLE_BLAS", True))

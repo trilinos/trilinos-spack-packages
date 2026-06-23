@@ -18,11 +18,28 @@ cd $tmp_dir_name
 
 rm -rf Trilinos
 git clone https://github.com/trilinos/Trilinos.git
+cd Trilinos
+git checkoout develop
+cd ../
 
-rm -rf build
-mkdir -p build
-cd build
+rm -rf trilinos-configure
+mkdir -p trilinos-configure
+cd trilinos-configure
 
 cmake -D Trilinos_DEPS_XML_OUTPUT_FILE:FILEPATH=$PWD/$new_xml_file_name ../Trilinos/
 
 cp $new_xml_file_name $SCRIPT_DIR/xml_files
+
+cd $SCRIPT_DIR
+
+python3 generate_spack_packages.py --xml xml_files/$new_xml_file_name
+
+cd $tmp_dir_name
+rm -rf test-spack-packages
+mkdir -p test-spack-packages
+cd test-spack-packages
+
+cmake $SCRIPT_DIR
+nohup ctest -D Experimental &
+
+cd $SCRIPT_DIR

@@ -197,6 +197,10 @@ def _header(pkg: TrilinosPackage) -> list[str]:
     class_name = "".join(
         w.title() for w in f"trilinos_{pkg.name.lower()}".split("_")
     )
+    if class_name == "TrilinosZoltan2Core":
+        class_name = "TrilinosZoltan2core"
+    elif class_name == "TrilinosZoltan2Sphynx":
+        class_name="TrilinosZoltan2sphynx"
 
     lines += [
         "# Copyright Spack Project Developers. See COPYRIGHT file for details.",

@@ -32,6 +32,7 @@ class TrilinosAmesos2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-trilinosss")
     depends_on("kokkos")
+    depends_on("kokkos-kernels")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-shylu-node +shylu-nodebasker +shylu-nodetacho")
@@ -56,6 +57,8 @@ class TrilinosAmesos2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_TrilinosSS", True))
         args.append(self.define("Trilinos_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         args.append(self.define("Trilinos_ENABLE_ShyLU_NodeBasker", True))
         args.append(self.define("TPL_ENABLE_ShyLU_NodeBasker", True))
