@@ -1,7 +1,4 @@
 #!/bin/bash
-
-source setup-spack.sh
-
 tmp_dir_name="tmp-generate-xml"-$(date +%F)
 new_xml_file_name="TrilinosPackageDependencies"-$(date +%F)".xml"
 
@@ -12,6 +9,7 @@ echo $tmp_dir_name
 echo $SCRIPT_DIR
 
 cd $SCRIPT_DIR
+source setup-spack.sh
 
 mkdir -p $tmp_dir_name
 cd $tmp_dir_name
