@@ -25,7 +25,7 @@ class TrilinosKrino(TrilinosBaseClass):
 
     # Required package dependencies
     depends_on("seacas")
-    depends_on_trilinos_package("trilinos-stk +stkbalance +stkexpreval +stkmath +stkio +stksearch +stktopology +stkutil +stktools +stkemend +stkunit-test-utils")
+    depends_on_trilinos_package("trilinos-stk +stkbalance +stkexpreval +stkmath +stkio +stksearch +stktopology +stkutil +stktools +stkemend")
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on_trilinos_package("trilinos-sacado")
     depends_on_trilinos_package("trilinos-rol")
@@ -67,8 +67,6 @@ class TrilinosKrino(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_STKTools", True))
         args.append(self.define("Trilinos_ENABLE_STKEmend", True))
         args.append(self.define("TPL_ENABLE_STKEmend", True))
-        args.append(self.define("Trilinos_ENABLE_STKUnit_test_utils", True))
-        args.append(self.define("TPL_ENABLE_STKUnit_test_utils", True))
         args.append(self.define("Trilinos_ENABLE_Intrepid2", True))
         args.append(self.define("TPL_ENABLE_Intrepid2", True))
         args.append(self.define("Trilinos_ENABLE_Sacado", True))
