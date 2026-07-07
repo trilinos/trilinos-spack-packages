@@ -38,6 +38,6 @@ mkdir -p test-spack-packages
 cd test-spack-packages
 
 cmake $SCRIPT_DIR
-nohup ctest -D Experimental &
+ctest -D Experimental
 
 cd $SCRIPT_DIR
