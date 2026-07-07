@@ -17,7 +17,7 @@ cd $tmp_dir_name
 rm -rf Trilinos
 git clone https://github.com/trilinos/Trilinos.git
 cd Trilinos
-git checkoout develop
+git checkout develop
 cd ../
 
 rm -rf trilinos-configure
