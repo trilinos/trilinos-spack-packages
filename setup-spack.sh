@@ -39,9 +39,9 @@ fi
 
 unset repo_ls_out
 
-spack install -k python
-spack install -k py-pytest
-spack install -k cmake
+spack -k install python
+spack -k install py-pytest
+spack -k install cmake
 
 spack load python
 spack load py-pytest
