@@ -13,6 +13,6 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN git clone https://github.com/trilinos/trilinos-spack-packages.git ~/trilinos-spack-packages
 
-RUN cd ~/trilinos-spack-packages && git checkout fix-duplicates && ./nightly_test.sh
+RUN bash -lc "cd ~/trilinos-spack-packages && git checkout fix-duplicates && ./nightly_test.sh"
 
 CMD [ "/bin/bash" ]
