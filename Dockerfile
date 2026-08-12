@@ -14,7 +14,11 @@ RUN yum -y install \
     git python3-devel procps \
     environment-modules gettext unzip \
     libX11-devel cmake \
+    ca-certificates \
     && yum clean all
+
+# Update CA certificates
+RUN update-ca-trust
 
 # FIXME: Remove this someday
 RUN ln -s /usr/bin/python3 /usr/bin/python
@@ -27,12 +31,27 @@ WORKDIR /opt/trilinos-spack-packages
 # ============================================
 FROM base AS spack-base
 
+# Arguments for SSL handling (can be overridden at build time)
+ARG DISABLE_SSL_VERIFY=false
+
 # Clone and setup spack (this layer is cached unless spack version changes)
-RUN git clone --depth 1 https://github.com/spack/spack.git /opt/spack-src
+RUN if [ "$DISABLE_SSL_VERIFY" = "true" ]; then \
+        git -c http.sslVerify=false clone --depth 1 https://github.com/spack/spack.git /opt/spack-src; \
+    else \
+        git clone --depth 1 https://github.com/spack/spack.git /opt/spack-src; \
+    fi
 
 # Pre-configure spack environment
 ENV SPACK_ROOT=/opt/spack-src
 ENV PATH="${SPACK_ROOT}/bin:${PATH}"
+
+# Configure spack to handle SSL if needed
+RUN if [ "$DISABLE_SSL_VERIFY" = "true" ]; then \
+        mkdir -p /root/.spack && \
+        echo "config:" > /root/.spack/config.yaml && \
+        echo "  verify_ssl: false" >> /root/.spack/config.yaml && \
+        echo "  connect_timeout: 60" >> /root/.spack/config.yaml; \
+    fi
 
 # Initialize spack shell support
 RUN echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /root/.bashrc
