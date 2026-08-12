@@ -85,8 +85,12 @@ FROM spack-base AS python-deps
 # Copy only requirements first for optimal caching
 COPY requirements.txt /opt/trilinos-spack-packages/
 
-# Install Python test dependencies (cached if requirements.txt unchanged)
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Install Python test dependencies using Spack's Python (cached if requirements.txt unchanged)
+RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
+    spack load python && \
+    export PYTHONHTTPSVERIFY=0 && \
+    export PIP_TRUSTED_HOST='pypi.org pypi.python.org files.pythonhosted.org' && \
+    pip3 install --no-cache-dir -r /opt/trilinos-spack-packages/requirements.txt"
 
 # ============================================
 # Stage: Application Code
