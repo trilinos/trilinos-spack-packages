@@ -31,33 +31,47 @@ WORKDIR /opt/trilinos-spack-packages
 # ============================================
 FROM base AS spack-base
 
-# Arguments for SSL handling (can be overridden at build time)
-ARG DISABLE_SSL_VERIFY=false
+# Disable SSL verification for corporate networks
+ENV GIT_SSL_NO_VERIFY=1
+ENV CURL_CA_BUNDLE=""
+ENV REQUESTS_CA_BUNDLE=""
 
 # Clone and setup spack (this layer is cached unless spack version changes)
-RUN if [ "$DISABLE_SSL_VERIFY" = "true" ]; then \
-        git -c http.sslVerify=false clone --depth 1 https://github.com/spack/spack.git /opt/spack-src; \
-    else \
-        git clone --depth 1 https://github.com/spack/spack.git /opt/spack-src; \
-    fi
+RUN git -c http.sslVerify=false clone --depth 1 https://github.com/spack/spack.git /opt/spack-src
 
 # Pre-configure spack environment
 ENV SPACK_ROOT=/opt/spack-src
 ENV PATH="${SPACK_ROOT}/bin:${PATH}"
 
-# Configure spack to handle SSL if needed
-RUN if [ "$DISABLE_SSL_VERIFY" = "true" ]; then \
-        mkdir -p /root/.spack && \
-        echo "config:" > /root/.spack/config.yaml && \
-        echo "  verify_ssl: false" >> /root/.spack/config.yaml && \
-        echo "  connect_timeout: 60" >> /root/.spack/config.yaml; \
-    fi
+# Configure spack to disable SSL verification
+RUN mkdir -p /root/.spack && \
+    cat > /root/.spack/config.yaml << 'EOF'
+config:
+  verify_ssl: false
+  connect_timeout: 60
+  suppress_gpg_warnings: true
+EOF
+
+# Configure bootstrap to skip SSL
+RUN mkdir -p /root/.spack && \
+    cat > /root/.spack/bootstrap.yaml << 'EOF'
+bootstrap:
+  enable: true
+  root: $spack/opt/bootstrap
+  trusted:
+    github-actions-v2: false
+    github-actions-v0.6: false
+    spack-install: true
+EOF
 
 # Initialize spack shell support
 RUN echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /root/.bashrc
 
 # Install core spack dependencies (cached layer - slowest step)
+# Set Python to ignore SSL as well
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
+    export PYTHONHTTPSVERIFY=0 && \
+    export PIP_TRUSTED_HOST='pypi.org pypi.python.org files.pythonhosted.org' && \
     spack compiler find && \
     spack install -y python && \
     spack install -y py-pytest && \

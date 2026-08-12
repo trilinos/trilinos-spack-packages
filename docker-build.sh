@@ -27,6 +27,7 @@ echo ""
 # Parse arguments
 BUILD_STAGE="${1:-app}"
 USE_CACHE="${USE_CACHE:-true}"
+DISABLE_SSL_VERIFY="${DISABLE_SSL_VERIFY:-false}"
 
 # Determine cache flag
 if [ "$USE_CACHE" = "false" ]; then
@@ -34,7 +35,15 @@ if [ "$USE_CACHE" = "false" ]; then
     echo -e "${YELLOW}Building without cache${NC}"
 else
     CACHE_FLAG=""
-    echo -e "${GREEN}Using Docker layer cache${NC}"
+    echo -e "${GREEN}Using layer cache${NC}"
+fi
+
+# SSL verification flag
+if [ "$DISABLE_SSL_VERIFY" = "true" ]; then
+    SSL_FLAG="--build-arg DISABLE_SSL_VERIFY=true"
+    echo -e "${YELLOW}WARNING: SSL verification disabled${NC}"
+else
+    SSL_FLAG=""
 fi
 
 echo -e "${BLUE}Target stage: ${BUILD_STAGE}${NC}"
@@ -42,28 +51,28 @@ echo ""
 
 # Build with optimal caching
 echo -e "${BLUE}Step 1/5: Building base system...${NC}"
-$CONTAINER_CMD build $CACHE_FLAG \
+$CONTAINER_CMD build $CACHE_FLAG $SSL_FLAG \
     --target base \
     -t trilinos-spack-packages:base \
     .
 
 echo ""
 echo -e "${BLUE}Step 2/5: Setting up Spack (may take 5-10 minutes)...${NC}"
-$CONTAINER_CMD build $CACHE_FLAG \
+$CONTAINER_CMD build $CACHE_FLAG $SSL_FLAG \
     --target spack-base \
     -t trilinos-spack-packages:spack-base \
     .
 
 echo ""
 echo -e "${BLUE}Step 3/5: Installing Python dependencies...${NC}"
-$CONTAINER_CMD build $CACHE_FLAG \
+$CONTAINER_CMD build $CACHE_FLAG $SSL_FLAG \
     --target python-deps \
     -t trilinos-spack-packages:python-deps \
     .
 
 echo ""
 echo -e "${BLUE}Step 4/5: Adding application code...${NC}"
-$CONTAINER_CMD build $CACHE_FLAG \
+$CONTAINER_CMD build $CACHE_FLAG $SSL_FLAG \
     --target app \
     -t trilinos-spack-packages:app \
     -t trilinos-spack-packages:latest \
@@ -72,7 +81,7 @@ $CONTAINER_CMD build $CACHE_FLAG \
 if [ "$BUILD_STAGE" = "test" ]; then
     echo ""
     echo -e "${BLUE}Step 5/5: Running build-time tests...${NC}"
-    $CONTAINER_CMD build $CACHE_FLAG \
+    $CONTAINER_CMD build $CACHE_FLAG $SSL_FLAG \
         --target test \
         -t trilinos-spack-packages:test \
         .
