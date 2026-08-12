@@ -1,6 +1,8 @@
-# Docker Testing Guide
+# Container Testing Guide (Podman/Docker)
 
-This guide covers running tests in Docker with maximum pre-built optimization.
+This guide covers running tests in containers (Podman or Docker) with maximum pre-built optimization.
+
+**Note:** All scripts automatically detect and use either Podman or Docker.
 
 ## Quick Start
 
@@ -13,6 +15,14 @@ This guide covers running tests in Docker with maximum pre-built optimization.
 ./docker-run.sh fast     # All except installs (~2-3 minutes)
 ./docker-run.sh full     # Complete suite (~30+ minutes)
 ```
+
+## Podman vs Docker
+
+The scripts automatically detect which container runtime you have:
+- **Podman** (recommended for rootless operation)
+- **Docker** (traditional container runtime)
+
+All commands work identically with both. If you have Podman, simply run the scripts - they'll use `podman` automatically.
 
 ## Using Make (Simplest)
 
@@ -80,34 +90,39 @@ USE_CACHE=false ./docker-build.sh
 ./docker-run.sh quick --maxfail=1 -v
 ```
 
-### Method 2: Docker Compose (Advanced)
+### Method 2: Compose (Advanced)
+
+**Note:** Requires `podman-compose` or `docker-compose` to be installed separately.
 
 ```bash
+# Install podman-compose (if using Podman)
+pip3 install podman-compose
+
 # Run specific service
-docker-compose up test-quick
-docker-compose up test-fast
-docker-compose up test-full
+podman-compose up test-quick
+podman-compose up test-fast
+podman-compose up test-full
 
 # Interactive shell
-docker-compose run shell
+podman-compose run shell
 
 # View logs
-docker-compose logs test-quick
+podman-compose logs test-quick
 ```
 
-### Method 3: Direct Docker Commands
+### Method 3: Direct Container Commands
 
 ```bash
-# Quick tests
-docker run --rm trilinos-spack-packages:latest \
+# Quick tests (use podman or docker)
+podman run --rm trilinos-spack-packages:latest \
     pytest test/ -m quick -n auto -v
 
 # Custom command
-docker run --rm -it trilinos-spack-packages:latest \
+podman run --rm -it trilinos-spack-packages:latest \
     /bin/bash
 
 # Mount local code for development
-docker run --rm -v $(pwd)/test:/opt/trilinos-spack-packages/test \
+podman run --rm -v $(pwd)/test:/opt/trilinos-spack-packages/test \
     trilinos-spack-packages:latest \
     pytest test/ -m quick -v
 ```
@@ -166,7 +181,7 @@ test:fast:
 For faster repeated installs, use a volume for spack cache:
 
 ```bash
-docker run --rm \
+podman run --rm \
     -v spack-cache:/opt/spack-src/var/spack \
     trilinos-spack-packages:latest \
     pytest test/long-test.py -m install -n auto
@@ -181,7 +196,7 @@ make build
 # 2. Edit code locally
 
 # 3. Run tests with live code mount
-docker run --rm \
+podman run --rm \
     -v $(pwd)/test:/opt/trilinos-spack-packages/test:ro \
     trilinos-spack-packages:latest \
     pytest test/ -m quick -v
@@ -226,13 +241,25 @@ pytest test/ -m quick --pdb  # Drop into debugger on failure
 
 ### Out of space
 ```bash
-docker system prune -a    # Clean everything
+# Podman
+podman system prune -a    # Clean everything
 make clean                # Remove project images
+
+# Docker
+docker system prune -a    # Clean everything
 ```
 
 ### Cache issues
 ```bash
 USE_CACHE=false ./docker-build.sh  # Force rebuild
+```
+
+### SELinux issues (Podman on RHEL/CentOS)
+If you get permission errors with mounted volumes:
+```bash
+# Add :z or :Z flag to volumes
+podman run --rm -v $(pwd)/test:/opt/trilinos-spack-packages/test:z \
+    trilinos-spack-packages:latest pytest test/
 ```
 
 ### Permission errors

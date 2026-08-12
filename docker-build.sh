@@ -7,6 +7,18 @@ BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Detect container runtime (podman or docker)
+if command -v podman &> /dev/null; then
+    CONTAINER_CMD="podman"
+    echo -e "${GREEN}Using Podman${NC}"
+elif command -v docker &> /dev/null; then
+    CONTAINER_CMD="docker"
+    echo -e "${GREEN}Using Docker${NC}"
+else
+    echo -e "${YELLOW}Error: Neither podman nor docker found${NC}"
+    exit 1
+fi
+
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Building Trilinos Spack Packages${NC}"
 echo -e "${BLUE}========================================${NC}"
@@ -30,28 +42,28 @@ echo ""
 
 # Build with optimal caching
 echo -e "${BLUE}Step 1/5: Building base system...${NC}"
-docker build $CACHE_FLAG \
+$CONTAINER_CMD build $CACHE_FLAG \
     --target base \
     -t trilinos-spack-packages:base \
     .
 
 echo ""
 echo -e "${BLUE}Step 2/5: Setting up Spack (may take 5-10 minutes)...${NC}"
-docker build $CACHE_FLAG \
+$CONTAINER_CMD build $CACHE_FLAG \
     --target spack-base \
     -t trilinos-spack-packages:spack-base \
     .
 
 echo ""
 echo -e "${BLUE}Step 3/5: Installing Python dependencies...${NC}"
-docker build $CACHE_FLAG \
+$CONTAINER_CMD build $CACHE_FLAG \
     --target python-deps \
     -t trilinos-spack-packages:python-deps \
     .
 
 echo ""
 echo -e "${BLUE}Step 4/5: Adding application code...${NC}"
-docker build $CACHE_FLAG \
+$CONTAINER_CMD build $CACHE_FLAG \
     --target app \
     -t trilinos-spack-packages:app \
     -t trilinos-spack-packages:latest \
@@ -60,7 +72,7 @@ docker build $CACHE_FLAG \
 if [ "$BUILD_STAGE" = "test" ]; then
     echo ""
     echo -e "${BLUE}Step 5/5: Running build-time tests...${NC}"
-    docker build $CACHE_FLAG \
+    $CONTAINER_CMD build $CACHE_FLAG \
         --target test \
         -t trilinos-spack-packages:test \
         .
