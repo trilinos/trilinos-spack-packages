@@ -136,3 +136,24 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack load python py-pytest cmake && \
     cd /opt/trilinos-spack-packages && \
     pytest test/ -m quick -v"
+
+# ============================================
+# Stage: Pre-built Dependencies (optional, expensive!)
+# ============================================
+FROM app AS with-deps
+
+# WARNING: This stage takes 30-60 minutes to build!
+# Only use this if you need to run real installations (without --fake)
+# Pre-install common heavy dependencies to speed up install tests
+RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
+    echo 'Pre-installing Kokkos (10-30 min)...' && \
+    spack install -y kokkos@5.1.1 && \
+    echo 'Pre-installing Kokkos-Kernels (5-15 min)...' && \
+    spack install -y kokkos-kernels && \
+    echo 'Pre-installing OpenBLAS (5-15 min)...' && \
+    spack install -y openblas && \
+    echo 'Pre-installing Boost (10-30 min)...' && \
+    spack install -y boost && \
+    echo 'Pre-installing OpenMPI (5-20 min)...' && \
+    spack install -y openmpi@4.1.6 && \
+    spack clean -a"

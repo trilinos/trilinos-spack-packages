@@ -29,6 +29,20 @@ BUILD_STAGE="${1:-app}"
 USE_CACHE="${USE_CACHE:-true}"
 DISABLE_SSL_VERIFY="${DISABLE_SSL_VERIFY:-false}"
 
+# Check if building with-deps stage
+if [ "$BUILD_STAGE" = "with-deps" ]; then
+    echo -e "${YELLOW}========================================${NC}"
+    echo -e "${YELLOW}WARNING: Building with pre-installed dependencies${NC}"
+    echo -e "${YELLOW}This will take 30-60 minutes!${NC}"
+    echo -e "${YELLOW}========================================${NC}"
+    read -p "Continue? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Build cancelled."
+        exit 0
+    fi
+fi
+
 # Determine cache flag
 if [ "$USE_CACHE" = "false" ]; then
     CACHE_FLAG="--no-cache"

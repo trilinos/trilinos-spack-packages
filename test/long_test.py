@@ -56,10 +56,10 @@ def test_spack_spec(packageName, trilinos_packages):
 @pytest.mark.slow
 @pytest.mark.install
 def test_spack_install(packageName, trilinos_packages):
-    """Test spack install works on the packages."""
-    # Use --fake for a dry-run that doesn't actually compile (much faster)
-    # Remove --fake to do real installations (will take hours)
-    result = run_spack_command(f"install --fake -j4 --overwrite -y {packageName}")
+    """Test spack install works on the packages - REAL COMPILATION."""
+    # This actually compiles each package (takes hours)
+    # Add --fake flag to just validate without compiling
+    result = run_spack_command(f"install -j4 --overwrite -y {packageName}")
     print(result)
     assert result.returncode == 0
 
