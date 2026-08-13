@@ -21,6 +21,18 @@ fi
 # Parse arguments
 DASHBOARD_TYPE="${1:-Experimental}"
 TEST_FILTER="${2}"
+VERBOSE_ON_FAILURE=""
+NO_SUBMIT=""
+
+# Check for --output-on-failure flag
+if [[ "$@" == *"--output-on-failure"* ]]; then
+    VERBOSE_ON_FAILURE="--output-on-failure"
+fi
+
+# Check for --no-submit flag
+if [[ "$@" == *"--no-submit"* ]]; then
+    NO_SUBMIT="true"
+fi
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Running CTest and Submitting to CDash${NC}"
@@ -45,6 +57,7 @@ echo -e "${GREEN}Configuring CMake and running CTest...${NC}"
 $CONTAINER_CMD run --rm \
     -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
     -e CTEST_TEST_FILTER="${TEST_FILTER}" \
+    -e CTEST_NO_SUBMIT="${NO_SUBMIT}" \
     -e GIT_SSL_NO_VERIFY=1 \
     -e CURL_CA_BUNDLE=/dev/null \
     trilinos-spack-packages:latest \
@@ -59,7 +72,7 @@ $CONTAINER_CMD run --rm \
         rm -rf build && \
         mkdir -p build && \
         cmake -DCTEST_USE_LAUNCHERS=1 && \
-        ctest -S CTestScript.cmake -V --no-compress-output
+        ctest -S CTestScript.cmake -V --no-compress-output ${VERBOSE_ON_FAILURE}
     "
 
 EXIT_CODE=$?

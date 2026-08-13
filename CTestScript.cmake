@@ -31,13 +31,23 @@ ctest_configure(BUILD "${CTEST_BINARY_DIRECTORY}" SOURCE "${CTEST_SOURCE_DIRECTO
 # Support filtering tests via environment variable
 set(TEST_FILTER "$ENV{CTEST_TEST_FILTER}")
 if(TEST_FILTER)
-    ctest_test(INCLUDE "${TEST_FILTER}")
+    ctest_test(INCLUDE "${TEST_FILTER}" RETURN_VALUE test_result)
 else()
-    ctest_test()
+    ctest_test(RETURN_VALUE test_result)
+endif()
+
+# Print test output if any tests failed
+if(test_result)
+    message("Tests failed. Check Testing/Temporary/LastTest.log for details.")
 endif()
 
 # Coverage (optional)
 # ctest_coverage()
 
-# Submit to CDash
-ctest_submit()
+# Submit to CDash (unless NO_SUBMIT is set)
+set(NO_SUBMIT "$ENV{CTEST_NO_SUBMIT}")
+if(NOT NO_SUBMIT)
+    ctest_submit()
+else()
+    message("Skipping CDash submission (--no-submit flag was used)")
+endif()
