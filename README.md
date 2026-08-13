@@ -39,20 +39,37 @@ trilinos-rol                    trilinos-zoltan2
 ```
 
 # Testing
-## Submitting to cdash
-```
-mkdir build
-cd build
-cmake ../
-ctest -D Experimental
+
+## Docker-based Testing (Recommended)
+
+### Quick smoke tests
+```bash
+./docker-run.sh quick
 ```
 
-## Local Testing
+### Submit results to CDash
+```bash
+./docker-cdash.sh Experimental
 ```
+Results will be submitted to: https://my.cdash.org/index.php?project=Trilinos
+
+Dashboard types:
+- `Experimental` - One-time test submissions (default)
+- `Nightly` - Scheduled nightly builds
+- `Continuous` - Continuous integration builds
+
+## Local Testing (without Docker)
+
+### Direct pytest
+```bash
 pip install -r requirements.txt
-pytest test/short-test.py
+pytest test/quick_test.py -m quick
 ```
-or
-```
-pytest test/short-test.py
+
+### Via CMake/CTest
+```bash
+mkdir build
+cd build
+cmake ..
+ctest -D Experimental
 ```

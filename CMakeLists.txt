@@ -24,7 +24,7 @@ INCLUDE(CTest)
 ENABLE_TESTING()
 
 # Set a variable so we can use it later
-set(test_file "long-test.py")
+set(test_file "long_test.py")
 
 find_program(PYTEST_EXEC pytest pytest.exe)
 
