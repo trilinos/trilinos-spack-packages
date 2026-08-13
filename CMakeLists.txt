@@ -20,6 +20,9 @@ endif()
 
 set(BUILDNAME "Trilinos_Spack_Packages-${GIT_BRANCH}" CACHE STRING "CDash build name" FORCE)
 
+# Disable SSL verification for CDash submission (corporate SSL workaround)
+set(CTEST_CURL_OPTIONS "CURLOPT_SSL_VERIFYPEER;0;CURLOPT_SSL_VERIFYHOST;0" CACHE STRING "Curl options for CTest" FORCE)
+
 INCLUDE(CTest)
 ENABLE_TESTING()
 

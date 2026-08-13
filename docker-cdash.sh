@@ -18,14 +18,18 @@ else
     exit 1
 fi
 
-# Default to Experimental dashboard
+# Parse arguments
 DASHBOARD_TYPE="${1:-Experimental}"
+TEST_FILTER="${2}"
 
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Running CTest and Submitting to CDash${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 echo -e "${BLUE}Dashboard type: ${DASHBOARD_TYPE}${NC}"
+if [ -n "$TEST_FILTER" ]; then
+    echo -e "${BLUE}Test filter: ${TEST_FILTER}${NC}"
+fi
 echo ""
 
 # Check if image exists
@@ -40,8 +44,11 @@ fi
 echo -e "${GREEN}Configuring CMake and running CTest...${NC}"
 $CONTAINER_CMD run --rm \
     -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
+    -e CTEST_TEST_FILTER="${TEST_FILTER}" \
     trilinos-spack-packages:latest \
     bash -c "
+        # Configure curl to skip SSL verification
+        echo 'insecure' > ~/.curlrc && \
         source /opt/spack-src/share/spack/setup-env.sh && \
         spack load python cmake && \
         cd /opt/trilinos-spack-packages && \

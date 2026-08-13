@@ -28,7 +28,13 @@ ctest_configure(BUILD "${CTEST_BINARY_DIRECTORY}" SOURCE "${CTEST_SOURCE_DIRECTO
 # ctest_build()
 
 # Test
-ctest_test()
+# Support filtering tests via environment variable
+set(TEST_FILTER "$ENV{CTEST_TEST_FILTER}")
+if(TEST_FILTER)
+    ctest_test(INCLUDE "${TEST_FILTER}")
+else()
+    ctest_test()
+endif()
 
 # Coverage (optional)
 # ctest_coverage()
