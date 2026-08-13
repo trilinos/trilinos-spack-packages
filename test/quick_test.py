@@ -42,7 +42,6 @@ def test_spack_find():
     result = run_spack_command('find')
     assert result.returncode == 0
 
-@pytest.mark.parametrize("packageName", [], ids=[])
 def test_spack_info(packageName, trilinos_packages):
     """Test spack info works on the packages."""
     result = run_spack_command(f"info {packageName}")

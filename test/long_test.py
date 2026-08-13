@@ -42,13 +42,11 @@ def test_spack_find():
     result = run_spack_command('find')
     assert result.returncode == 0
 
-@pytest.mark.parametrize("packageName", [], ids=[])
 def test_spack_info(packageName, trilinos_packages):
     """Test spack info works on the packages."""
     result = run_spack_command(f"info {packageName}")
     assert result.returncode == 0
 
-@pytest.mark.parametrize("packageName", [], ids=[])
 def test_spack_spec(packageName, trilinos_packages):
     """Test spack spec works on the packages."""
     result = run_spack_command(f"-dd spec {packageName}")
@@ -57,7 +55,6 @@ def test_spack_spec(packageName, trilinos_packages):
 
 @pytest.mark.slow
 @pytest.mark.install
-@pytest.mark.parametrize("packageName", [], ids=[])
 def test_spack_install(packageName, trilinos_packages):
     """Test spack install works on the packages."""
     result = run_spack_command(f"install -k -j4 --overwrite -y {packageName}")
