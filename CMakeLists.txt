@@ -34,6 +34,10 @@ find_program(PYTEST_EXEC pytest pytest.exe)
 function(add_pytest_test testName)
   add_test(test_${testName} ${PYTEST_EXEC} ${CMAKE_SOURCE_DIR}/test/${test_file} -k ${testName})
   set_property(TEST test_${testName} PROPERTY FAIL_REGULAR_EXPRESSION "FAILED")
+  # Set longer timeout for install tests (3600 seconds = 1 hour)
+  if(testName MATCHES "spack_install")
+    set_property(TEST test_${testName} PROPERTY TIMEOUT 3600)
+  endif()
 endfunction()
 
 EXECUTE_PROCESS(
