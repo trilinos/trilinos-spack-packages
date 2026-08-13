@@ -57,7 +57,7 @@ def test_spack_spec(packageName, trilinos_packages):
 @pytest.mark.install
 def test_spack_install(packageName, trilinos_packages):
     """Test spack install works on the packages."""
-    result = run_spack_command(f"install -k -j4 --overwrite -y {packageName}")
+    result = run_spack_command(f"install -j4 --overwrite -y {packageName}")
     print(result)
     assert result.returncode == 0
 
