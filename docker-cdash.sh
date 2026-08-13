@@ -39,6 +39,7 @@ fi
 # Create a temporary build directory in the container and run CTest
 echo -e "${GREEN}Configuring CMake and running CTest...${NC}"
 $CONTAINER_CMD run --rm \
+    -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
     trilinos-spack-packages:latest \
     bash -c "
         source /opt/spack-src/share/spack/setup-env.sh && \
@@ -46,9 +47,7 @@ $CONTAINER_CMD run --rm \
         cd /opt/trilinos-spack-packages && \
         rm -rf build && \
         mkdir -p build && \
-        cd build && \
-        cmake .. && \
-        ctest -D ${DASHBOARD_TYPE} -V
+        ctest -S CTestScript.cmake -V
     "
 
 EXIT_CODE=$?
