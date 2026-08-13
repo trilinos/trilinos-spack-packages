@@ -86,11 +86,12 @@ FROM spack-base AS python-deps
 COPY requirements.txt /opt/trilinos-spack-packages/
 
 # Install Python test dependencies using Spack's Python (cached if requirements.txt unchanged)
+# Install pytest itself via pip so it sees pytest-xdist properly
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack load python && \
     export PYTHONHTTPSVERIFY=0 && \
     export PIP_TRUSTED_HOST='pypi.org pypi.python.org files.pythonhosted.org' && \
-    pip3 install --no-cache-dir -r /opt/trilinos-spack-packages/requirements.txt"
+    pip3 install --no-cache-dir pytest pytest-xdist"
 
 # ============================================
 # Stage: Application Code
@@ -111,9 +112,10 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack load cmake"
 
 # Create entrypoint script
+# Load python and cmake from spack, but use pip-installed pytest (which sees xdist)
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /entrypoint.sh && \
-    echo 'spack load python py-pytest cmake' >> /entrypoint.sh && \
+    echo 'spack load python cmake' >> /entrypoint.sh && \
     echo 'cd /opt/trilinos-spack-packages' >> /entrypoint.sh && \
     echo 'exec "$@"' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
