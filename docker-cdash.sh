@@ -45,16 +45,21 @@ echo -e "${GREEN}Configuring CMake and running CTest...${NC}"
 $CONTAINER_CMD run --rm \
     -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
     -e CTEST_TEST_FILTER="${TEST_FILTER}" \
+    -e GIT_SSL_NO_VERIFY=1 \
+    -e CURL_CA_BUNDLE=/dev/null \
     trilinos-spack-packages:latest \
     bash -c "
         # Configure curl to skip SSL verification
         echo 'insecure' > ~/.curlrc && \
+        export GIT_SSL_NO_VERIFY=1 && \
+        export CURL_CA_BUNDLE=/dev/null && \
         source /opt/spack-src/share/spack/setup-env.sh && \
         spack load python cmake && \
         cd /opt/trilinos-spack-packages && \
         rm -rf build && \
         mkdir -p build && \
-        ctest -S CTestScript.cmake -V
+        cmake -DCTEST_USE_LAUNCHERS=1 && \
+        ctest -S CTestScript.cmake -V --no-compress-output
     "
 
 EXIT_CODE=$?
