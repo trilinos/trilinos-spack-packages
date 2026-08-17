@@ -58,8 +58,11 @@ def test_spack_spec(packageName, trilinos_packages):
 def test_spack_install(packageName, trilinos_packages):
     """Test spack install works on the packages - REAL COMPILATION."""
     # This actually compiles each package (takes hours)
-    # Add --fake flag to just validate without compiling
-    result = run_spack_command(f"install -j4 --overwrite -y {packageName}")
+    # --reuse: reuse installed dependencies (OpenMPI, BLAS, Boost, etc.)
+    # Set SPACK_OVERWRITE=1 env var to force reinstall, otherwise reuse existing
+    import os
+    overwrite_flag = "--overwrite" if os.environ.get("SPACK_OVERWRITE") else ""
+    result = run_spack_command(f"install -j4 --reuse {overwrite_flag} -y {packageName}")
     print(result)
     assert result.returncode == 0
 
