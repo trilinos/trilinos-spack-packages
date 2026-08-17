@@ -43,13 +43,13 @@ run_tests() {
                 pytest test/ -m quick -n auto -v $extra_args
             ;;
         fast|f)
-            echo -e "${GREEN}Running fast tests (excluding installs)...${NC}"
+            echo -e "${GREEN}Running fast tests (all except install - includes spec validation)...${NC}"
             $CONTAINER_CMD run --rm \
                 trilinos-spack-packages:latest \
-                pytest test/ -m "not slow" -n auto -v $extra_args
+                pytest test/ -m "not install" -n auto -v $extra_args
             ;;
-        full|all)
-            echo -e "${YELLOW}Running full test suite (includes slow installs)...${NC}"
+        full|all|nightly)
+            echo -e "${YELLOW}Running full test suite (all tests including real installs - takes 8-9 hours)...${NC}"
             $CONTAINER_CMD run --rm \
                 -v spack-cache:/opt/spack-src/var/spack \
                 trilinos-spack-packages:latest \
@@ -80,11 +80,11 @@ run_tests() {
             echo "Usage: $0 [TEST_TYPE] [EXTRA_PYTEST_ARGS]"
             echo ""
             echo "Test types:"
-            echo "  quick, q      - Quick smoke tests (default)"
-            echo "  fast, f       - All tests except slow installs"
-            echo "  full, all     - Full test suite including installs"
-            echo "  shell, sh     - Interactive shell"
-            echo "  compose, dc   - Use podman-compose/docker-compose"
+            echo "  quick, q         - Quick smoke tests (default)"
+            echo "  fast, f          - All tests except install (includes spec validation)"
+            echo "  full, all, nightly - Full suite including real installs (8-9 hours)"
+            echo "  shell, sh        - Interactive shell"
+            echo "  compose, dc      - Use podman-compose/docker-compose"
             echo ""
             echo "Examples:"
             echo "  $0 quick                    # Run quick tests"

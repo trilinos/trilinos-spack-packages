@@ -42,10 +42,11 @@ else
     log "Container exists and no core changes, skipping rebuild"
 fi
 
-# Run real install tests and submit to CDash
-log "Running REAL INSTALL tests (this will take 8-9 hours)..."
+# Run ALL tests (including real install tests) and submit to CDash
+log "Running FULL test suite (ALL tests including installs - takes 8-9 hours)..."
 START_TIME=$(date +%s)
 
+# Nightly runs ALL tests (quick + spec + install)
 ./docker-cdash.sh Nightly >> "$LOG_FILE" 2>&1
 EXIT_CODE=$?
 
