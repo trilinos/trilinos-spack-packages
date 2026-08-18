@@ -1,14 +1,18 @@
 #!/bin/bash
 set -e
 
-# Nightly script for REAL compilation testing (OPTIMIZED)
-# Uses intelligent caching to speed up builds when dependencies unchanged
+# Nightly script with Trilinos version support
+# Usage: ./nightly-with-version.sh [TRILINOS_VERSION]
+# Example: ./nightly-with-version.sh develop
 
 # Configuration
 REPO_DIR="$HOME/trilinos-spack-packages"
 LOG_DIR="$HOME/nightly-test-logs"
 DATE=$(date +%Y%m%d-%H%M%S)
-LOG_FILE="$LOG_DIR/nightly-real-install-$DATE.log"
+
+# Get Trilinos version from argument, default to "develop"
+TRILINOS_VERSION="${1:-develop}"
+LOG_FILE="$LOG_DIR/nightly-${TRILINOS_VERSION}-$DATE.log"
 
 # Detect container runtime (podman or docker)
 if command -v podman &> /dev/null; then
@@ -28,7 +32,8 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
 }
 
-log "=== Nightly Real Install Test Started (OPTIMIZED) ==="
+log "=== Nightly Test Started (OPTIMIZED) ==="
+log "Trilinos Version: $TRILINOS_VERSION"
 log "Repository: $REPO_DIR"
 log "Log file: $LOG_FILE"
 
@@ -102,7 +107,7 @@ if [ "$REBUILD_REASON" != "none" ]; then
         BUILD_MINUTES=$((BUILD_DURATION / 60))
         log "Container built in ${BUILD_MINUTES}m (optimized)"
     else
-        log "Using standard build (no optimization)..."
+        log "Using standard build..."
         BUILD_START=$(date +%s)
         ./docker-build.sh >> "$LOG_FILE" 2>&1
         BUILD_END=$(date +%s)
@@ -117,19 +122,30 @@ else
     log "  - Image exists and ready"
 fi
 
-# Run ALL tests (including real install tests) and submit to CDash
-log "Running FULL test suite (takes 8-9 hours)..."
+# Run ALL tests (including real install tests)
+log "Running FULL test suite for Trilinos $TRILINOS_VERSION (takes 6-10 hours)..."
 log "Test includes:"
 log "  - Quick smoke tests (~1 min)"
 log "  - Spec concretization tests (~5-30 min)"
-log "  - Real package compilation and installation (~8 hours)"
+log "  - Real package compilation and installation (~6-10 hours)"
 log "  - CDash submission"
 
 TEST_START=$(date +%s)
 
-# Nightly runs ALL tests (quick + spec + install)
-./docker-cdash.sh Nightly >> "$LOG_FILE" 2>&1
-EXIT_CODE=$?
+# Run with version support
+if [ -f "./docker-run-with-version.sh" ]; then
+    log "Using version-aware test runner..."
+    ./docker-run-with-version.sh full $TRILINOS_VERSION >> "$LOG_FILE" 2>&1
+    EXIT_CODE=$?
+else
+    log "Using standard test runner (no version specification)..."
+    $CONTAINER_CMD run --rm \
+        -e TRILINOS_VERSION=$TRILINOS_VERSION \
+        -v spack-cache:/opt/spack-src/var/spack \
+        trilinos-spack-packages:latest \
+        pytest test/ -n auto -v >> "$LOG_FILE" 2>&1
+    EXIT_CODE=$?
+fi
 
 TEST_END=$(date +%s)
 TEST_DURATION=$((TEST_END - TEST_START))
@@ -138,16 +154,17 @@ TEST_MINUTES=$(((TEST_DURATION % 3600) / 60))
 
 # Calculate total runtime
 TOTAL_END=$(date +%s)
-TOTAL_DURATION=$((TOTAL_END - $(date -d "$(head -1 "$LOG_FILE" | cut -d']' -f1 | tr -d '[')" +%s)))
+TOTAL_DURATION=$((TOTAL_END - $(date -d "$(head -1 "$LOG_FILE" | cut -d']' -f1 | tr -d '[')" +%s 2>/dev/null || echo $TEST_START)))
 TOTAL_HOURS=$((TOTAL_DURATION / 3600))
 TOTAL_MINUTES=$(((TOTAL_DURATION % 3600) / 60))
 
 if [ $EXIT_CODE -eq 0 ]; then
-    log "=== Nightly Real Install Test SUCCEEDED ==="
+    log "=== Nightly Test SUCCEEDED ==="
 else
-    log "=== Nightly Real Install Test FAILED (exit code: $EXIT_CODE) ==="
+    log "=== Nightly Test FAILED (exit code: $EXIT_CODE) ==="
 fi
 
+log "Trilinos Version: $TRILINOS_VERSION"
 log "Test runtime: ${TEST_HOURS}h ${TEST_MINUTES}m"
 log "Total runtime: ${TOTAL_HOURS}h ${TOTAL_MINUTES}m"
 
@@ -159,7 +176,7 @@ elif [ "$REBUILD_REASON" = "dependencies_changed" ]; then
 fi
 
 # Cleanup old logs (keep last 30 days)
-find "$LOG_DIR" -name "nightly-real-install-*.log" -mtime +30 -delete
+find "$LOG_DIR" -name "nightly-*.log" -mtime +30 -delete
 
 # Generate summary report
 cat >> "$LOG_FILE" << EOF
@@ -168,31 +185,29 @@ cat >> "$LOG_FILE" << EOF
 NIGHTLY TEST SUMMARY
 ========================================
 Date: $(date)
+Trilinos Version: $TRILINOS_VERSION
 Commit: $AFTER_PULL
 Dependencies: $CURRENT_DEPS_HASH
 Rebuild: $REBUILD_REASON
 Test Result: $([ $EXIT_CODE -eq 0 ] && echo "PASSED" || echo "FAILED")
 Test Time: ${TEST_HOURS}h ${TEST_MINUTES}m
 Total Time: ${TOTAL_HOURS}h ${TOTAL_MINUTES}m
-CDash: https://my.cdash.org/index.php?project=Trilinos
 Log: $LOG_FILE
 ========================================
 EOF
 
-log "View results: https://my.cdash.org/index.php?project=Trilinos"
-log "Tests compiled and installed real Trilinos packages"
+log "Tests compiled and installed real Trilinos packages for version: $TRILINOS_VERSION"
 
 # Optional: Send email notification
 if [ $EXIT_CODE -ne 0 ]; then
-    SUBJECT="Trilinos Nightly Test FAILED"
-    BODY="Real install test failed after ${TEST_HOURS}h ${TEST_MINUTES}m
+    SUBJECT="Trilinos Nightly Test FAILED ($TRILINOS_VERSION)"
+    BODY="Nightly test for Trilinos $TRILINOS_VERSION failed after ${TEST_HOURS}h ${TEST_MINUTES}m
 
 Commit: $AFTER_PULL
 Dependencies: $CURRENT_DEPS_HASH
 Rebuild reason: $REBUILD_REASON
 
-Check log: $LOG_FILE
-View CDash: https://my.cdash.org/index.php?project=Trilinos"
+Check log: $LOG_FILE"
 
     echo "$BODY" | mail -s "$SUBJECT" your-email@example.com 2>/dev/null || true
 fi
