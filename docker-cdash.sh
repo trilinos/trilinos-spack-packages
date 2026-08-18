@@ -48,7 +48,7 @@ echo ""
 if ! $CONTAINER_CMD image inspect trilinos-spack-packages:latest &> /dev/null; then
     echo -e "${RED}Error: Container image not found${NC}"
     echo -e "${YELLOW}Please build the image first:${NC}"
-    echo -e "  ./docker-build.sh"
+    echo -e "  ./docker-build-optimized.sh"
     exit 1
 fi
 
@@ -67,7 +67,8 @@ $CONTAINER_CMD run --rm \
         export GIT_SSL_NO_VERIFY=1 && \
         export CURL_CA_BUNDLE=/dev/null && \
         source /opt/spack-src/share/spack/setup-env.sh && \
-        spack load python cmake && \
+        spack load python && \
+        spack load --first cmake && \
         cd /opt/trilinos-spack-packages && \
         rm -rf build && \
         mkdir -p build && \
