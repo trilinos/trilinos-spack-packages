@@ -490,13 +490,22 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             '',
         ]
 
-    # ---- Required package deps — unconditional Trilinos_ENABLE_ + TPL_ENABLE_ -
+    # ---- Required package deps — TPL_ENABLE_ only for externals, both for Trilinos pkgs -
     for dep in pkg.required_package_deps:
         cmake_name = _pkg_cmake_name(dep)
         if cmake_name not in seen:
             seen.add(cmake_name)
-            lines.append(f'        args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))')
-            lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
+            # Check if this dependency (or its parent) is in EXTERNAL_PACKAGES
+            effective = _SUBPKG_PARENT.get(dep, dep)
+            is_external = effective in EXTERNAL_PACKAGES
+
+            if is_external:
+                # External packages (Kokkos, KokkosKernels, SEACAS) only get TPL_ENABLE
+                lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
+            else:
+                # Other Trilinos packages get both flags
+                lines.append(f'        args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))')
+                lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
 
     # ---- Required TPL deps — unconditional TPL_ENABLE_ --------------
     for tpl in pkg.required_tpl_deps:
@@ -508,7 +517,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
 
     lines.append("")
 
-    # ---- Optional package deps — conditional Trilinos_ENABLE_ ----------------
+    # ---- Optional package deps — conditional, TPL_ENABLE_ only for externals ----------------
     for dep in pkg.optional_package_deps:
         cmake_name = _pkg_cmake_name(dep)
         if cmake_name in seen:
@@ -518,24 +527,41 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         sp_sources = [sp for sp in sources if _variant_name(sp) in sp_variant_names]
         non_sp_sources = [sp for sp in sources if _variant_name(sp) not in sp_variant_names]
 
+        # Check if this dependency (or its parent) is in EXTERNAL_PACKAGES
+        effective = _SUBPKG_PARENT.get(dep, dep)
+        is_external = effective in EXTERNAL_PACKAGES
+
         seen.add(cmake_name)
         if not sp_sources or non_sp_sources:
-            lines += [
-                f'        args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))',
-                f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
-                '',
-            ]
+            if is_external:
+                lines += [
+                    f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                    '',
+                ]
+            else:
+                lines += [
+                    f'        args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))',
+                    f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                    '',
+                ]
         else:
             condition = " or ".join(
                 f'self.spec.satisfies("+{_variant_name(sp)}")'
                 for sp in sp_sources
             )
-            lines += [
-                f'        if {condition}:',
-                f'            args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))',
-                f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
-                '',
-            ]
+            if is_external:
+                lines += [
+                    f'        if {condition}:',
+                    f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                    '',
+                ]
+            else:
+                lines += [
+                    f'        if {condition}:',
+                    f'            args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))',
+                    f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                    '',
+                ]
 
     # ---- Optional TPL deps — conditional TPL_ENABLE_ ----------------
     for tpl in pkg.optional_tpl_deps:
