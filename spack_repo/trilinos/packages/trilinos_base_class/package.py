@@ -8,7 +8,6 @@ from spack_repo.builtin.build_systems.cmake import CMakePackage
 from spack_repo.builtin.build_systems.cuda import CudaPackage
 from spack_repo.builtin.build_systems.rocm import ROCmPackage
 
-#import llnl.util.filesystem as fs
 import spack.store
 
 list_of_trilinos_variants=[]
@@ -30,8 +29,6 @@ def depends_on_trilinos_package(trilinos_package_spec, when=None):
         depends_on(f"{pkg_name}")
         conflicts(f"^{pkg_name}+{t_variant}", when=f"~{t_variant}")
         conflicts(f"^{pkg_name}~{t_variant}", when=f"+{t_variant}")
-        #depends_on(f"{pkg_name}+{t_variant}", when=f"+{t_variant}")
-        #depends_on(f"{pkg_name}~{t_variant}", when=f"~{t_variant}")
     
 class TrilinosBaseClass(CMakePackage):
     """The Trilinos Project is an effort to develop algorithms and enabling
@@ -107,16 +104,13 @@ class TrilinosBaseClass(CMakePackage):
 
     with when ("^openmpi"):
         depends_on(f"openmpi@{openmpi_version}")
-        
-    #depends_on("blas")
-    #depends_on("lapack")
-    #depends_on("kokkos@4.6.02")
-    #depends_on("kokkos-kernels")
+
+    depends_on("blas")
+    depends_on("lapack")
     
     depends_on("c", type="build")
     depends_on("cxx", type="build")
     depends_on("fortran", type="build", when="+fortran")
-    #depends_on("mpi", when="+mpi")
     depends_on("kokkos-nvcc-wrapper", when="+wrapper")
 
     
@@ -148,6 +142,10 @@ class TrilinosBaseClass(CMakePackage):
         args.append(self.define_from_variant("Trilinos_ENABLE_OpenMP", "openmp"))
         args.append(self.define_from_variant("Trilinos_ENABLE_EXPLICIT_INSTANTIATION", "explicit-instantiation"))
         #args.append(self.define_from_variant("Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES", "all-optional-packages"))
+
+        # Disable gtest TPL when tests are disabled, unless package explicitly depends on it
+        if "~tests" in self.spec and "^googletest" not in self.spec:
+            args.append("-DTPL_ENABLE_gtest=OFF")
 
         if "^mpi" in self.spec:
             args.append(self.define_from_variant("TPL_ENABLE_MPI", "mpi"))
