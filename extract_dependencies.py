@@ -17,12 +17,14 @@ def extract_dependency_versions(package_file):
     with open(package_file, 'r') as f:
         content = f.read()
 
-    # Extract version variables (e.g., kokkos_version="5.2.0")
+    # Extract version variables (e.g., kokkos_version="5.0.2")
+    # Look for pattern: variable_name_version="X.Y.Z"
     version_pattern = r'(\w+)_version\s*=\s*["\']([^"\']+)["\']'
     version_vars = dict(re.findall(version_pattern, content))
 
     # Extract depends_on statements with versions
-    depends_pattern = r'depends_on\(f?["\']([^"\']+)@([\d\.]+)["\']'
+    # Look for: depends_on("package@X.Y.Z") or depends_on(f"package@{var}")
+    depends_pattern = r'depends_on\(["\']([^"\']+)@([\d\.]+)["\']'
     depends_versions = dict(re.findall(depends_pattern, content))
 
     # Merge: version_vars takes precedence (they're the source of truth)
@@ -33,7 +35,9 @@ def extract_dependency_versions(package_file):
         versions[pkg_name] = value
 
     # Add any explicit depends_on versions not in variables
-    versions.update(depends_versions)
+    for pkg, ver in depends_versions.items():
+        if pkg not in versions:
+            versions[pkg] = ver
 
     return versions
 
@@ -46,10 +50,24 @@ def extract_common_dependencies():
     2. Are used by most Trilinos packages
     3. Change infrequently
     """
-    base_package = Path(__file__).parent / "spack_repo/trilinos/packages/trilinos_base_class/package.py"
+    # Try multiple possible locations for the base package
+    possible_paths = [
+        Path(__file__).parent / "spack_repo/trilinos/packages/trilinos_base_class/package.py",
+        Path.cwd() / "spack_repo/trilinos/packages/trilinos_base_class/package.py",
+        Path("/projects/trilinos-spack-packages/spack_repo/trilinos/packages/trilinos_base_class/package.py"),
+    ]
 
-    if not base_package.exists():
-        raise FileNotFoundError(f"Base package not found: {base_package}")
+    base_package = None
+    for path in possible_paths:
+        if path.exists():
+            base_package = path
+            break
+
+    if base_package is None:
+        raise FileNotFoundError(
+            f"Base package not found. Tried:\n" +
+            "\n".join(f"  - {p}" for p in possible_paths)
+        )
 
     versions = extract_dependency_versions(base_package)
 

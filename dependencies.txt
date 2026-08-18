@@ -1,5 +1,5 @@
 # Independent dependencies (install in parallel)
-kokkos@4.6.02
+kokkos@5.0.2
 openblas
 boost
 
