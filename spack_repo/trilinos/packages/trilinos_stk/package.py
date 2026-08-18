@@ -167,7 +167,6 @@ class TrilinosStk(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_BLAS", True))
 
         if self.spec.satisfies("+stkutil") or self.spec.satisfies("+stkmath") or self.spec.satisfies("+stksimd") or self.spec.satisfies("+stkngp-test") or self.spec.satisfies("+stkexpreval") or self.spec.satisfies("+stksearch") or self.spec.satisfies("+stkmesh") or self.spec.satisfies("+stksearchutil") or self.spec.satisfies("+stktools") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkunit-test-utils") or self.spec.satisfies("+stkdoc-tests") or self.spec.satisfies("+stkintegration-tests") or self.spec.satisfies("+stkperformance-tests"):
-            args.append(self.define("Trilinos_ENABLE_Kokkos", True))
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+stkmesh"):
@@ -175,15 +174,12 @@ class TrilinosStk(TrilinosBaseClass):
             args.append(self.define("TPL_ENABLE_Shards", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
-            args.append(self.define("Trilinos_ENABLE_SEACASIoss", True))
             args.append(self.define("TPL_ENABLE_SEACASIoss", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkutil") or self.spec.satisfies("+stktools"):
-            args.append(self.define("Trilinos_ENABLE_SEACAS", True))
             args.append(self.define("TPL_ENABLE_SEACAS", True))
 
         if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
-            args.append(self.define("Trilinos_ENABLE_SEACASExodus", True))
             args.append(self.define("TPL_ENABLE_SEACASExodus", True))
 
         if self.spec.satisfies("+stkbalance"):
@@ -199,7 +195,6 @@ class TrilinosStk(TrilinosBaseClass):
             args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
 
         if self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stktools"):
-            args.append(self.define("Trilinos_ENABLE_SEACASNemesis", True))
             args.append(self.define("TPL_ENABLE_SEACASNemesis", True))
 
         if self.spec.satisfies("+stkbalance"):
@@ -215,7 +210,6 @@ class TrilinosStk(TrilinosBaseClass):
             args.append(self.define("TPL_ENABLE_Zoltan", True))
 
         if self.spec.satisfies("+stkutil"):
-            args.append(self.define("Trilinos_ENABLE_SEACASAprepro_lib", True))
             args.append(self.define("TPL_ENABLE_SEACASAprepro_lib", True))
 
         if self.spec.satisfies("+stksearchutil"):

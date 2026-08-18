@@ -30,9 +30,7 @@ class TrilinosCompadre(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Compadre", True))
 
-        args.append(self.define("Trilinos_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
-        args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+mpi"):

@@ -48,9 +48,7 @@ class TrilinosIfpack2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("Trilinos_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_Tpetra", True))
-        args.append(self.define("Trilinos_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
-        args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         args.append(self.define("Trilinos_ENABLE_Xpetra", True))

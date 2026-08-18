@@ -36,7 +36,6 @@ class TrilinosPhalanx(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
         args.append(self.define("Trilinos_ENABLE_TeuchosComm", True))
         args.append(self.define("TPL_ENABLE_TeuchosComm", True))
-        args.append(self.define("Trilinos_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("Trilinos_ENABLE_Sacado", True))
         args.append(self.define("TPL_ENABLE_Sacado", True))

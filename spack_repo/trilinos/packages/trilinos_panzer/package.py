@@ -128,7 +128,6 @@ class TrilinosPanzer(TrilinosBaseClass):
             args.append(self.define("TPL_ENABLE_Phalanx", True))
 
         if self.spec.satisfies("+panzerdiscfe") or self.spec.satisfies("+panzerexpreval"):
-            args.append(self.define("Trilinos_ENABLE_Kokkos", True))
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+panzerdiscfe"):
@@ -208,15 +207,12 @@ class TrilinosPanzer(TrilinosBaseClass):
             args.append(self.define("TPL_ENABLE_STKSearch", True))
 
         if self.spec.satisfies("+panzeradaptersstk"):
-            args.append(self.define("Trilinos_ENABLE_SEACASIoss", True))
             args.append(self.define("TPL_ENABLE_SEACASIoss", True))
 
         if self.spec.satisfies("+panzeradaptersstk"):
-            args.append(self.define("Trilinos_ENABLE_SEACAS", True))
             args.append(self.define("TPL_ENABLE_SEACAS", True))
 
         if self.spec.satisfies("+panzeradaptersstk"):
-            args.append(self.define("Trilinos_ENABLE_SEACASExodus", True))
             args.append(self.define("TPL_ENABLE_SEACASExodus", True))
 
         if self.spec.satisfies("+panzeradaptersstk"):

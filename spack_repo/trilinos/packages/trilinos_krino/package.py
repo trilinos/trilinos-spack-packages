@@ -41,11 +41,8 @@ class TrilinosKrino(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Krino", True))
 
-        args.append(self.define("Trilinos_ENABLE_SEACASIoss", True))
         args.append(self.define("TPL_ENABLE_SEACASIoss", True))
-        args.append(self.define("Trilinos_ENABLE_SEACAS", True))
         args.append(self.define("TPL_ENABLE_SEACAS", True))
-        args.append(self.define("Trilinos_ENABLE_SEACASExodus", True))
         args.append(self.define("TPL_ENABLE_SEACASExodus", True))
         args.append(self.define("Trilinos_ENABLE_STKBalance", True))
         args.append(self.define("TPL_ENABLE_STKBalance", True))

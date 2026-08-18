@@ -52,11 +52,9 @@ class TrilinosTpetra(TrilinosBaseClass):
             args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
-            args.append(self.define("Trilinos_ENABLE_Kokkos", True))
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
-            args.append(self.define("Trilinos_ENABLE_KokkosKernels", True))
             args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+tpetracore"):
