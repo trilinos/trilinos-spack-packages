@@ -14,6 +14,16 @@ DATE=$(date +%Y%m%d-%H%M%S)
 TRILINOS_VERSION="${1:-develop}"
 LOG_FILE="$LOG_DIR/nightly-${TRILINOS_VERSION}-$DATE.log"
 
+# Detect container runtime (podman or docker)
+if command -v podman &> /dev/null; then
+    CONTAINER_CMD="podman"
+elif command -v docker &> /dev/null; then
+    CONTAINER_CMD="docker"
+else
+    echo "Error: Neither podman nor docker found"
+    exit 1
+fi
+
 # Create log directory
 mkdir -p "$LOG_DIR"
 
@@ -78,7 +88,7 @@ if [ "$COMMITS_CHANGED" = "true" ]; then
 fi
 
 # Check if container exists
-if ! docker image inspect trilinos-spack-packages:latest &> /dev/null; then
+if ! $CONTAINER_CMD image inspect trilinos-spack-packages:latest &> /dev/null; then
     log "Container image not found"
     REBUILD_REASON="image_missing"
 fi
@@ -129,7 +139,7 @@ if [ -f "./docker-run-with-version.sh" ]; then
     EXIT_CODE=$?
 else
     log "Using standard test runner (no version specification)..."
-    docker run --rm \
+    $CONTAINER_CMD run --rm \
         -e TRILINOS_VERSION=$TRILINOS_VERSION \
         -v spack-cache:/opt/spack-src/var/spack \
         trilinos-spack-packages:latest \

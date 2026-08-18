@@ -10,6 +10,16 @@ LOG_DIR="$HOME/nightly-test-logs"
 DATE=$(date +%Y%m%d-%H%M%S)
 LOG_FILE="$LOG_DIR/nightly-real-install-$DATE.log"
 
+# Detect container runtime (podman or docker)
+if command -v podman &> /dev/null; then
+    CONTAINER_CMD="podman"
+elif command -v docker &> /dev/null; then
+    CONTAINER_CMD="docker"
+else
+    echo "Error: Neither podman nor docker found"
+    exit 1
+fi
+
 # Create log directory
 mkdir -p "$LOG_DIR"
 
@@ -73,7 +83,7 @@ if [ "$COMMITS_CHANGED" = "true" ]; then
 fi
 
 # Check if container exists
-if ! docker image inspect trilinos-spack-packages:latest &> /dev/null; then
+if ! $CONTAINER_CMD image inspect trilinos-spack-packages:latest &> /dev/null; then
     log "Container image not found"
     REBUILD_REASON="image_missing"
 fi
