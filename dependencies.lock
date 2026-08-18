@@ -1,0 +1,16 @@
+{
+  "hash": "a7cedac2afea061fc8fe142e78e6fcf331400772378f48fb589bf1e4e8e2c3e7",
+  "versions": {
+    "kokkos": "4.6.02"
+  },
+  "dependencies": {
+    "independent": [
+      "kokkos@4.6.02",
+      "openblas",
+      "boost"
+    ],
+    "dependent": [
+      "kokkos-kernels"
+    ]
+  }
+}
