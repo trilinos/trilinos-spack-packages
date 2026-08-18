@@ -68,7 +68,7 @@ $CONTAINER_CMD run --rm \
         export CURL_CA_BUNDLE=/dev/null && \
         source /opt/spack-src/share/spack/setup-env.sh && \
         spack load python && \
-        (spack load cmake 2>/dev/null || spack load \$(spack find --format '/{hash}' cmake | head -1)) && \
+        spack load --first cmake && \
         cd /opt/trilinos-spack-packages && \
         rm -rf build && \
         mkdir -p build && \
