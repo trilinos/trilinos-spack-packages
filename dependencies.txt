@@ -1,0 +1,7 @@
+# Independent dependencies (install in parallel)
+kokkos@4.6.02
+openblas
+boost
+
+# Dependent packages (install after independent)
+kokkos-kernels
