@@ -96,9 +96,9 @@ class TrilinosBaseClass(CMakePackage):
     #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
-    kokkos_version="5.1.1"
+    kokkos_version="5.2.0"
     openmpi_version="4.1.6"
-    
+
     with when ("^kokkos"):
         depends_on(f"kokkos@{kokkos_version}")
 
