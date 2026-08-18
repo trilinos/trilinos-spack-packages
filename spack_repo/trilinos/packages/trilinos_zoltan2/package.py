@@ -29,10 +29,8 @@ class TrilinosZoltan2(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Zoltan2", True))
 
-        args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
         args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define("Trilinos_ENABLE_Zoltan2Sphynx", True))
         args.append(self.define("TPL_ENABLE_Zoltan2Sphynx", True))
 
         return args

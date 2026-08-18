@@ -33,19 +33,13 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Zoltan2Sphynx", True))
 
-        args.append(self.define("Trilinos_ENABLE_Anasazi", True))
         args.append(self.define("TPL_ENABLE_Anasazi", True))
-        args.append(self.define("Trilinos_ENABLE_Belos", True))
         args.append(self.define("TPL_ENABLE_Belos", True))
-        args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
-        args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
         args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define("Trilinos_ENABLE_MueLu", True))
         args.append(self.define("TPL_ENABLE_MueLu", True))
 
-        args.append(self.define("Trilinos_ENABLE_Galeri", True))
         args.append(self.define("TPL_ENABLE_Galeri", True))
 
         return args

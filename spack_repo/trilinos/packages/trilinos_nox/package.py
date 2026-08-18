@@ -43,28 +43,20 @@ class TrilinosNox(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_NOX", True))
 
-        args.append(self.define("Trilinos_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        args.append(self.define("Trilinos_ENABLE_ThyraCore", True))
         args.append(self.define("TPL_ENABLE_ThyraCore", True))
 
-        args.append(self.define("Trilinos_ENABLE_Thyra", True))
         args.append(self.define("TPL_ENABLE_Thyra", True))
 
-        args.append(self.define("Trilinos_ENABLE_Belos", True))
         args.append(self.define("TPL_ENABLE_Belos", True))
 
-        args.append(self.define("Trilinos_ENABLE_Anasazi", True))
         args.append(self.define("TPL_ENABLE_Anasazi", True))
 
-        args.append(self.define("Trilinos_ENABLE_Stratimikos", True))
         args.append(self.define("TPL_ENABLE_Stratimikos", True))
 
-        args.append(self.define("Trilinos_ENABLE_Teko", True))
         args.append(self.define("TPL_ENABLE_Teko", True))
 
-        args.append(self.define("Trilinos_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         if self.spec.satisfies("+lapack"):

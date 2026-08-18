@@ -48,42 +48,30 @@ class TrilinosStokhos(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Stokhos", True))
 
-        args.append(self.define("Trilinos_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define("Trilinos_ENABLE_Anasazi", True))
         args.append(self.define("TPL_ENABLE_Anasazi", True))
 
-        args.append(self.define("Trilinos_ENABLE_Sacado", True))
         args.append(self.define("TPL_ENABLE_Sacado", True))
 
-        args.append(self.define("Trilinos_ENABLE_NOX", True))
         args.append(self.define("TPL_ENABLE_NOX", True))
 
-        args.append(self.define("Trilinos_ENABLE_TeuchosKokkosComm", True))
         args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
 
-        args.append(self.define("Trilinos_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_Tpetra", True))
 
-        args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
-        args.append(self.define("Trilinos_ENABLE_MueLu", True))
         args.append(self.define("TPL_ENABLE_MueLu", True))
 
-        args.append(self.define("Trilinos_ENABLE_Belos", True))
         args.append(self.define("TPL_ENABLE_Belos", True))
 
-        args.append(self.define("Trilinos_ENABLE_Amesos2", True))
         args.append(self.define("TPL_ENABLE_Amesos2", True))
 
-        args.append(self.define("Trilinos_ENABLE_Thyra", True))
         args.append(self.define("TPL_ENABLE_Thyra", True))
 
-        args.append(self.define("Trilinos_ENABLE_Xpetra", True))
         args.append(self.define("TPL_ENABLE_Xpetra", True))
 
         if self.spec.satisfies("+boost"):

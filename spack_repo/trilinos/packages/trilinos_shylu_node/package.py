@@ -78,18 +78,15 @@ class TrilinosShyluNode(TrilinosBaseClass):
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+shylu-nodetacho") or self.spec.satisfies("+shylu-nodebasker"):
-            args.append(self.define("Trilinos_ENABLE_TrilinosSS", True))
             args.append(self.define("TPL_ENABLE_TrilinosSS", True))
 
         if self.spec.satisfies("+shylu-nodebasker"):
-            args.append(self.define("Trilinos_ENABLE_Teuchos", True))
             args.append(self.define("TPL_ENABLE_Teuchos", True))
 
         if self.spec.satisfies("+shylu-nodefastilu") or self.spec.satisfies("+shylu-nodehts"):
             args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+shylu-nodefastilu"):
-            args.append(self.define("Trilinos_ENABLE_Tpetra", True))
             args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         if self.spec.satisfies("+blas"):

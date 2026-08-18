@@ -95,6 +95,7 @@ class TrilinosBaseClass(CMakePackage):
     # ###################### Dependencies ##########################
     kokkos_version="5.2.0"
     openmpi_version="4.1.6"
+    superlu_version="5.3.0"
 
     with when ("^kokkos"):
         depends_on(f"kokkos@{kokkos_version}")
@@ -104,6 +105,9 @@ class TrilinosBaseClass(CMakePackage):
 
     with when ("^openmpi"):
         depends_on(f"openmpi@{openmpi_version}")
+
+    with when ("^superlu"):
+        depends_on(f"superlu@{superlu_version}")
 
     depends_on("blas")
     depends_on("lapack")
@@ -141,7 +145,9 @@ class TrilinosBaseClass(CMakePackage):
         args.append(self.define_from_variant("CMAKE_CXX_STANDARD", "cxxstd"))
         args.append(self.define_from_variant("Trilinos_ENABLE_OpenMP", "openmp"))
         args.append(self.define_from_variant("Trilinos_ENABLE_EXPLICIT_INSTANTIATION", "explicit-instantiation"))
-        #args.append(self.define_from_variant("Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES", "all-optional-packages"))
+
+        # Disable auto-enabling of optional packages - we explicitly enable what we need
+        args.append("-DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF")
 
         # Disable gtest TPL when tests are disabled, unless package explicitly depends on it
         if "~tests" in self.spec and "^googletest" not in self.spec:
