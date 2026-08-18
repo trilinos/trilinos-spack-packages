@@ -151,16 +151,16 @@ COPY . /opt/trilinos-spack-packages/
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack repo add /opt/trilinos-spack-packages/spack_repo/trilinos"
 
-# Load spack packages into environment
-RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
-    spack load python && \
-    spack load py-pytest && \
-    spack load cmake"
+# Note: Packages are available via entrypoint script (loaded there)
+# We don't load them here to avoid multi-version conflicts during build
 
-# Create entrypoint script
+# Create entrypoint script with better error handling for multiple versions
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /entrypoint.sh && \
-    echo 'spack load python cmake' >> /entrypoint.sh && \
+    echo '# Load packages, handling multiple versions by using newest' >> /entrypoint.sh && \
+    echo 'spack load python' >> /entrypoint.sh && \
+    echo '# Load cmake - if multiple exist, use any one' >> /entrypoint.sh && \
+    echo 'spack load cmake 2>/dev/null || spack load $(spack find --format "/{hash}" cmake | head -1)' >> /entrypoint.sh && \
     echo 'cd /opt/trilinos-spack-packages' >> /entrypoint.sh && \
     echo 'exec "$@"' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
@@ -177,6 +177,7 @@ FROM app AS test
 
 # This stage can be used for CI pipelines
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
-    spack load python py-pytest cmake && \
+    spack load python && \
+    (spack load cmake 2>/dev/null || spack load \$(spack find --format '/{hash}' cmake | head -1)) && \
     cd /opt/trilinos-spack-packages && \
     pytest test/ -m quick -v"
