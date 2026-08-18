@@ -157,10 +157,9 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
 # Create entrypoint script with better error handling for multiple versions
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /entrypoint.sh && \
-    echo '# Load packages, handling multiple versions by using newest' >> /entrypoint.sh && \
+    echo '# Load packages, using --first for packages with multiple versions' >> /entrypoint.sh && \
     echo 'spack load python' >> /entrypoint.sh && \
-    echo '# Load cmake - if multiple exist, use any one' >> /entrypoint.sh && \
-    echo 'spack load cmake 2>/dev/null || spack load $(spack find --format "/{hash}" cmake | head -1)' >> /entrypoint.sh && \
+    echo 'spack load --first cmake' >> /entrypoint.sh && \
     echo 'cd /opt/trilinos-spack-packages' >> /entrypoint.sh && \
     echo 'exec "$@"' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
@@ -178,6 +177,6 @@ FROM app AS test
 # This stage can be used for CI pipelines
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack load python && \
-    (spack load cmake 2>/dev/null || spack load \$(spack find --format '/{hash}' cmake | head -1)) && \
+    spack load --first cmake && \
     cd /opt/trilinos-spack-packages && \
     pytest test/ -m quick -v"
