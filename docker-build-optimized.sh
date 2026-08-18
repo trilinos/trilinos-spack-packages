@@ -154,12 +154,22 @@ fi
 
 echo ""
 echo -e "${BLUE}Step 5/5: Adding application code...${NC}"
-$CONTAINER_CMD build $SSL_FLAG $CACHE_FROM_DEPS \
-    --target app \
-    -t trilinos-spack-packages:app \
-    -t trilinos-spack-packages:latest \
-    -f "$DOCKERFILE" \
-    .
+# Only add cache-from flag if it's set
+if [ -n "$CACHE_FROM_DEPS" ]; then
+    $CONTAINER_CMD build $SSL_FLAG $CACHE_FROM_DEPS \
+        --target app \
+        -t trilinos-spack-packages:app \
+        -t trilinos-spack-packages:latest \
+        -f "$DOCKERFILE" \
+        .
+else
+    $CONTAINER_CMD build $SSL_FLAG \
+        --target app \
+        -t trilinos-spack-packages:app \
+        -t trilinos-spack-packages:latest \
+        -f "$DOCKERFILE" \
+        .
+fi
 
 if [ "$BUILD_STAGE" = "test" ]; then
     echo ""
