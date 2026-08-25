@@ -315,10 +315,6 @@ Already fixed (uses HTTP instead of HTTPS). Rebuild container:
 4. Test with Docker: `./docker-run.sh quick`
 5. Submit PR with passing CDash results
 
-## License
-
-See [LICENSE](LICENSE) file.
-
 ## Support
 
 - Issues: https://github.com/trilinos/trilinos-spack-packages/issues
