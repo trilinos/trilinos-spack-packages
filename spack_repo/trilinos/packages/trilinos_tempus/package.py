@@ -24,6 +24,9 @@ class TrilinosTempus(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-thyra")
     depends_on_trilinos_package("trilinos-nox")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Tempus", True))
@@ -31,5 +34,9 @@ class TrilinosTempus(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Thyra", True))
         args.append(self.define("TPL_ENABLE_NOX", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

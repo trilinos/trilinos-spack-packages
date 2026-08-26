@@ -19,9 +19,16 @@ class TrilinosTrilinosframeworktests(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_TrilinosFrameworkTests", True))
 
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

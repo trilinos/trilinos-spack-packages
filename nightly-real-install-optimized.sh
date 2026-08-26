@@ -37,9 +37,15 @@ cd "$REPO_DIR" || exit 1
 
 # Pull latest changes
 log "Pulling latest changes from git..."
-git fetch origin
+
+# Clean up generated dependency files before pull (they'll be regenerated after)
+log "Resetting generated dependency files to avoid merge conflicts..."
+git checkout -- dependencies.txt dependencies.lock 2>/dev/null || true
+
+export GIT_TERMINAL_PROMPT=0  # Prevent credential prompts in cron
+timeout 900 git fetch origin --progress 2>&1 | tee -a "$LOG_FILE" || { log "ERROR: git fetch timed out or failed"; exit 1; }
 BEFORE_PULL=$(git rev-parse HEAD)
-git pull origin main
+timeout 900 git pull origin main --progress 2>&1 | tee -a "$LOG_FILE" || { log "ERROR: git pull timed out or failed"; exit 1; }
 AFTER_PULL=$(git rev-parse HEAD)
 
 if [ "$BEFORE_PULL" != "$AFTER_PULL" ]; then

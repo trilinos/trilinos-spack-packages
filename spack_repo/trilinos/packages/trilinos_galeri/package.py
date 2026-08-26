@@ -28,6 +28,9 @@ class TrilinosGaleri(TrilinosBaseClass):
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-xpetra")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Galeri", True))
@@ -38,5 +41,9 @@ class TrilinosGaleri(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

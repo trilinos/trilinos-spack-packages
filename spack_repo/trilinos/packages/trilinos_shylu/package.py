@@ -24,10 +24,17 @@ class TrilinosShylu(TrilinosBaseClass):
 
     # Optional package dependencies
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_ShyLU", True))
 
         args.append(self.define("TPL_ENABLE_ShyLU_DD", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

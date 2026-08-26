@@ -32,6 +32,9 @@ class TrilinosXpetra(TrilinosBaseClass):
     depends_on("blas")
     depends_on("lapack")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Xpetra", True))
@@ -44,5 +47,9 @@ class TrilinosXpetra(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
         args.append(self.define("TPL_ENABLE_Thyra", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

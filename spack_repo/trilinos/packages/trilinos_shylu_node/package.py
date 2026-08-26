@@ -49,6 +49,9 @@ class TrilinosShyluNode(TrilinosBaseClass):
     depends_on("lapack", when="+lapack")
     depends_on("scotch", when="+scotch")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     # TPL conflicts: subpackages that require an optional TPL
     conflicts("~blas", when="+shylu-nodehts")
     conflicts("~blas", when="+shylu-nodetacho")
@@ -100,5 +103,9 @@ class TrilinosShyluNode(TrilinosBaseClass):
 
         if self.spec.satisfies("+scotch"):
             args.append(self.define("TPL_ENABLE_Scotch", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

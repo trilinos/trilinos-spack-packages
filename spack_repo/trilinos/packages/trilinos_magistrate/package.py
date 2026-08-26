@@ -23,6 +23,9 @@ class TrilinosMagistrate(TrilinosBaseClass):
     depends_on("kokkos")
     depends_on("kokkos-kernels")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_magistrate", True))
@@ -31,5 +34,9 @@ class TrilinosMagistrate(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

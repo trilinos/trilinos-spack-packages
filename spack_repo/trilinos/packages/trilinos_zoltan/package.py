@@ -33,6 +33,9 @@ class TrilinosZoltan(TrilinosBaseClass):
     depends_on("scotch", when="+scotch")
     depends_on("zlib-api", when="+zlib")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Zoltan", True))
@@ -52,5 +55,9 @@ class TrilinosZoltan(TrilinosBaseClass):
 
         if self.spec.satisfies("+zlib"):
             args.append(self.define("TPL_ENABLE_Zlib", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

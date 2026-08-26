@@ -31,6 +31,9 @@ class TrilinosPercept(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Percept", True))
@@ -51,5 +54,9 @@ class TrilinosPercept(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_STKTopology", True))
         args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Zoltan", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

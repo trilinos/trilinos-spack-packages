@@ -29,6 +29,9 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-muelu")
     depends_on_trilinos_package("trilinos-galeri")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Zoltan2Sphynx", True))
@@ -41,5 +44,9 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_MueLu", True))
 
         args.append(self.define("TPL_ENABLE_Galeri", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

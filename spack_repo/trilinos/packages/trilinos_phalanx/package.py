@@ -25,6 +25,9 @@ class TrilinosPhalanx(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-sacado")
     depends_on("kokkos-kernels")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Phalanx", True))
@@ -36,5 +39,9 @@ class TrilinosPhalanx(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_Sacado", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

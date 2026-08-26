@@ -26,6 +26,9 @@ class TrilinosPamgen(TrilinosBaseClass):
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Pamgen", True))
@@ -33,5 +36,9 @@ class TrilinosPamgen(TrilinosBaseClass):
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

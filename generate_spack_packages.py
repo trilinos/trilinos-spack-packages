@@ -63,6 +63,12 @@ def _pkg_dep_spec(dep_name: str) -> tuple[str, str | None]:
 # Configuration
 # ---------------------------------------------------------------------------
 
+# Magic markers for manual sections that survive regeneration
+MANUAL_SECTION_BEGIN = "# BEGIN MANUAL SECTION"
+MANUAL_SECTION_END = "# END MANUAL SECTION"
+MANUAL_CMAKE_BEGIN = "# BEGIN MANUAL CMAKE ARGS"
+MANUAL_CMAKE_END = "# END MANUAL CMAKE ARGS"
+
 # Packages that already exist in Spack and should NOT get a generated package.py.
 # Any Trilinos package that depends on one of these will use plain depends_on()
 # (not depends_on_trilinos_package()) so Spack resolves it from its own repo.
@@ -188,6 +194,46 @@ def _tpl_variant_name(tpl_name: str) -> str:
     e.g. 'MPI' -> 'mpi', 'yaml-cpp' -> 'yaml-cpp', 'CUBLAS' -> 'cublas'
     """
     return tpl_name.lower().replace("_", "-")
+
+
+def _extract_manual_section(file_path: str, begin_marker: str, end_marker: str) -> str:
+    """Extract content between begin and end markers from an existing file.
+
+    Returns the content between markers (including the markers themselves),
+    or an empty string with just markers if the file doesn't exist or markers not found.
+
+    Handles markers with or without leading whitespace.
+    """
+    if not os.path.exists(file_path):
+        # File doesn't exist yet - return empty manual section
+        return f"    {begin_marker}\n    {end_marker}\n"
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        # Find lines containing the markers (handle any leading whitespace)
+        begin_line_idx = None
+        end_line_idx = None
+
+        for i, line in enumerate(lines):
+            if begin_marker in line:
+                begin_line_idx = i
+            if end_marker in line and begin_line_idx is not None:
+                end_line_idx = i
+                break
+
+        if begin_line_idx is None or end_line_idx is None or begin_line_idx >= end_line_idx:
+            # Markers not found or invalid - return empty manual section
+            return f"    {begin_marker}\n    {end_marker}\n"
+
+        # Extract lines from begin to end (inclusive)
+        extracted_lines = lines[begin_line_idx:end_line_idx + 1]
+        return ''.join(extracted_lines)
+
+    except Exception:
+        # If anything goes wrong, return empty manual section
+        return f"    {begin_marker}\n    {end_marker}\n"
 
 
 # ---------------------------------------------------------------------------
@@ -428,6 +474,23 @@ def _optional_tpl_deps(pkg: TrilinosPackage) -> list[str]:
     return lines
 
 
+def _manual_section() -> list[str]:
+    """Render the manual section placeholder between dependencies and cmake_args.
+
+    This section allows hand-editing of dependencies, variants, or other class members
+    that survive regeneration.
+    """
+    return [
+        f"    {MANUAL_SECTION_BEGIN}",
+        "    # Add custom dependencies, variants, or class methods here",
+        "    # Examples:",
+        "    #   depends_on(\"llvm\")",
+        "    #   variant(\"custom\", default=False, description=\"Custom feature\")",
+        f"    {MANUAL_SECTION_END}",
+        "",
+    ]
+
+
 def _conflicts(pkg: TrilinosPackage) -> list[str]:
     """Render conflicts() lines enforcing that optional TPLs cannot be disabled
     when a subpackage that requires them is enabled.
@@ -594,22 +657,59 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         ]
 
     lines += [
+        "",
+        f"        {MANUAL_CMAKE_BEGIN}",
+        "        # Add custom CMake arguments here",
+        f"        {MANUAL_CMAKE_END}",
+        "",
         "        return args",
         "",
     ]
     return lines
 
 
-def generate_package_py(pkg: TrilinosPackage) -> str:
-    """Assemble a complete package.py for one top-level Trilinos package."""
+def generate_package_py(pkg: TrilinosPackage, existing_file_path: str = None) -> str:
+    """Assemble a complete package.py for one top-level Trilinos package.
+
+    If existing_file_path is provided, extracts and preserves manual sections
+    from the existing file.
+    """
     lines: list[str] = []
     lines += _header(pkg)
     lines += _required_package_deps(pkg)
     lines += _optional_package_deps(pkg)
     lines += _required_tpl_deps(pkg)
     lines += _optional_tpl_deps(pkg)
+
+    # Insert manual section (either from existing file or fresh)
+    if existing_file_path:
+        manual_content = _extract_manual_section(
+            existing_file_path, MANUAL_SECTION_BEGIN, MANUAL_SECTION_END
+        )
+        # Split by lines and add to lines list
+        lines.extend(manual_content.rstrip('\n').split('\n'))
+        # Always add blank line after manual section
+        lines.append('')
+    else:
+        lines += _manual_section()
+
     lines += _conflicts(pkg)
-    lines += _footer(pkg)
+
+    # For cmake_args, we need to preserve the manual CMAKE args section
+    # This is handled inside _footer, but we need to pass the file path
+    footer_lines = _footer(pkg)
+    if existing_file_path:
+        # Extract manual CMAKE args from existing file
+        manual_cmake = _extract_manual_section(
+            existing_file_path, MANUAL_CMAKE_BEGIN, MANUAL_CMAKE_END
+        )
+        # Replace the default manual CMAKE section in footer with preserved content
+        footer_str = '\n'.join(footer_lines)
+        default_cmake_section = f"        {MANUAL_CMAKE_BEGIN}\n        # Add custom CMake arguments here\n        {MANUAL_CMAKE_END}"
+        footer_str = footer_str.replace(default_cmake_section, manual_cmake.rstrip('\n'))
+        footer_lines = footer_str.split('\n')
+
+    lines += footer_lines
     return "\n".join(lines)
 
 
@@ -721,8 +821,10 @@ def main():
         pkg_dir = os.path.join(args.outdir, _dir_name(pkg.name))
         os.makedirs(pkg_dir, exist_ok=True)
         pkg_path = os.path.join(pkg_dir, "package.py")
+        # Generate content BEFORE opening file for writing (to preserve manual sections)
+        content = generate_package_py(pkg, existing_file_path=pkg_path)
         with open(pkg_path, "w", encoding="utf-8") as fh:
-            fh.write(generate_package_py(pkg))
+            fh.write(content)
         print(f"  → {pkg_path}")
 
     print(f"\n[✓] Generated {len(packages)} package.py files in {args.outdir}/")

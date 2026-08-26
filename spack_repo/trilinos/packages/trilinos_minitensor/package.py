@@ -25,6 +25,9 @@ class TrilinosMinitensor(TrilinosBaseClass):
     depends_on("kokkos-kernels")
     depends_on_trilinos_package("trilinos-sacado")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_MiniTensor", True))
@@ -34,5 +37,9 @@ class TrilinosMinitensor(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
         args.append(self.define("TPL_ENABLE_Sacado", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

@@ -26,6 +26,9 @@ class TrilinosAdelus(TrilinosBaseClass):
     # Required external (TPL) dependencies
     depends_on("blas")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Adelus", True))
@@ -33,5 +36,9 @@ class TrilinosAdelus(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

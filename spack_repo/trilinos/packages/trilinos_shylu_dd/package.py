@@ -40,6 +40,9 @@ class TrilinosShyluDd(TrilinosBaseClass):
     # Required external (TPL) dependencies
     depends_on("mpi")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_ShyLU_DD", True))
@@ -87,5 +90,9 @@ class TrilinosShyluDd(TrilinosBaseClass):
 
         if self.spec.satisfies("+shylu-ddfrosch"):
             args.append(self.define("TPL_ENABLE_Zoltan2", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

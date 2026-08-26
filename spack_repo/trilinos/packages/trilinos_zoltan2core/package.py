@@ -38,6 +38,9 @@ class TrilinosZoltan2core(TrilinosBaseClass):
     depends_on("parmetis", when="+parmetis")
     depends_on("scotch", when="+scotch")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Zoltan2Core", True))
@@ -60,5 +63,9 @@ class TrilinosZoltan2core(TrilinosBaseClass):
 
         if self.spec.satisfies("+scotch"):
             args.append(self.define("TPL_ENABLE_Scotch", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

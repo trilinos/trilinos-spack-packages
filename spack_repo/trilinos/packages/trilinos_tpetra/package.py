@@ -33,6 +33,9 @@ class TrilinosTpetra(TrilinosBaseClass):
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     # TPL conflicts: subpackages that require an optional TPL
     conflicts("~mpi", when="+tpetracore")
 
@@ -67,5 +70,9 @@ class TrilinosTpetra(TrilinosBaseClass):
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

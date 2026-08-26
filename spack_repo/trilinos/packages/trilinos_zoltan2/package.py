@@ -25,6 +25,9 @@ class TrilinosZoltan2(TrilinosBaseClass):
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-zoltan2sphynx")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Zoltan2", True))
@@ -32,5 +35,9 @@ class TrilinosZoltan2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
         args.append(self.define("TPL_ENABLE_Zoltan2Sphynx", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

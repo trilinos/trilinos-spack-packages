@@ -39,6 +39,9 @@ class TrilinosIfpack2(TrilinosBaseClass):
     depends_on("metis", when="+metis")
     depends_on("mpi", when="+mpi")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Ifpack2", True))
@@ -63,5 +66,9 @@ class TrilinosIfpack2(TrilinosBaseClass):
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

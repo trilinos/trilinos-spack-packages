@@ -42,6 +42,9 @@ class TrilinosAmesos2(TrilinosBaseClass):
     depends_on("parmetis", when="+parmetis")
     depends_on("metis", when="+metis")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Amesos2", True))
@@ -66,5 +69,9 @@ class TrilinosAmesos2(TrilinosBaseClass):
 
         if self.spec.satisfies("+metis"):
             args.append(self.define("TPL_ENABLE_METIS", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

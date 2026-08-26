@@ -28,6 +28,9 @@ class TrilinosStratimikos(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-ifpack2")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Stratimikos", True))
@@ -42,5 +45,9 @@ class TrilinosStratimikos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
         args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

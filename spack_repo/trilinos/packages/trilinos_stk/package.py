@@ -84,6 +84,9 @@ class TrilinosStk(TrilinosBaseClass):
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     # TPL conflicts: subpackages that require an optional TPL
     conflicts("~boost", when="+stkutil")
 
@@ -210,5 +213,9 @@ class TrilinosStk(TrilinosBaseClass):
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args

@@ -39,6 +39,9 @@ class TrilinosNox(TrilinosBaseClass):
     depends_on("lapack", when="+lapack")
     depends_on("blas", when="+blas")
 
+    # BEGIN MANUAL SECTION
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_NOX", True))
@@ -64,5 +67,9 @@ class TrilinosNox(TrilinosBaseClass):
 
         if self.spec.satisfies("+blas"):
             args.append(self.define("TPL_ENABLE_BLAS", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args
