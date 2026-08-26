@@ -28,6 +28,16 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-muelu")
 
+    # BEGIN MANUAL SECTION
+    # PyTrilinos2 requires LLVM, Python, pybind11, and binder
+    # See packages/PyTrilinos2/CMakeLists.txt for details
+    depends_on("llvm")
+    depends_on("python", type=("build", "run"))
+    depends_on("py-pybind11", type="build")
+    # Note: binder executable is also required but may need to be in PATH
+    # If build fails with "binder not found", install binder separately
+    # END MANUAL SECTION
+
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_PyTrilinos2", True))
@@ -39,5 +49,9 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Stratimikos", True))
 
         args.append(self.define("TPL_ENABLE_MueLu", True))
+
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
 
         return args
