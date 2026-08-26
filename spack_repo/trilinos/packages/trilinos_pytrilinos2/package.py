@@ -29,12 +29,13 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-muelu")
 
     # BEGIN MANUAL SECTION
-    # PyTrilinos2 requires LLVM, Python, pybind11, and binder
+    # PyTrilinos2 requires LLVM, Python, pybind11, binder, and PyTorch
     # See packages/PyTrilinos2/CMakeLists.txt for details
     depends_on("llvm")
     depends_on("python", type=("build", "run"))
     depends_on("py-pybind11", type="build")
     depends_on("binder", type="build")
+    depends_on("py-torch", type="build")
     # END MANUAL SECTION
 
     def cmake_args(self):
