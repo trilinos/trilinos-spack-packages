@@ -1,11 +1,14 @@
 {
-  "hash": "37353af7804746d069fcd08819633078cf2df727e0f224581d986994da92e561",
+  "hash": "c085d92d1c1cc9a9984daf742fd16967c6880d5b4afa9db18cbfdeb8a7052227",
   "versions": {
-    "kokkos": "5.0.2"
+    "kokkos": "5.2.1",
+    "openmpi": "4.1.6",
+    "superlu": "5.3.0"
   },
   "dependencies": {
     "independent": [
-      "kokkos@5.0.2",
+      "kokkos@5.2.1",
+      "openmpi@4.1.6",
       "openblas",
       "boost"
     ],
