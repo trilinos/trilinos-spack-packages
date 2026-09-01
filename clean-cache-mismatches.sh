@@ -1,5 +1,5 @@
 #!/bin/bash
-# Smart cache cleanup: removes only dependency versions that don't match package.py
+# Smart cache cleanup: removes only dependency versions that don't match dependencies.lock
 set -e
 
 # Colors
@@ -21,17 +21,24 @@ if ! command -v spack &> /dev/null; then
     exit 1
 fi
 
-# Extract expected versions from trilinos_base_class/package.py
-BASE_CLASS="spack_repo/trilinos/packages/trilinos_base_class/package.py"
-if [ ! -f "$BASE_CLASS" ]; then
-    echo -e "${RED}Error: Cannot find $BASE_CLASS${NC}"
+# Check for dependencies.lock
+DEPS_LOCK="dependencies.lock"
+if [ ! -f "$DEPS_LOCK" ]; then
+    echo -e "${RED}Error: Cannot find $DEPS_LOCK${NC}"
     exit 1
 fi
 
-echo -e "${BLUE}Reading expected versions from $BASE_CLASS...${NC}"
-KOKKOS_VERSION=$(grep 'kokkos_version=' "$BASE_CLASS" | sed 's/.*kokkos_version="\([^"]*\)".*/\1/')
-OPENMPI_VERSION=$(grep 'openmpi_version=' "$BASE_CLASS" | sed 's/.*openmpi_version="\([^"]*\)".*/\1/')
-SUPERLU_VERSION=$(grep 'superlu_version=' "$BASE_CLASS" | sed 's/.*superlu_version="\([^"]*\)".*/\1/')
+# Ensure jq is available for JSON parsing
+if ! command -v jq &> /dev/null; then
+    echo -e "${RED}Error: jq not found (needed to parse dependencies.lock)${NC}"
+    echo "Install with: yum install jq  (or apt-get install jq)"
+    exit 1
+fi
+
+echo -e "${BLUE}Reading expected versions from $DEPS_LOCK...${NC}"
+KOKKOS_VERSION=$(jq -r '.versions.kokkos' "$DEPS_LOCK")
+OPENMPI_VERSION=$(jq -r '.versions.openmpi' "$DEPS_LOCK")
+SUPERLU_VERSION=$(jq -r '.versions.superlu' "$DEPS_LOCK")
 
 echo -e "  Kokkos:  ${GREEN}${KOKKOS_VERSION}${NC}"
 echo -e "  OpenMPI: ${GREEN}${OPENMPI_VERSION}${NC}"

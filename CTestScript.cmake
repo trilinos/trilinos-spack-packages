@@ -36,6 +36,13 @@ else()
     ctest_test(RETURN_VALUE test_result)
 endif()
 
+# Upload generated dependency XML if it exists
+file(GLOB GENERATED_XML "${CTEST_SOURCE_DIRECTORY}/xml_files/TrilinosPackageDependencies-*.xml")
+if(GENERATED_XML)
+    ctest_upload(FILES ${GENERATED_XML})
+    message("Uploaded generated dependency XML: ${GENERATED_XML}")
+endif()
+
 # Print test output if any tests failed
 if(test_result)
     message("Tests failed. Check Testing/Temporary/LastTest.log for details.")
@@ -48,6 +55,4 @@ endif()
 set(NO_SUBMIT "$ENV{CTEST_NO_SUBMIT}")
 if(NOT NO_SUBMIT)
     ctest_submit()
-else()
-    message("Skipping CDash submission (--no-submit flag was used)")
 endif()

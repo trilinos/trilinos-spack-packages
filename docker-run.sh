@@ -53,7 +53,7 @@ run_tests() {
             $CONTAINER_CMD run --rm \
                 -v spack-cache:/opt/spack-src/var/spack \
                 trilinos-spack-packages:latest \
-                pytest test/ -n auto -v $extra_args
+                ./regenerate-package-files.sh $extra_args
             ;;
         shell|sh|bash)
             echo -e "${GREEN}Starting interactive shell...${NC}"

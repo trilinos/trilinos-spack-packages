@@ -96,10 +96,19 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
 # ============================================
 # Stage: Application Code
 # ============================================
+# ============================================
+# Stage: Application Code
+# ============================================
 FROM python-deps AS app
 
 # Copy application code
 COPY . /opt/trilinos-spack-packages/
+
+# Make scripts executable
+RUN chmod +x /opt/trilinos-spack-packages/regenerate-package-files.sh /opt/trilinos-spack-packages/clean-cache-mismatches.sh 2>/dev/null || true
+
+# Add trilinos spack repository (uses local code)
+
 
 # Add trilinos spack repository (uses local code)
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
