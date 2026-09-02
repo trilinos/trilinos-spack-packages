@@ -49,7 +49,8 @@ def test_spack_info(packageName, trilinos_packages):
 
 def test_spack_spec(packageName, trilinos_packages):
     """Test spack spec works on the packages."""
-    result = run_spack_command(f"-dd spec {packageName}")
+    # Use --reuse to avoid re-solving dependencies from scratch (much faster)
+    result = run_spack_command(f"-dd spec --reuse {packageName}")
     print(result)
     assert result.returncode == 0
 

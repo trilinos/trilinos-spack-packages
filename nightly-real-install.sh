@@ -31,18 +31,29 @@ git fetch origin
 git pull origin main
 
 # Check if we need to rebuild container
-# Rebuild if key files changed since yesterday (or container doesn't exist)
-YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
+# Use content hash to determine if rebuild is needed
+CURRENT_HASH=$(./calculate-build-hash.sh)
+log "Current source hash: $CURRENT_HASH"
 
 if ! docker image inspect trilinos-spack-packages:latest &> /dev/null; then
     log "Container not found, building with pre-built dependencies (30-60 min)..."
-    ./docker-build.sh with-deps >> "$LOG_FILE" 2>&1
-elif git diff --name-only "@{$YESTERDAY}" | grep -qE \
-    "^(Dockerfile|requirements.txt|setup-spack.sh|generate_spack_packages.py|parse_tribits_xml.py|dependencies.lock|spack_repo/|xml_files/.*\.xml|.*trilinos_base_class/package.py)"; then
-    log "Source files changed since yesterday, rebuilding container..."
-    ./docker-build.sh with-deps >> "$LOG_FILE" 2>&1
+    docker build --target app -t trilinos-spack-packages:latest \
+        --label "source-hash=$CURRENT_HASH" \
+        . >> "$LOG_FILE" 2>&1
+elif CONTAINER_HASH=$(docker inspect trilinos-spack-packages:latest --format '{{index .Config.Labels "source-hash"}}' 2>/dev/null); then
+    if [ "$CURRENT_HASH" = "$CONTAINER_HASH" ]; then
+        log "Container matches current source (hash: $CONTAINER_HASH), skipping rebuild"
+    else
+        log "Source changed (container: ${CONTAINER_HASH:-none}, current: $CURRENT_HASH), rebuilding..."
+        docker build --target app -t trilinos-spack-packages:latest \
+            --label "source-hash=$CURRENT_HASH" \
+            . >> "$LOG_FILE" 2>&1
+    fi
 else
-    log "No relevant changes since yesterday, skipping rebuild"
+    log "Container has no source hash label (old build?), rebuilding..."
+    docker build --target app -t trilinos-spack-packages:latest \
+        --label "source-hash=$CURRENT_HASH" \
+        . >> "$LOG_FILE" 2>&1
 fi
 
 # Run ALL tests (including real install tests) and submit to CDash

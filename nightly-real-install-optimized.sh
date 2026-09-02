@@ -67,31 +67,28 @@ else
     CURRENT_DEPS_HASH="unknown"
 fi
 
-# Check what changed
+# Check what changed using content hash
 REBUILD_REASON="none"
-PREVIOUS_DEPS_FILE=".docker-deps-cache"
+SOURCE_HASH=$(./calculate-build-hash.sh)
+log "Current source hash: $SOURCE_HASH"
 
-# Check if dependencies changed
-if [ -f "$PREVIOUS_DEPS_FILE" ]; then
-    PREVIOUS_DEPS_HASH=$(cat "$PREVIOUS_DEPS_FILE")
-    if [ "$CURRENT_DEPS_HASH" != "$PREVIOUS_DEPS_HASH" ]; then
-        log "Dependencies changed: $PREVIOUS_DEPS_HASH -> $CURRENT_DEPS_HASH"
-        REBUILD_REASON="dependencies_changed"
-    fi
-fi
-
-# Check if source files changed
-if [ "$COMMITS_CHANGED" = "true" ]; then
-    if git diff --name-only $BEFORE_PULL $AFTER_PULL | grep -qE "^(Dockerfile|docker-build|extract_dependencies.py|requirements.txt|setup-spack.sh|generate_spack_packages.py|parse_tribits_xml.py|spack_repo/|xml_files/.*\.xml|.*trilinos_base_class/package.py)"; then
-        log "Source files changed in commits"
-        REBUILD_REASON="source_files_changed"
-    fi
-fi
-
-# Check if container exists
+# Check if container exists and get its hash
 if ! $CONTAINER_CMD image inspect trilinos-spack-packages:latest &> /dev/null; then
     log "Container image not found"
     REBUILD_REASON="image_missing"
+elif CONTAINER_HASH=$($CONTAINER_CMD inspect trilinos-spack-packages:latest --format '{{index .Config.Labels "source-hash"}}' 2>/dev/null); then
+    if [ -z "$CONTAINER_HASH" ]; then
+        log "Container has no source hash label (old build)"
+        REBUILD_REASON="missing_hash_label"
+    elif [ "$SOURCE_HASH" != "$CONTAINER_HASH" ]; then
+        log "Source hash mismatch (container: $CONTAINER_HASH, current: $SOURCE_HASH)"
+        REBUILD_REASON="source_changed"
+    else
+        log "Container matches current source (hash: $CONTAINER_HASH)"
+    fi
+else
+    log "Could not read container labels"
+    REBUILD_REASON="cannot_verify"
 fi
 
 # Decide whether to rebuild
@@ -102,7 +99,7 @@ if [ "$REBUILD_REASON" != "none" ]; then
     if [ -f "./docker-build-optimized.sh" ]; then
         log "Using optimized build (smart caching enabled)..."
         BUILD_START=$(date +%s)
-        ./docker-build-optimized.sh >> "$LOG_FILE" 2>&1
+        CONTAINER_CMD=$CONTAINER_CMD SOURCE_HASH=$SOURCE_HASH ./docker-build-optimized.sh >> "$LOG_FILE" 2>&1
         BUILD_END=$(date +%s)
         BUILD_DURATION=$((BUILD_END - BUILD_START))
         BUILD_MINUTES=$((BUILD_DURATION / 60))
@@ -110,7 +107,9 @@ if [ "$REBUILD_REASON" != "none" ]; then
     else
         log "Using standard build (no optimization)..."
         BUILD_START=$(date +%s)
-        ./docker-build.sh >> "$LOG_FILE" 2>&1
+        $CONTAINER_CMD build --target app -t trilinos-spack-packages:latest \
+            --label "source-hash=$SOURCE_HASH" \
+            . >> "$LOG_FILE" 2>&1
         BUILD_END=$(date +%s)
         BUILD_DURATION=$((BUILD_END - BUILD_START))
         BUILD_MINUTES=$((BUILD_DURATION / 60))
@@ -118,8 +117,7 @@ if [ "$REBUILD_REASON" != "none" ]; then
     fi
 else
     log "Container is up-to-date, skipping rebuild"
-    log "  - No new commits with build changes"
-    log "  - Dependencies unchanged: $CURRENT_DEPS_HASH"
+    log "  - Source hash matches: $SOURCE_HASH"
     log "  - Image exists and ready"
 fi
 

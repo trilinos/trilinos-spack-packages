@@ -154,10 +154,17 @@ fi
 
 echo ""
 echo -e "${BLUE}Step 5/5: Adding application code...${NC}"
+# Calculate source hash if not provided
+if [ -z "$SOURCE_HASH" ]; then
+    SOURCE_HASH=$(./calculate-build-hash.sh 2>/dev/null || echo "unknown")
+fi
+echo -e "${GREEN}Source hash: $SOURCE_HASH${NC}"
+
 # Only add cache-from flag if it's set
 if [ -n "$CACHE_FROM_DEPS" ]; then
     $CONTAINER_CMD build $SSL_FLAG $CACHE_FROM_DEPS \
         --target app \
+        --label "source-hash=$SOURCE_HASH" \
         -t trilinos-spack-packages:app \
         -t trilinos-spack-packages:latest \
         -f "$DOCKERFILE" \
@@ -165,6 +172,7 @@ if [ -n "$CACHE_FROM_DEPS" ]; then
 else
     $CONTAINER_CMD build $SSL_FLAG \
         --target app \
+        --label "source-hash=$SOURCE_HASH" \
         -t trilinos-spack-packages:app \
         -t trilinos-spack-packages:latest \
         -f "$DOCKERFILE" \

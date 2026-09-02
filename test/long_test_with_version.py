@@ -68,7 +68,8 @@ def test_spack_info(packageName, trilinos_packages, trilinos_version):
 def test_spack_spec(packageName, trilinos_packages, trilinos_version):
     """Test spack spec works on the packages."""
     spec = format_package_spec(packageName, trilinos_version)
-    result = run_spack_command(f"-dd spec {spec}")
+    # Use --reuse to avoid re-solving dependencies from scratch (much faster)
+    result = run_spack_command(f"-dd spec --reuse {spec}")
     print(f"Testing spec for: {spec}")
     print(result.stdout)
     assert result.returncode == 0

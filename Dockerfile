@@ -45,24 +45,20 @@ ENV PATH="${SPACK_ROOT}/bin:${PATH}"
 
 # Configure spack to disable SSL verification
 RUN mkdir -p /root/.spack && \
-    cat > /root/.spack/config.yaml << 'EOF'
-config:
-  verify_ssl: false
-  connect_timeout: 60
-  suppress_gpg_warnings: true
-EOF
+    echo 'config:' > /root/.spack/config.yaml && \
+    echo '  verify_ssl: false' >> /root/.spack/config.yaml && \
+    echo '  connect_timeout: 60' >> /root/.spack/config.yaml && \
+    echo '  suppress_gpg_warnings: true' >> /root/.spack/config.yaml
 
 # Configure bootstrap to skip SSL
 RUN mkdir -p /root/.spack && \
-    cat > /root/.spack/bootstrap.yaml << 'EOF'
-bootstrap:
-  enable: true
-  root: $spack/opt/bootstrap
-  trusted:
-    github-actions-v2: false
-    github-actions-v0.6: false
-    spack-install: true
-EOF
+    echo 'bootstrap:' > /root/.spack/bootstrap.yaml && \
+    echo '  enable: true' >> /root/.spack/bootstrap.yaml && \
+    echo '  root: $spack/opt/bootstrap' >> /root/.spack/bootstrap.yaml && \
+    echo '  trusted:' >> /root/.spack/bootstrap.yaml && \
+    echo '    github-actions-v2: false' >> /root/.spack/bootstrap.yaml && \
+    echo '    github-actions-v0.6: false' >> /root/.spack/bootstrap.yaml && \
+    echo '    spack-install: true' >> /root/.spack/bootstrap.yaml
 
 # Initialize spack shell support
 RUN echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /root/.bashrc

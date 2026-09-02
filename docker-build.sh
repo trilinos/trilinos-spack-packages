@@ -86,8 +86,15 @@ $CONTAINER_CMD build $CACHE_FLAG $SSL_FLAG \
 
 echo ""
 echo -e "${BLUE}Step 4/5: Adding application code...${NC}"
+# Calculate source hash if not provided
+if [ -z "$SOURCE_HASH" ]; then
+    SOURCE_HASH=$(./calculate-build-hash.sh 2>/dev/null || echo "unknown")
+fi
+echo -e "${GREEN}Source hash: $SOURCE_HASH${NC}"
+
 $CONTAINER_CMD build $CACHE_FLAG $SSL_FLAG \
     --target app \
+    --label "source-hash=$SOURCE_HASH" \
     -t trilinos-spack-packages:app \
     -t trilinos-spack-packages:latest \
     .
