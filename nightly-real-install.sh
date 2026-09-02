@@ -30,16 +30,19 @@ log "Pulling latest changes from git..."
 git fetch origin
 git pull origin main
 
-# Check if we need to rebuild with-deps container
-# (only if Dockerfile changed or container doesn't exist)
+# Check if we need to rebuild container
+# Rebuild if key files changed since yesterday (or container doesn't exist)
+YESTERDAY=$(date -d "yesterday" +%Y-%m-%d)
+
 if ! docker image inspect trilinos-spack-packages:latest &> /dev/null; then
     log "Container not found, building with pre-built dependencies (30-60 min)..."
     ./docker-build.sh with-deps >> "$LOG_FILE" 2>&1
-elif git diff --name-only HEAD@{1} | grep -q "Dockerfile\|base_package.py\|requirements.txt"; then
-    log "Core files changed, rebuilding container..."
+elif git diff --name-only "@{$YESTERDAY}" | grep -qE \
+    "^(Dockerfile|requirements.txt|setup-spack.sh|generate_spack_packages.py|parse_tribits_xml.py|dependencies.lock|spack_repo/|xml_files/.*\.xml|.*trilinos_base_class/package.py)"; then
+    log "Source files changed since yesterday, rebuilding container..."
     ./docker-build.sh with-deps >> "$LOG_FILE" 2>&1
 else
-    log "Container exists and no core changes, skipping rebuild"
+    log "No relevant changes since yesterday, skipping rebuild"
 fi
 
 # Run ALL tests (including real install tests) and submit to CDash

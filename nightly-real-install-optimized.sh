@@ -80,11 +80,11 @@ if [ -f "$PREVIOUS_DEPS_FILE" ]; then
     fi
 fi
 
-# Check if Dockerfile changed
+# Check if source files changed
 if [ "$COMMITS_CHANGED" = "true" ]; then
-    if git diff --name-only $BEFORE_PULL $AFTER_PULL | grep -q "Dockerfile\|docker-build\|extract_dependencies.py\|requirements.txt"; then
-        log "Build infrastructure changed in commits"
-        REBUILD_REASON="build_infra_changed"
+    if git diff --name-only $BEFORE_PULL $AFTER_PULL | grep -qE "^(Dockerfile|docker-build|extract_dependencies.py|requirements.txt|setup-spack.sh|generate_spack_packages.py|parse_tribits_xml.py|spack_repo/|xml_files/.*\.xml|.*trilinos_base_class/package.py)"; then
+        log "Source files changed in commits"
+        REBUILD_REASON="source_files_changed"
     fi
 fi
 
