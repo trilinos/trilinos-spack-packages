@@ -106,7 +106,7 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
 FROM python-deps AS deps-cache
 
 # Copy dependency extraction script and base package
-COPY extract_dependencies.py /opt/
+COPY tools/extract_dependencies.py /opt/
 COPY spack_repo/trilinos/packages/trilinos_base_class/package.py /opt/base_package.py
 
 # Extract and install dependencies

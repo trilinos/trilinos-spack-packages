@@ -52,7 +52,7 @@ if [ "$SKIP_REGEN" = "false" ]; then
     
     # Regenerate packages
     echo -e "${GREEN}Regenerating Spack packages...${NC}"
-    python3 generate_spack_packages.py --xml xml_files/$XML_FILE
+    python3 tools/generate_spack_packages.py --xml xml_files/$XML_FILE
     
     echo -e "${GREEN}Package regeneration complete!${NC}"
     echo ""

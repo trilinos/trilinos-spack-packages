@@ -34,6 +34,36 @@ if [[ "$@" == *"--no-submit"* ]]; then
     NO_SUBMIT="true"
 fi
 
+# Setup logging for Nightly runs
+if [ "$DASHBOARD_TYPE" = "Nightly" ]; then
+    LOG_DIR="$HOME/nightly-test-logs"
+    mkdir -p "$LOG_DIR"
+    DATE=$(date +%Y%m%d-%H%M%S)
+    LOG_FILE="$LOG_DIR/nightly-cdash-$DATE.log"
+
+    # Function to log with timestamp
+    log() {
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | tee -a "$LOG_FILE"
+    }
+
+    log "=== Nightly CDash Test Started ==="
+    log "Log file: $LOG_FILE"
+
+    # Check and rebuild container if necessary
+    log "Checking container status..."
+    if ./scripts/check-and-rebuild-container.sh 2>&1 | tee -a "$LOG_FILE"; then
+        log "Container ready"
+    else
+        log "ERROR: Container check/rebuild failed"
+        exit 1
+    fi
+else
+    # Simple echo function for non-nightly runs
+    log() {
+        echo "$*"
+    }
+fi
+
 echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}Running CTest and Submitting to CDash${NC}"
 echo -e "${BLUE}========================================${NC}"
@@ -53,30 +83,63 @@ if ! $CONTAINER_CMD image inspect trilinos-spack-packages:latest &> /dev/null; t
 fi
 
 # Create a temporary build directory in the container and run CTest
-echo -e "${GREEN}Configuring CMake and running CTest...${NC}"
-$CONTAINER_CMD run --rm \
-    -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
-    -e CTEST_TEST_FILTER="${TEST_FILTER}" \
-    -e CTEST_NO_SUBMIT="${NO_SUBMIT}" \
-    -e GIT_SSL_NO_VERIFY=1 \
-    -e CURL_CA_BUNDLE=/dev/null \
-    trilinos-spack-packages:latest \
-    bash -c "
-        # Configure curl to skip SSL verification
-        echo 'insecure' > ~/.curlrc && \
-        export GIT_SSL_NO_VERIFY=1 && \
-        export CURL_CA_BUNDLE=/dev/null && \
-        source /opt/spack-src/share/spack/setup-env.sh && \
-        spack load python && \
-        spack load --first cmake && \
-        cd /opt/trilinos-spack-packages && \
-        rm -rf build && \
-        mkdir -p build && \
-        cmake -DCTEST_USE_LAUNCHERS=1 && \
-        ctest -S CTestScript.cmake -V --no-compress-output ${VERBOSE_ON_FAILURE}
-    "
+log "Configuring CMake and running CTest..."
+TEST_START=$(date +%s)
 
-EXIT_CODE=$?
+if [ "$DASHBOARD_TYPE" = "Nightly" ]; then
+    # Redirect output to log file for nightly runs
+    $CONTAINER_CMD run --rm \
+        -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
+        -e CTEST_TEST_FILTER="${TEST_FILTER}" \
+        -e CTEST_NO_SUBMIT="${NO_SUBMIT}" \
+        -e GIT_SSL_NO_VERIFY=1 \
+        -e CURL_CA_BUNDLE=/dev/null \
+        trilinos-spack-packages:latest \
+        bash -c "
+            # Configure curl to skip SSL verification
+            echo 'insecure' > ~/.curlrc && \
+            export GIT_SSL_NO_VERIFY=1 && \
+            export CURL_CA_BUNDLE=/dev/null && \
+            source /opt/spack-src/share/spack/setup-env.sh && \
+            spack load python && \
+            spack load --first cmake && \
+            cd /opt/trilinos-spack-packages && \
+            rm -rf build && \
+            mkdir -p build && \
+            cmake -DCTEST_USE_LAUNCHERS=1 && \
+            ctest -S CTestScript.cmake -V --no-compress-output ${VERBOSE_ON_FAILURE}
+        " 2>&1 | tee -a "$LOG_FILE"
+    EXIT_CODE=${PIPESTATUS[0]}
+else
+    # Direct output for experimental runs
+    $CONTAINER_CMD run --rm \
+        -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
+        -e CTEST_TEST_FILTER="${TEST_FILTER}" \
+        -e CTEST_NO_SUBMIT="${NO_SUBMIT}" \
+        -e GIT_SSL_NO_VERIFY=1 \
+        -e CURL_CA_BUNDLE=/dev/null \
+        trilinos-spack-packages:latest \
+        bash -c "
+            # Configure curl to skip SSL verification
+            echo 'insecure' > ~/.curlrc && \
+            export GIT_SSL_NO_VERIFY=1 && \
+            export CURL_CA_BUNDLE=/dev/null && \
+            source /opt/spack-src/share/spack/setup-env.sh && \
+            spack load python && \
+            spack load --first cmake && \
+            cd /opt/trilinos-spack-packages && \
+            rm -rf build && \
+            mkdir -p build && \
+            cmake -DCTEST_USE_LAUNCHERS=1 && \
+            ctest -S CTestScript.cmake -V --no-compress-output ${VERBOSE_ON_FAILURE}
+        "
+    EXIT_CODE=$?
+fi
+
+TEST_END=$(date +%s)
+TEST_DURATION=$((TEST_END - TEST_START))
+TEST_HOURS=$((TEST_DURATION / 3600))
+TEST_MINUTES=$(((TEST_DURATION % 3600) / 60))
 
 echo ""
 if [ $EXIT_CODE -eq 0 ]; then
@@ -84,9 +147,25 @@ if [ $EXIT_CODE -eq 0 ]; then
     echo -e "${GREEN}CDash Submission Complete!${NC}"
     echo -e "${GREEN}========================================${NC}"
     echo -e "${GREEN}View results at: https://my.cdash.org/index.php?project=Trilinos${NC}"
+
+    if [ "$DASHBOARD_TYPE" = "Nightly" ]; then
+        log "=== Nightly CDash Test SUCCEEDED ==="
+        log "Test runtime: ${TEST_HOURS}h ${TEST_MINUTES}m"
+        log "View results: https://my.cdash.org/index.php?project=Trilinos"
+
+        # Cleanup old logs (keep last 30 days)
+        find "$LOG_DIR" -name "nightly-cdash-*.log" -mtime +30 -delete 2>/dev/null || true
+    fi
 else
     echo -e "${RED}========================================${NC}"
     echo -e "${RED}CDash Submission Failed!${NC}"
     echo -e "${RED}========================================${NC}"
+
+    if [ "$DASHBOARD_TYPE" = "Nightly" ]; then
+        log "=== Nightly CDash Test FAILED (exit code: $EXIT_CODE) ==="
+        log "Test runtime: ${TEST_HOURS}h ${TEST_MINUTES}m"
+        log "Check log: $LOG_FILE"
+    fi
+
     exit $EXIT_CODE
 fi
