@@ -71,11 +71,9 @@ else
     if [ "$DEPS_CHANGED" = "true" ]; then
         # Invalidate only deps-cache and later stages
         CACHE_FLAG="--no-cache"
-        CACHE_FROM_DEPS=""
         echo -e "${YELLOW}Rebuilding from deps-cache stage${NC}"
     else
         CACHE_FLAG=""
-        CACHE_FROM_DEPS="--cache-from=trilinos-spack-packages:deps-cache"
         echo -e "${GREEN}Using full layer cache${NC}"
     fi
 fi
@@ -159,24 +157,13 @@ if [ -z "$SOURCE_HASH" ]; then
 fi
 echo -e "${GREEN}Source hash: $SOURCE_HASH${NC}"
 
-# Only add cache-from flag if it's set
-if [ -n "$CACHE_FROM_DEPS" ]; then
-    $CONTAINER_CMD build $SSL_FLAG $CACHE_FROM_DEPS \
-        --target app \
-        --label "source-hash=$SOURCE_HASH" \
-        -t trilinos-spack-packages:app \
-        -t trilinos-spack-packages:latest \
-        -f "$DOCKERFILE" \
-        .
-else
-    $CONTAINER_CMD build $SSL_FLAG \
-        --target app \
-        --label "source-hash=$SOURCE_HASH" \
-        -t trilinos-spack-packages:app \
-        -t trilinos-spack-packages:latest \
-        -f "$DOCKERFILE" \
-        .
-fi
+$CONTAINER_CMD build $SSL_FLAG \
+    --target app \
+    --label "source-hash=$SOURCE_HASH" \
+    -t trilinos-spack-packages:app \
+    -t trilinos-spack-packages:latest \
+    -f "$DOCKERFILE" \
+    .
 
 if [ "$BUILD_STAGE" = "test" ]; then
     echo ""

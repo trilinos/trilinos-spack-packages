@@ -79,11 +79,12 @@ RUN echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /root/.bashrc
 
 # Install core spack dependencies (cached layer - slowest step)
 # OPTIMIZATION: Install in single command to share dependency resolution
+# Include clingo-bootstrap to avoid bootstrap during spec resolution
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     export PYTHONHTTPSVERIFY=0 && \
     export PIP_TRUSTED_HOST='pypi.org pypi.python.org files.pythonhosted.org' && \
     spack compiler find && \
-    spack install -y python py-pytest cmake"
+    spack install -y python py-pytest cmake clingo-bootstrap"
 
 # ============================================
 # Stage: Python Dependencies
@@ -106,8 +107,9 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
 FROM python-deps AS deps-cache
 
 # Copy dependency extraction script and base package
+# Preserve directory structure so extract_dependencies.py can find it
 COPY tools/extract_dependencies.py /opt/
-COPY spack_repo/trilinos/packages/trilinos_base_class/package.py /opt/base_package.py
+COPY spack_repo/trilinos/packages/trilinos_base_class/package.py /opt/spack_repo/trilinos/packages/trilinos_base_class/package.py
 
 # Extract and install dependencies
 # OPTIMIZATION: Dependencies determined dynamically from source code
