@@ -1,4 +1,10 @@
 # Multi-stage build for optimal caching and minimal test runtime
+# OPTIMIZED VERSION with:
+# - Dynamic dependency extraction
+# - Spack build cache
+# - Parallel dependency installation
+# - Better layer caching
+
 FROM registry.access.redhat.com/ubi9:latest AS base
 
 # Disable all host repositories
@@ -43,12 +49,15 @@ RUN git -c http.sslVerify=false clone --depth 1 https://github.com/spack/spack.g
 ENV SPACK_ROOT=/opt/spack-src
 ENV PATH="${SPACK_ROOT}/bin:${PATH}"
 
-# Configure spack to disable SSL verification
+# Configure spack to disable SSL verification and enable build cache
 RUN mkdir -p /root/.spack && \
     echo 'config:' > /root/.spack/config.yaml && \
     echo '  verify_ssl: false' >> /root/.spack/config.yaml && \
     echo '  connect_timeout: 60' >> /root/.spack/config.yaml && \
-    echo '  suppress_gpg_warnings: true' >> /root/.spack/config.yaml
+    echo '  suppress_gpg_warnings: true' >> /root/.spack/config.yaml && \
+    echo '  install_tree:' >> /root/.spack/config.yaml && \
+    echo '    padded_length: 128' >> /root/.spack/config.yaml && \
+    echo '  build_jobs: 4' >> /root/.spack/config.yaml
 
 # Configure bootstrap to skip SSL
 RUN mkdir -p /root/.spack && \
@@ -60,18 +69,21 @@ RUN mkdir -p /root/.spack && \
     echo '    github-actions-v0.6: false' >> /root/.spack/bootstrap.yaml && \
     echo '    spack-install: true' >> /root/.spack/bootstrap.yaml
 
+# Add spack build cache for binary packages
+RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
+    spack mirror add binary_mirror https://binaries.spack.io/develop && \
+    spack buildcache keys --install --trust || true"
+
 # Initialize spack shell support
 RUN echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /root/.bashrc
 
 # Install core spack dependencies (cached layer - slowest step)
-# Set Python to ignore SSL as well
+# OPTIMIZATION: Install in single command to share dependency resolution
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     export PYTHONHTTPSVERIFY=0 && \
     export PIP_TRUSTED_HOST='pypi.org pypi.python.org files.pythonhosted.org' && \
     spack compiler find && \
-    spack install -y python && \
-    spack install -y py-pytest && \
-    spack install -y cmake"
+    spack install -y python py-pytest cmake"
 
 # ============================================
 # Stage: Python Dependencies
@@ -82,7 +94,6 @@ FROM spack-base AS python-deps
 COPY requirements.txt /opt/trilinos-spack-packages/
 
 # Install Python test dependencies using Spack's Python (cached if requirements.txt unchanged)
-# Install pytest itself via pip so it sees pytest-xdist properly
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack load python && \
     export PYTHONHTTPSVERIFY=0 && \
@@ -90,37 +101,61 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     pip3 install --no-cache-dir pytest pytest-xdist"
 
 # ============================================
+# Stage: Heavy Dependencies (OPTIMIZED)
+# ============================================
+FROM python-deps AS deps-cache
+
+# Copy dependency extraction script and base package
+COPY tools/extract_dependencies.py /opt/
+COPY spack_repo/trilinos/packages/trilinos_base_class/package.py /opt/base_package.py
+
+# Extract and install dependencies
+# OPTIMIZATION: Dependencies determined dynamically from source code
+RUN bash -c "set -e && \
+    source /opt/spack-src/share/spack/setup-env.sh && \
+    python3 /opt/extract_dependencies.py /opt && \
+    echo '=== Dependency Hash ===' && \
+    cat /opt/dependencies.lock | grep hash && \
+    echo '=== Installing Independent Dependencies in Parallel ===' && \
+    independent=\$(grep -v '^#' /opt/dependencies.txt | sed -n '1,/^$/p' | grep -v '^$') && \
+    echo \"\$independent\" && \
+    if [ -n \"\$independent\" ]; then \
+        spack install -y \$independent; \
+    fi && \
+    echo '=== Installing Dependent Packages ===' && \
+    dependent=\$(grep -v '^#' /opt/dependencies.txt | sed -n '/^$/,\$p' | grep -v '^$') && \
+    echo \"\$dependent\" && \
+    if [ -n \"\$dependent\" ]; then \
+        for dep in \$dependent; do \
+            spack install -y \$dep; \
+        done; \
+    fi && \
+    spack clean -a"
+
+# Save dependency lock for cache invalidation checks
+RUN cp /opt/dependencies.lock /opt/trilinos-spack-packages/
+
+# ============================================
 # Stage: Application Code
 # ============================================
-# ============================================
-# Stage: Application Code
-# ============================================
-FROM python-deps AS app
+FROM deps-cache AS app
 
 # Copy application code
 COPY . /opt/trilinos-spack-packages/
-
-# Make scripts executable
-RUN chmod +x /opt/trilinos-spack-packages/regenerate-package-files.sh /opt/trilinos-spack-packages/clean-cache-mismatches.sh 2>/dev/null || true
-
-# Add trilinos spack repository (uses local code)
-
 
 # Add trilinos spack repository (uses local code)
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack repo add /opt/trilinos-spack-packages/spack_repo/trilinos"
 
-# Load spack packages into environment
-RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
-    spack load python && \
-    spack load py-pytest && \
-    spack load cmake"
+# Note: Packages are available via entrypoint script (loaded there)
+# We don't load them here to avoid multi-version conflicts during build
 
-# Create entrypoint script
-# Load python and cmake from spack, but use pip-installed pytest (which sees xdist)
+# Create entrypoint script with better error handling for multiple versions
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /entrypoint.sh && \
-    echo 'spack load python cmake' >> /entrypoint.sh && \
+    echo '# Load packages, using --first for packages with multiple versions' >> /entrypoint.sh && \
+    echo 'spack load python' >> /entrypoint.sh && \
+    echo 'spack load --first cmake' >> /entrypoint.sh && \
     echo 'cd /opt/trilinos-spack-packages' >> /entrypoint.sh && \
     echo 'exec "$@"' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
@@ -136,29 +171,8 @@ CMD ["pytest", "test/", "-m", "quick", "-n", "auto", "-v"]
 FROM app AS test
 
 # This stage can be used for CI pipelines
-# Build environment is ready, just run tests
 RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
-    spack load python py-pytest cmake && \
+    spack load python && \
+    spack load --first cmake && \
     cd /opt/trilinos-spack-packages && \
     pytest test/ -m quick -v"
-
-# ============================================
-# Stage: Pre-built Dependencies (optional, expensive!)
-# ============================================
-FROM app AS with-deps
-
-# WARNING: This stage takes 30-60 minutes to build!
-# Only use this if you need to run real installations (without --fake)
-# Pre-install common heavy dependencies to speed up install tests
-RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
-    echo 'Pre-installing Kokkos (10-30 min)...' && \
-    spack install -y kokkos@5.1.1 && \
-    echo 'Pre-installing Kokkos-Kernels (5-15 min)...' && \
-    spack install -y kokkos-kernels && \
-    echo 'Pre-installing OpenBLAS (5-15 min)...' && \
-    spack install -y openblas && \
-    echo 'Pre-installing Boost (10-30 min)...' && \
-    spack install -y boost && \
-    echo 'Pre-installing OpenMPI (5-20 min)...' && \
-    spack install -y openmpi@4.1.6 && \
-    spack clean -a"

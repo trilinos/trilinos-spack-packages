@@ -62,18 +62,6 @@ run_tests() {
                 trilinos-spack-packages:latest \
                 /bin/bash
             ;;
-        compose|dc)
-            echo -e "${GREEN}Using podman-compose/docker-compose...${NC}"
-            shift
-            if command -v podman-compose &> /dev/null; then
-                podman-compose up "$@"
-            elif command -v docker-compose &> /dev/null; then
-                docker-compose up "$@"
-            else
-                echo -e "${RED}Error: Neither podman-compose nor docker-compose found${NC}"
-                exit 1
-            fi
-            ;;
         *)
             echo -e "${RED}Unknown test type: $test_type${NC}"
             echo ""
@@ -84,7 +72,6 @@ run_tests() {
             echo "  fast, f          - All tests except install (includes spec validation)"
             echo "  full, all, nightly - Full suite including real installs (8-9 hours)"
             echo "  shell, sh        - Interactive shell"
-            echo "  compose, dc      - Use podman-compose/docker-compose"
             echo ""
             echo "Examples:"
             echo "  $0 quick                    # Run quick tests"

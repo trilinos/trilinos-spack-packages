@@ -91,12 +91,11 @@ fi
 echo -e "${BLUE}Target stage: ${BUILD_STAGE}${NC}"
 echo ""
 
-# Use optimized Dockerfile
-DOCKERFILE="Dockerfile.optimized"
+# Use Dockerfile
+DOCKERFILE="Dockerfile"
 if [ ! -f "$DOCKERFILE" ]; then
     echo -e "${RED}Error: $DOCKERFILE not found${NC}"
-    echo -e "${YELLOW}Falling back to standard Dockerfile${NC}"
-    DOCKERFILE="Dockerfile"
+    exit 1
 fi
 
 # Build with optimal caching
