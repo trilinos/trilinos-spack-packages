@@ -86,6 +86,11 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack compiler find && \
     spack install -y python py-pytest cmake clingo-bootstrap"
 
+# Force complete bootstrap in this cached layer
+RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
+    spack bootstrap now && \
+    spack bootstrap status"
+
 # ============================================
 # Stage: Python Dependencies
 # ============================================

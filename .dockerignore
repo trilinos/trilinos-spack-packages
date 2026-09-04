@@ -57,3 +57,7 @@ xml_files/*.xml
 # Test outputs
 .coverage
 htmlcov/
+
+# Spack source (already installed in container)
+spack_src/
+spack-src/
