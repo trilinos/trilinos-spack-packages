@@ -27,6 +27,10 @@ class TrilinosPanzer(TrilinosBaseClass):
     variant("panzerminiem", default=True, description="Enable the PanzerMiniEM subpackage")
     variant("panzerexpreval", default=True, description="Enable the PanzerExprEval subpackage")
 
+    # Scraped CMake options
+    variant("thisisanoptbuild", default=False, description="Enable the transient optimization tests (automatically disabled for Debug builds).")
+
+
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist", when="+panzercore")
     depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm", when="+panzerdofmgr")
@@ -200,6 +204,9 @@ class TrilinosPanzer(TrilinosBaseClass):
 
         if self.spec.satisfies("+panzerminiem"):
             args.append(self.define("TPL_ENABLE_Pamgen", True))
+
+        # Scraped CMake options
+        args.append(self.define("PANZER_THIS_IS_AN_OPT_BUILD", self.spec["thisisanoptbuild"].value))
 
 
     # BEGIN MANUAL CMAKE ARGS

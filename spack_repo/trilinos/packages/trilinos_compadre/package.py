@@ -19,6 +19,28 @@ class TrilinosCompadre(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Scraped CMake options
+    variant("extremedebug", default=False, description="Run Compadre Toolkit in EXTREME DEBUG mode")
+    variant("debug", default=False, description="Run Compadre Toolkit in DEBUG mode")
+    variant("pythoncallingbuild", default=False, description="Python setuptools calling build")
+    variant("python", default=False, description="Use PYTHON")
+    variant("matlab", default=False, description="Use MATLAB interface for PYTHON")
+    variant("hip", default=False, description="Require HIP")
+    variant("kokkosenablecuda", default=False, description="Whether to use CUDA")
+    variant("kokkosenableopenmp", default=True, description="Whether to use OPENMP")
+    variant("kokkosenablethreads", default=False, description="Whether to use THREADS")
+    variant("kokkosenablecudauvm", default=False, description="")
+    variant("kokkosenablecudalambda", default=False, description="")
+    variant("kokkosenabledebug", default=False, description="")
+    variant("kokkosenabledebugboundscheck", default=False, description="")
+    variant("kokkosenabletests", default=False, description="")
+    variant("kokkosenableexamples", default=False, description="")
+    variant("examples", default=False, description="Compile Compadre examples")
+    variant("coverage", default=False, description="Use code coverage")
+    variant("xsdkdefaults", default=False, description="enable the XDSK v0.3.0 default configuration")
+    variant("buildsharedlibs", default=True, description="Build shared libraries")
+
+
     # Required package dependencies
     depends_on("kokkos")
     depends_on("kokkos-kernels")
@@ -38,6 +60,30 @@ class TrilinosCompadre(TrilinosBaseClass):
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
+
+        # Scraped CMake options
+        args.append(self.define("Compadre_EXTREME_DEBUG", self.spec["extremedebug"].value))
+        args.append(self.define("Compadre_DEBUG", self.spec["debug"].value))
+        args.append(self.define("PYTHON_CALLING_BUILD", self.spec["pythoncallingbuild"].value))
+        args.append(self.define("Compadre_USE_PYTHON", self.spec["python"].value))
+        args.append(self.define("Compadre_USE_MATLAB", self.spec["matlab"].value))
+        args.append(self.define("Compadre_USE_MPI", self.spec["mpi"].value))
+        args.append(self.define("Compadre_USE_CUDA", self.spec["cuda"].value))
+        args.append(self.define("Compadre_USE_HIP", self.spec["hip"].value))
+        args.append(self.define("Kokkos_ENABLE_CUDA", self.spec["kokkosenablecuda"].value))
+        args.append(self.define("Kokkos_ENABLE_OPENMP", self.spec["kokkosenableopenmp"].value))
+        args.append(self.define("Kokkos_ENABLE_THREADS", self.spec["kokkosenablethreads"].value))
+        args.append(self.define("Kokkos_ENABLE_CUDA_UVM", self.spec["kokkosenablecudauvm"].value))
+        args.append(self.define("Kokkos_ENABLE_CUDA_LAMBDA", self.spec["kokkosenablecudalambda"].value))
+        args.append(self.define("Kokkos_ENABLE_DEBUG", self.spec["kokkosenabledebug"].value))
+        args.append(self.define("Kokkos_ENABLE_DEBUG_BOUNDS_CHECK", self.spec["kokkosenabledebugboundscheck"].value))
+        args.append(self.define("Kokkos_ENABLE_TESTS", self.spec["kokkosenabletests"].value))
+        args.append(self.define("Kokkos_ENABLE_EXAMPLES", self.spec["kokkosenableexamples"].value))
+        args.append(self.define("Compadre_TESTS", self.spec["tests"].value))
+        args.append(self.define("Compadre_EXAMPLES", self.spec["examples"].value))
+        args.append(self.define("Compadre_COVERAGE", self.spec["coverage"].value))
+        args.append(self.define("USE_XSDK_DEFAULTS", self.spec["xsdkdefaults"].value))
+        args.append(self.define("BUILD_SHARED_LIBS", self.spec["buildsharedlibs"].value))
 
 
     # BEGIN MANUAL CMAKE ARGS

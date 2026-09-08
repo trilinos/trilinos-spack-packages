@@ -23,6 +23,10 @@ class TrilinosRol(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
+    # Scraped CMake options
+    variant("enablempi", default=False, description="Enable real MPI (native Teuchos-free ROL::GlobalMPISession + PinT)")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
 
@@ -75,6 +79,9 @@ class TrilinosRol(TrilinosBaseClass):
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
+
+        # Scraped CMake options
+        args.append(self.define("ENABLE_MPI", self.spec["enablempi"].value))
 
 
     # BEGIN MANUAL CMAKE ARGS

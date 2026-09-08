@@ -48,6 +48,15 @@ class TrilinosStk(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
+    # Scraped CMake options
+    variant("builtforsierra", default=False, description="Enable SIERRA capability")
+    variant("enablecuda", default=False, description="Enable build targeting GPU")
+    variant("enableallwarnings", default=True, description="Show most warnings for most compilers")
+    variant("enablewerror", default=True, description="Warnings are errors")
+    variant("enableopenmp", default=False, description="Enable OpenMP flags")
+    variant("stksimdnone", default=False, description="Disable SIMD")
+
+
     # Optional package dependencies
     depends_on("kokkos", when="+stkutil")
     depends_on("kokkos", when="+stkmath")
@@ -213,6 +222,14 @@ class TrilinosStk(TrilinosBaseClass):
 
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
+
+        # Scraped CMake options
+        args.append(self.define("STK_BUILT_FOR_SIERRA", self.spec["builtforsierra"].value))
+        args.append(self.define("ENABLE_CUDA", self.spec["enablecuda"].value))
+        args.append(self.define("ENABLE_ALL_WARNINGS", self.spec["enableallwarnings"].value))
+        args.append(self.define("ENABLE_WERROR", self.spec["enablewerror"].value))
+        args.append(self.define("ENABLE_OPENMP", self.spec["enableopenmp"].value))
+        args.append(self.define("USE_STK_SIMD_NONE", self.spec["stksimdnone"].value))
 
 
     # BEGIN MANUAL CMAKE ARGS

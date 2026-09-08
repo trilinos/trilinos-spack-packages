@@ -26,6 +26,8 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import re
+
 
 from parse_tribits_xml import parse_xml, TrilinosPackage
 
@@ -188,6 +190,58 @@ def _variant_name(subpackage_name: str) -> str:
     return subpackage_name.lower().replace("_", "-")
 
 
+def _cmake_var_to_spack_variant(var: str, pkg_name: str) -> str:
+    """Convert a CMake variable name to a Spack variant name.
+
+    1. Omit package name prefix if present.
+    2. Omit "use" prefix if it is a distinct word (e.g. starts with "USE_").
+    3. Remove all non-alphanumeric characters.
+    4. Lowercase.
+    """
+    res = var
+    # 1. Omit package name prefix
+    if res.lower().startswith(pkg_name.lower()):
+        res = res[len(pkg_name):].lstrip("_- ")
+
+    # 2. Omit "use" prefix if it's a distinct word
+    if res.lower().startswith("use") and len(res) > 3 and not res[3].isalnum():
+        res = res[3:].lstrip("_- ")
+
+    # 3 & 4. Remove non-alphanumeric and lowercase
+    clean = "".join(c for c in res if c.isalnum()).lower()
+    return clean if clean else "".join(c for c in var if c.isalnum()).lower()
+
+
+def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
+    """Scrape CMake option() calls from the package directory.
+
+    Returns a mapping: cmake_var -> (description, default_value).
+    """
+    options = {}
+    pkg_dir = f"/projects/packages/{pkg_name.lower()}"
+    if not os.path.isdir(pkg_dir):
+        return options
+
+    # Pattern for option(VAR "DESC" DEFAULT)
+    # Group 1: Variable name, Group 2: Description, Group 3: Default value
+    pattern = re.compile(r'option\(\s*([A-Za-z0-9_]+)\s*"([^"]*)"\s*([^)]*)\)')
+
+    for root, _, files in os.walk(pkg_dir):
+        for file in files:
+            if file.endswith(".cmake") or file == "CMakeLists.txt":
+                try:
+                    with open(os.path.join(root, file), "r", encoding="utf-8") as f:
+                        content = f.read()
+                        for match in pattern.finditer(content):
+                            var, desc, default = match.groups()
+                            # Normalize default to boolean
+                            default_val = True if default.strip().upper() == "ON" else False
+                            options[var] = (desc, default_val)
+                except Exception:
+                    continue
+    return options
+
+
 def _tpl_variant_name(tpl_name: str) -> str:
     """Convert a TriBITS TPL name to a Spack variant name for that TPL.
 
@@ -240,7 +294,7 @@ def _extract_manual_section(file_path: str, begin_marker: str, end_marker: str) 
 # Code generation
 # ---------------------------------------------------------------------------
 
-def _header(pkg: TrilinosPackage) -> list[str]:
+def _header(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] = None) -> list[str]:
     """Render the package header: copyright, imports, class declaration, variants.
 
     homepage, url, git, and versions are defined in TrilinosBaseClass.
@@ -307,6 +361,21 @@ def _header(pkg: TrilinosPackage) -> list[str]:
             lines.append(
                 f'    variant("{vname}", default=True,'
                 f' description="Enable {spack_name} support")'
+            )
+        lines.append("")
+        lines.append("")
+
+    # Scraped CMake options as variants
+    if scraped_options:
+        lines.append("    # Scraped CMake options")
+        for var, (desc, default) in scraped_options.items():
+            vname = _cmake_var_to_spack_variant(var, pkg.name)
+            # Avoid redeclaring base variants
+            if vname in BASE_TRILINOS_VARIANTS:
+                continue
+            lines.append(
+                f'    variant("{vname}", default={default}, '
+                f'description="{desc}")'
             )
         lines.append("")
         lines.append("")
@@ -534,7 +603,7 @@ def _conflicts(pkg: TrilinosPackage) -> list[str]:
     return lines
 
 
-def _footer(pkg: TrilinosPackage) -> list[str]:
+def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] = None) -> list[str]:
     """Render cmake_args.
 
     Self:         Trilinos_ENABLE_<ThisPackage>=ON      (always, unconditional)
@@ -656,6 +725,14 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             '',
         ]
 
+    # ---- Scraped CMake options ----------------
+    if scraped_options:
+        lines.append("        # Scraped CMake options")
+        for var, (_, _) in scraped_options.items():
+            vname = _cmake_var_to_spack_variant(var, pkg.name)
+            lines.append(f'        args.append(self.define("{var}", self.spec["{vname}"].value))')
+        lines.append("")
+
     lines += [
         "",
         f"        {MANUAL_CMAKE_BEGIN}",
@@ -674,8 +751,9 @@ def generate_package_py(pkg: TrilinosPackage, existing_file_path: str = None) ->
     If existing_file_path is provided, extracts and preserves manual sections
     from the existing file.
     """
+    scraped_options = _scrape_cmake_options(pkg.name)
     lines: list[str] = []
-    lines += _header(pkg)
+    lines += _header(pkg, scraped_options=scraped_options)
     lines += _required_package_deps(pkg)
     lines += _optional_package_deps(pkg)
     lines += _required_tpl_deps(pkg)
@@ -697,7 +775,7 @@ def generate_package_py(pkg: TrilinosPackage, existing_file_path: str = None) ->
 
     # For cmake_args, we need to preserve the manual CMAKE args section
     # This is handled inside _footer, but we need to pass the file path
-    footer_lines = _footer(pkg)
+    footer_lines = _footer(pkg, scraped_options=scraped_options)
     if existing_file_path:
         # Extract manual CMAKE args from existing file
         manual_cmake = _extract_manual_section(

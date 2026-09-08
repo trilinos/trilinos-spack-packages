@@ -50,4 +50,8 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_MueLu", True))
 
+
+    # BEGIN MANUAL CMAKE ARGS
+    # END MANUAL CMAKE ARGS
+
         return args
