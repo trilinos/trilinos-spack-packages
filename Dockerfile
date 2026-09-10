@@ -59,11 +59,11 @@ RUN mkdir -p /root/.spack && \
     echo '    padded_length: 128' >> /root/.spack/config.yaml && \
     echo '  build_jobs: 4' >> /root/.spack/config.yaml
 
-# Configure bootstrap to skip SSL
-RUN mkdir -p /root/.spack && \
+# Configure bootstrap to skip SSL and use absolute path for bootstrap root
+RUN mkdir -p /root/.spack /opt/spack-src/opt/bootstrap && \
     echo 'bootstrap:' > /root/.spack/bootstrap.yaml && \
     echo '  enable: true' >> /root/.spack/bootstrap.yaml && \
-    echo '  root: $spack/opt/bootstrap' >> /root/.spack/bootstrap.yaml && \
+    echo '  root: /opt/spack-src/opt/bootstrap' >> /root/.spack/bootstrap.yaml && \
     echo '  trusted:' >> /root/.spack/bootstrap.yaml && \
     echo '    github-actions-v2: false' >> /root/.spack/bootstrap.yaml && \
     echo '    github-actions-v0.6: false' >> /root/.spack/bootstrap.yaml && \
@@ -86,10 +86,35 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
     spack compiler find && \
     spack install -y python py-pytest cmake clingo-bootstrap"
 
-# Force complete bootstrap in this cached layer
-RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
+# Explicitly install all bootstrap dependencies that Spack needs
+# These are installed to /opt/spack-src/opt/bootstrap/store/ via bootstrap mechanism
+RUN bash -c "set -e && \
+    source /opt/spack-src/share/spack/setup-env.sh && \
+    echo 'Installing bootstrap packages explicitly...' && \
+    export SPACK_BOOTSTRAP_DEBUG=1 && \
     spack bootstrap now && \
+    echo 'Triggering bootstrap via spec resolution...' && \
+    spack solve zlib && \
+    echo 'Bootstrap installation complete' && \
     spack bootstrap status"
+
+# Verify bootstrap packages were actually cached
+RUN bash -c "set -e && \
+    source /opt/spack-src/share/spack/setup-env.sh && \
+    echo '=== Bootstrap Verification ===' && \
+    BOOTSTRAP_COUNT=\$(find /opt/spack-src/opt/bootstrap/store -type f 2>/dev/null | wc -l) && \
+    echo \"Bootstrap files cached: \$BOOTSTRAP_COUNT\" && \
+    if [ \"\$BOOTSTRAP_COUNT\" -eq 0 ]; then \
+        echo 'ERROR: Bootstrap packages not built! Listing bootstrap config:' && \
+        cat /root/.spack/bootstrap.yaml && \
+        ls -la /opt/spack-src/opt/bootstrap/ && \
+        spack bootstrap status && \
+        exit 1; \
+    fi && \
+    du -sh /opt/spack-src/opt/bootstrap/ && \
+    ls -la /opt/spack-src/opt/bootstrap/store/ 2>/dev/null | head -20 && \
+    chmod -R a+rX /opt/spack-src/opt/bootstrap && \
+    echo 'Bootstrap cache ready' > /opt/spack-src/opt/bootstrap/.cached"
 
 # ============================================
 # Stage: Python Dependencies
@@ -160,6 +185,13 @@ RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
 # Create entrypoint script with better error handling for multiple versions
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /entrypoint.sh && \
+    echo '# Verify bootstrap cache exists' >> /entrypoint.sh && \
+    echo 'if [ -f /opt/spack-src/opt/bootstrap/.cached ]; then' >> /entrypoint.sh && \
+    echo '  BOOTSTRAP_FILES=$(find /opt/spack-src/opt/bootstrap/store -type f 2>/dev/null | wc -l)' >> /entrypoint.sh && \
+    echo '  echo "Bootstrap cache verified: $BOOTSTRAP_FILES files cached"' >> /entrypoint.sh && \
+    echo 'else' >> /entrypoint.sh && \
+    echo '  echo "WARNING: Bootstrap cache not found - packages may be rebuilt"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
     echo '# Load packages, using --first for packages with multiple versions' >> /entrypoint.sh && \
     echo 'spack load python' >> /entrypoint.sh && \
     echo 'spack load --first cmake' >> /entrypoint.sh && \

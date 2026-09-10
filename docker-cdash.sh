@@ -82,6 +82,11 @@ if ! $CONTAINER_CMD image inspect trilinos-spack-packages:latest &> /dev/null; t
     exit 1
 fi
 
+# Set default site name for CDash if not already set
+if [ -z "$CTEST_SITE" ]; then
+    CTEST_SITE="Trilinos_Spack_Nightly_Docker"
+fi
+
 # Create a temporary build directory in the container and run CTest
 log "Configuring CMake and running CTest..."
 TEST_START=$(date +%s)
@@ -92,6 +97,7 @@ if [ "$DASHBOARD_TYPE" = "Nightly" ]; then
         -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
         -e CTEST_TEST_FILTER="${TEST_FILTER}" \
         -e CTEST_NO_SUBMIT="${NO_SUBMIT}" \
+        -e CTEST_SITE="${CTEST_SITE}" \
         -e GIT_SSL_NO_VERIFY=1 \
         -e CURL_CA_BUNDLE=/dev/null \
         trilinos-spack-packages:latest \
@@ -116,6 +122,7 @@ else
         -e DASHBOARD_TYPE="${DASHBOARD_TYPE}" \
         -e CTEST_TEST_FILTER="${TEST_FILTER}" \
         -e CTEST_NO_SUBMIT="${NO_SUBMIT}" \
+        -e CTEST_SITE="${CTEST_SITE}" \
         -e GIT_SSL_NO_VERIFY=1 \
         -e CURL_CA_BUNDLE=/dev/null \
         trilinos-spack-packages:latest \

@@ -51,7 +51,6 @@ run_tests() {
         full|all|nightly)
             echo -e "${YELLOW}Running full test suite (all tests including real installs - takes 8-9 hours)...${NC}"
             $CONTAINER_CMD run --rm \
-                -v spack-cache:/opt/spack-src/var/spack \
                 trilinos-spack-packages:latest \
                 ./regenerate-package-files.sh $extra_args
             ;;

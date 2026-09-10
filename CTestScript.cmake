@@ -20,6 +20,19 @@ set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 # Read configuration from CTestConfig.cmake
 ctest_read_custom_files(${CTEST_SOURCE_DIRECTORY})
 
+# Set the site name (required for CDash submission)
+set(CTEST_SITE "$ENV{CTEST_SITE}")
+if(NOT CTEST_SITE)
+    # Default to hostname if CTEST_SITE environment variable not set
+    site_name(CTEST_SITE)
+endif()
+
+# Set build name (can be customized via environment)
+set(CTEST_BUILD_NAME "$ENV{CTEST_BUILD_NAME}")
+if(NOT CTEST_BUILD_NAME)
+    set(CTEST_BUILD_NAME "Trilinos_Spack_Packages")
+endif()
+
 # Configure
 ctest_start(${DASHBOARD_TYPE})
 ctest_configure(BUILD "${CTEST_BINARY_DIRECTORY}" SOURCE "${CTEST_SOURCE_DIRECTORY}")
