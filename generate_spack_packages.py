@@ -207,9 +207,15 @@ def _cmake_var_to_spack_variant(var: str, pkg_name: str) -> str:
     if res.lower().startswith("use") and len(res) > 3 and not res[3].isalnum():
         res = res[3:].lstrip("_- ")
 
-    # 3 & 4. Remove non-alphanumeric and lowercase
-    clean = "".join(c for c in res if c.isalnum()).lower()
-    return clean if clean else "".join(c for c in var if c.isalnum()).lower()
+    # 3. Omit "enable" prefix if it's a distinct word
+    if res.lower().startswith("enable") and (len(res) == 6 or not res[6].isalnum()):
+        res = res[6:].lstrip("_- ")
+
+    # 4 & 5. Keep alphanumeric, underscores, and hyphens; replace underscores with hyphens; lowercase
+    clean = "".join(c for c in res if c.isalnum() or c in "_-").lower().replace("_", "-")
+    # Remove duplicate hyphens if any
+    clean = re.sub(r'-+', '-', clean).strip('-')
+    return clean if clean else "".join(c for c in var if c.isalnum() or c in "_-").lower().replace("_", "-")
 
 
 def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
@@ -234,6 +240,9 @@ def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
                         content = f.read()
                         for match in pattern.finditer(content):
                             var, desc, default = match.groups()
+                            # Clean up description: collapse newlines and extra whitespace
+                            if desc:
+                                desc = " ".join(desc.split())
                             # Normalize default to boolean
                             default_val = True if default.strip().upper() == "ON" else False
                             options[var] = (desc, default_val)
