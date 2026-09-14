@@ -228,9 +228,13 @@ def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
     if not os.path.isdir(pkg_dir):
         return options
 
-    # Pattern for option(VAR "DESC" DEFAULT)
+    # Pattern for option(VAR "DESC" DEFAULT) or TRIBITS_ADD_OPTION_AND_DEFINE(VAR ...
     # Group 1: Variable name, Group 2: Description, Group 3: Default value
-    pattern = re.compile(r'option\(\s*([A-Za-z0-9_]+)\s*"([^"]*)"\s*([^)]*)\)')
+    pattern = re.compile(
+        r'(?:option\s*\(\s*([A-Za-z0-9_]+)\s*"?([^"]*)"?\s*([^)]*)\)|'
+        r'TRIBITS_ADD_OPTION_AND_DEFINE\s*\(\s*([A-Za-z0-9_]+)[,\s]+(?:[^"]*"?([^"]*)"?[,\s]+)?([^)]*)\))',
+        re.IGNORECASE | re.DOTALL
+    )
 
     for root, _, files in os.walk(pkg_dir):
         for file in files:
@@ -239,10 +243,17 @@ def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
                     with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                         content = f.read()
                         for match in pattern.finditer(content):
-                            var, desc, default = match.groups()
+                            # The regex has two alternative groups. We need to find which one matched.
+                            groups = match.groups()
+                            if groups[0]: # option() match
+                                var, desc, default = groups[0], groups[1], groups[2]
+                            else: # TRIBITS_ADD_OPTION_AND_DEFINE match
+                                var, desc, default = groups[3], groups[4], groups[5]
+
                             # Clean up description: collapse newlines and extra whitespace
                             if desc:
                                 desc = " ".join(desc.split())
+
                             # Normalize default to boolean
                             default_val = True if default.strip().upper() == "ON" else False
                             options[var] = (desc, default_val)
