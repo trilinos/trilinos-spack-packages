@@ -106,6 +106,25 @@ BASE_TRILINOS_VARIANTS: set[str] = {
     "explicit-instantiation",
     "all-optional-packages",
     "tests",
+    "double",
+    "float",
+    "complex-double",
+    "complex-float",
+}
+
+# Synchronization requirements for scalar variants.
+# Key: The variant that triggers the requirement.
+# Value: List of (type, target, requirement)
+# Types: "internal" (conflicts in same package), "external" (depends_on other package)
+SCALAR_SYNC_MAP: dict[str, list[tuple[str, str, str]]] = {
+    "complex-double": [
+        ("internal", "double", "conflict"),
+        ("external", "trilinos-teuchos", "complex"),
+    ],
+    "complex-float": [
+        ("internal", "float", "conflict"),
+        ("external", "trilinos-teuchos", "complex"),
+    ],
 }
 
 # TPL allowlist: only TPLs listed here get variants, depends_on, and cmake args.
@@ -464,13 +483,13 @@ def _required_package_deps(pkg: TrilinosPackage) -> list[str]:
     return lines
 
 
-def _optional_package_deps(pkg: TrilinosPackage) -> list[str]:
+def _optional_package_deps(pkg: TrilinosPackage, scraped_options: dict = None) -> list[str]:
     """Render depends_on lines for optional package dependencies, grouping
     multiple subpackage variants for the same parent+when into one line.
 
         TeuchosCore when=+tpetracore → depends_on_trilinos_package("trilinos-teuchos +teuchoscore", when="+tpetracore")
     """
-    if not pkg.optional_package_deps:
+    if not pkg.optional_package_deps and not scraped_options:
         return []
 
     from collections import defaultdict
@@ -509,6 +528,26 @@ def _optional_package_deps(pkg: TrilinosPackage) -> list[str]:
                 order.append(key)
             if variant and variant not in variants[key]:
                 variants[key].append(variant)
+
+    # Handle cross-package synchronized variants (from SCALAR_SYNC_MAP)
+    # This adds depends_on requirements to other packages based on variants enabled in this one.
+    for variant, requirements in SCALAR_SYNC_MAP.items():
+        # We only add these if the current package actually uses this variant (scraped or subpackage)
+        has_variant = any(_cmake_var_to_spack_variant(var, pkg.name) == variant
+                          for var in (scraped_options or {})) or \
+                      any(_variant_name(sp) == variant for sp in pkg.subpackages)
+
+        if has_variant:
+            for req_type, target, req_val in requirements:
+                if req_type == "external":
+                    # This is a cross-package dependency: depend on the target package with the req_val variant
+                    fn = "depends_on_trilinos_package" if target.startswith("trilinos-") else "depends_on"
+                    spec = f"{target} +{req_val}"
+                    key = (fn, target, f"+{variant}")
+                    if key not in seen_keys:
+                        seen_keys.add(key)
+                        order.append(key)
+                        variants[key] = []
 
     lines = ["    # Optional package dependencies"]
     for fn, spack_name, when in order:
@@ -775,7 +814,7 @@ def generate_package_py(pkg: TrilinosPackage, existing_file_path: str = None) ->
     lines: list[str] = []
     lines += _header(pkg, scraped_options=scraped_options)
     lines += _required_package_deps(pkg)
-    lines += _optional_package_deps(pkg)
+    lines += _optional_package_deps(pkg, scraped_options=scraped_options)
     lines += _required_tpl_deps(pkg)
     lines += _optional_tpl_deps(pkg)
 
