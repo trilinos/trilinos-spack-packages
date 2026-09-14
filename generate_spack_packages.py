@@ -750,7 +750,7 @@ def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
         lines.append("        # Scraped CMake options")
         for var, (_, _) in scraped_options.items():
             vname = _cmake_var_to_spack_variant(var, pkg.name)
-            lines.append(f'        args.append(self.define("{var}", self.spec["{vname}"].value))')
+            lines.append(f'        args.append(self.define_from_variant("{var}", "{vname}"))')
         lines.append("")
 
     lines += [
