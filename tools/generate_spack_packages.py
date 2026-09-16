@@ -86,6 +86,16 @@ EXTERNAL_PACKAGES: dict[str, str] = {
 # Convenience set for fast membership tests
 _EXTERNAL_NAMES: set[str] = set(EXTERNAL_PACKAGES.keys())
 
+# Package exclusion list: packages to completely skip during generation.
+# These packages will not get generated Spack packages at all.
+# Format: set of TriBITS package names (as they appear in the XML)
+EXCLUDE_PACKAGES: set[str] = {
+    "TrilinosATDMConfigTests",  # Test/utility packages that don't need
+    "TrilinosBuildStats",        # individual Spack packages
+    "TrilinosFrameworkTests",
+    "TrilinosInstallTests",
+}
+
 # Subpackage relationships that the XML doesn't declare via ParentPackage.
 # Key   = subpackage TriBITS name
 # Value = parent TriBITS package name
@@ -805,8 +815,14 @@ def main():
 
     # Filter out external packages – they already exist in Spack
     packages = [p for p in packages if p.name not in _EXTERNAL_NAMES]
+
+    # Filter out excluded packages – they should not be generated
+    packages = [p for p in packages if p.name not in EXCLUDE_PACKAGES]
+
     print(f"    {len(packages)} top-level packages to generate.")
     print(f"    Externals (skipped): {', '.join(sorted(_EXTERNAL_NAMES))}")
+    if EXCLUDE_PACKAGES:
+        print(f"    Excluded packages: {', '.join(sorted(EXCLUDE_PACKAGES))}")
 
     # Remove optional deps that would create cycles
     packages = _remove_cyclic_optional_deps(packages)

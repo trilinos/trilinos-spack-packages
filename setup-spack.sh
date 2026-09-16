@@ -44,6 +44,7 @@ spack -k install py-pytest
 spack -k install cmake
 spack -k install emacs
 
-spack load python
-spack load py-pytest
-spack load cmake
+spack load --first python
+spack load --first py-pytest
+spack load --first cmake
+spack load --first emacs
