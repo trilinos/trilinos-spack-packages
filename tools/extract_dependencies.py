@@ -88,7 +88,8 @@ def extract_common_dependencies():
     # Add common dependencies without version (use spack defaults)
     dependencies['independent'].extend([
         "openblas",
-        "boost"
+        "boost",
+        "llvm"
     ])
 
     # Dependent packages (kokkos-kernels needs kokkos)
