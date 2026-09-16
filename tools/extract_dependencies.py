@@ -93,7 +93,11 @@ def extract_common_dependencies():
     ])
 
     # Dependent packages (kokkos-kernels needs kokkos)
-    dependencies['dependent'].append("kokkos-kernels")
+    # kokkos-kernels should match kokkos version
+    if 'kokkos' in versions:
+        dependencies['dependent'].append(f"kokkos-kernels@{versions['kokkos']}")
+    else:
+        dependencies['dependent'].append("kokkos-kernels")
 
     return dependencies, versions
 
