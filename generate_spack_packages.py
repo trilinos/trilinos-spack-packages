@@ -110,6 +110,7 @@ BASE_TRILINOS_VARIANTS: set[str] = {
     "float",
     "complex-double",
     "complex-float",
+    "disable-deprecated-code",
 }
 
 # Scraped CMake options to exclude from generated packages.

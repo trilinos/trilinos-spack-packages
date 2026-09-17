@@ -95,6 +95,7 @@ class TrilinosBaseClass(CMakePackage):
     trilinos_variant("float", default=False, description="Enable float scalar type")
     trilinos_variant("complex-double", default=False, description="Enable complex<double> scalar type")
     trilinos_variant("complex-float", default=False, description="Enable complex<float> scalar type")
+    trilinos_variant("disable-deprecated-code", default=True, description="Disable deprecated code in Trilinos packages")
     #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
@@ -203,6 +204,21 @@ class TrilinosBaseClass(CMakePackage):
         args.append(self.define_from_variant("Tpetra_INST_FLOAT", "float"))
         args.append(self.define_from_variant("Tpetra_INST_COMPLEX_DOUBLE", "complex-double"))
         args.append(self.define_from_variant("Tpetra_INST_COMPLEX_FLOAT", "complex-float"))
+
+        # Deprecated code handling
+        if "+disable-deprecated-code" in self.spec:
+            args.append(self.define("Tpetra_ENABLE_DEPRECATED_CODE", False))
+            args.append(self.define("Ifpack2_ENABLE_DEPRECATED_CODE", False))
+            args.append(self.define("MueLu_ENABLE_DEPRECATED_CODE", False))
+            args.append(self.define("Xpetra_ENABLE_DEPRECATED_CODE", False))
+            args.append(self.define("Belos_HIDE_DEPRECATED_CODE", True))
+            args.append(self.define("Ifpack2_HIDE_DEPRECATED_CODE", True))
+            args.append(self.define("Panzer_HIDE_DEPRECATED_CODE", True))
+            args.append(self.define("Phalanx_HIDE_DEPRECATED_CODE", True))
+            args.append(self.define("RTop_HIDE_DEPRECATED_CODE", True))
+            args.append(self.define("Teuchos_HIDE_DEPRECATED_CODE", True))
+            args.append(self.define("Thyra_HIDE_DEPRECATED_CODE", True))
+            args.append(self.define("Tempus_HIDE_DEPRECATED_CODE", True))
 
         # Disable auto-enabling of optional packages - we explicitly enable what we need
         args.append("-DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF")
