@@ -20,21 +20,21 @@ class TrilinosStokhos(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("boost", default=True, description="Enable boost support")
+    variant("boost", default=False, description="Enable boost support")
 
 
     # Optional package variants
-    variant("anasazi", default=True, description="Enable Anasazi support")
-    variant("sacado", default=True, description="Enable Sacado support")
-    variant("nox", default=True, description="Enable NOX support")
-    variant("teuchoskokkoscomm", default=True, description="Enable TeuchosKokkosComm support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
-    variant("ifpack2", default=True, description="Enable Ifpack2 support")
-    variant("muelu", default=True, description="Enable MueLu support")
-    variant("belos", default=True, description="Enable Belos support")
-    variant("amesos2", default=True, description="Enable Amesos2 support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("xpetra", default=True, description="Enable Xpetra support")
+    variant("anasazi", default=False, description="Enable Anasazi support")
+    variant("sacado", default=False, description="Enable Sacado support")
+    variant("nox", default=False, description="Enable NOX support")
+    variant("teuchoskokkoscomm", default=False, description="Enable TeuchosKokkosComm support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
+    variant("ifpack2", default=False, description="Enable Ifpack2 support")
+    variant("muelu", default=False, description="Enable MueLu support")
+    variant("belos", default=False, description="Enable Belos support")
+    variant("amesos2", default=False, description="Enable Amesos2 support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("xpetra", default=False, description="Enable Xpetra support")
 
 
     # Scraped CMake options
@@ -59,11 +59,41 @@ class TrilinosStokhos(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
     depends_on_trilinos_package("trilinos-xpetra", when="+xpetra")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-anasazi", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-sacado", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-nox", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-amesos2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-xpetra", when="+all-optional-packages")
+
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("boost", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+anasazi", when="+all-optional-packages")
+    conflicts("+sacado", when="+all-optional-packages")
+    conflicts("+nox", when="+all-optional-packages")
+    conflicts("+teuchoskokkoscomm", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+ifpack2", when="+all-optional-packages")
+    conflicts("+muelu", when="+all-optional-packages")
+    conflicts("+belos", when="+all-optional-packages")
+    conflicts("+amesos2", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+xpetra", when="+all-optional-packages")
+    conflicts("+boost", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -73,18 +103,40 @@ class TrilinosStokhos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Anasazi", "anasazi"))
-        args.append(self.define_from_variant("TPL_ENABLE_Sacado", "sacado"))
-        args.append(self.define_from_variant("TPL_ENABLE_NOX", "nox"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosKokkosComm", "teuchoskokkoscomm"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
-        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
-        if self.spec.satisfies("+boost"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+anasazi"):
+            args.append(self.define("TPL_ENABLE_Anasazi", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+sacado"):
+            args.append(self.define("TPL_ENABLE_Sacado", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+nox"):
+            args.append(self.define("TPL_ENABLE_NOX", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoskokkoscomm"):
+            args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+ifpack2"):
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+muelu"):
+            args.append(self.define("TPL_ENABLE_MueLu", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+amesos2"):
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+xpetra"):
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
         # Scraped CMake options

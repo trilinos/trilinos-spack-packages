@@ -99,7 +99,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     trilinos_variant("complex-float", default=False, description="Enable complex<float> scalar type")
     trilinos_variant("disable-deprecated-code", default=True, description="Disable deprecated code in Trilinos packages")
     variant("shared", default=True, description="Enable building shared libraries")
-    #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
+    variant("all-optional-packages", default=False, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
     # Kokkos version pinning by Trilinos version

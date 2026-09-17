@@ -24,13 +24,13 @@ class TrilinosThyra(TrilinosBaseClass):
     variant("thyratpetraadapters", default=True, description="Enable the ThyraTpetraAdapters subpackage")
 
     # Optional package variants
-    variant("teuchoscore", default=True, description="Enable TeuchosCore support")
-    variant("teuchos", default=True, description="Enable Teuchos support")
-    variant("teuchosparameterlist", default=True, description="Enable TeuchosParameterList support")
-    variant("teuchoscomm", default=True, description="Enable TeuchosComm support")
-    variant("teuchosnumerics", default=True, description="Enable TeuchosNumerics support")
-    variant("rtop", default=True, description="Enable RTOp support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("teuchoscore", default=False, description="Enable TeuchosCore support")
+    variant("teuchos", default=False, description="Enable Teuchos support")
+    variant("teuchosparameterlist", default=False, description="Enable TeuchosParameterList support")
+    variant("teuchoscomm", default=False, description="Enable TeuchosComm support")
+    variant("teuchosnumerics", default=False, description="Enable TeuchosNumerics support")
+    variant("rtop", default=False, description="Enable RTOp support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
 
 
     # Optional package dependencies
@@ -42,8 +42,22 @@ class TrilinosThyra(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-rtop", when="+rtop")
     depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist +teuchoscomm +teuchosnumerics", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-rtop", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+teuchoscore", when="+all-optional-packages")
+    conflicts("+teuchos", when="+all-optional-packages")
+    conflicts("+teuchosparameterlist", when="+all-optional-packages")
+    conflicts("+teuchoscomm", when="+all-optional-packages")
+    conflicts("+teuchosnumerics", when="+all-optional-packages")
+    conflicts("+rtop", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -56,13 +70,27 @@ class TrilinosThyra(TrilinosBaseClass):
             args.append(self.define("Trilinos_ENABLE_ThyraTpetraAdapters", True))
 
 
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosCore", "teuchoscore"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosParameterList", "teuchosparameterlist"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosComm", "teuchoscomm"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosNumerics", "teuchosnumerics"))
-        args.append(self.define_from_variant("TPL_ENABLE_RTOp", "rtop"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoscore"):
+            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchos"):
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchosparameterlist"):
+            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoscomm"):
+            args.append(self.define("TPL_ENABLE_TeuchosComm", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchosnumerics"):
+            args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+rtop"):
+            args.append(self.define("TPL_ENABLE_RTOp", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

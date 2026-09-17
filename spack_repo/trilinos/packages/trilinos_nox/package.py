@@ -20,18 +20,18 @@ class TrilinosNox(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("lapack", default=True, description="Enable lapack support")
-    variant("blas", default=True, description="Enable blas support")
+    variant("lapack", default=False, description="Enable lapack support")
+    variant("blas", default=False, description="Enable blas support")
 
 
     # Optional package variants
-    variant("thyracore", default=True, description="Enable ThyraCore support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("belos", default=True, description="Enable Belos support")
-    variant("anasazi", default=True, description="Enable Anasazi support")
-    variant("stratimikos", default=True, description="Enable Stratimikos support")
-    variant("teko", default=True, description="Enable Teko support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("thyracore", default=False, description="Enable ThyraCore support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("belos", default=False, description="Enable Belos support")
+    variant("anasazi", default=False, description="Enable Anasazi support")
+    variant("stratimikos", default=False, description="Enable Stratimikos support")
+    variant("teko", default=False, description="Enable Teko support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
 
 
     # Scraped CMake options
@@ -55,12 +55,35 @@ class TrilinosNox(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-teko", when="+teko")
     depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-thyra +thyracore", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-anasazi", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-stratimikos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teko", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+
     # Optional external (TPL) dependencies
     depends_on("lapack", when="+lapack")
     depends_on("blas", when="+blas")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("lapack", when="+all-optional-packages")
+    depends_on("blas", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+thyracore", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+belos", when="+all-optional-packages")
+    conflicts("+anasazi", when="+all-optional-packages")
+    conflicts("+stratimikos", when="+all-optional-packages")
+    conflicts("+teko", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+lapack", when="+all-optional-packages")
+    conflicts("+blas", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -68,17 +91,31 @@ class TrilinosNox(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_ThyraCore", "thyracore"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Anasazi", "anasazi"))
-        args.append(self.define_from_variant("TPL_ENABLE_Stratimikos", "stratimikos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teko", "teko"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        if self.spec.satisfies("+lapack"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyracore"):
+            args.append(self.define("TPL_ENABLE_ThyraCore", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+anasazi"):
+            args.append(self.define("TPL_ENABLE_Anasazi", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stratimikos"):
+            args.append(self.define("TPL_ENABLE_Stratimikos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teko"):
+            args.append(self.define("TPL_ENABLE_Teko", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+lapack"):
             args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        if self.spec.satisfies("+blas"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+blas"):
             args.append(self.define("TPL_ENABLE_BLAS", True))
 
         # Scraped CMake options

@@ -20,8 +20,8 @@ class TrilinosIntrepid2(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("sacado", default=True, description="Enable Sacado support")
-    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+    variant("sacado", default=False, description="Enable Sacado support")
+    variant("kokkoskernels", default=False, description="Enable KokkosKernels support")
 
 
     # Required package dependencies
@@ -33,8 +33,16 @@ class TrilinosIntrepid2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-sacado", when="+sacado")
     depends_on("kokkos-kernels", when="+kokkoskernels")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-sacado", when="+all-optional-packages")
+    depends_on("kokkos-kernels", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+sacado", when="+all-optional-packages")
+    conflicts("+kokkoskernels", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -46,8 +54,12 @@ class TrilinosIntrepid2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Shards", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Sacado", "sacado"))
-        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+sacado"):
+            args.append(self.define("TPL_ENABLE_Sacado", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkoskernels"):
+            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

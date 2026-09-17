@@ -30,12 +30,12 @@ class TrilinosTeuchos(TrilinosBaseClass):
     variant("teuchoskokkoscomm", default=True, description="Enable the TeuchosKokkosComm subpackage")
 
     # Optional TPL variants
-    variant("boost", default=True, description="Enable boost support")
+    variant("boost", default=False, description="Enable boost support")
 
 
     # Optional package variants
-    variant("kokkos", default=True, description="Enable Kokkos support")
-    variant("magistrate", default=True, description="Enable magistrate support")
+    variant("kokkos", default=False, description="Enable Kokkos support")
+    variant("magistrate", default=False, description="Enable magistrate support")
 
 
     # Scraped CMake options
@@ -47,13 +47,19 @@ class TrilinosTeuchos(TrilinosBaseClass):
     depends_on("kokkos", when="+kokkos")
     depends_on_trilinos_package("trilinos-magistrate", when="+magistrate")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on("kokkos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-magistrate", when="+all-optional-packages")
+
     # Required external (TPL) dependencies
     depends_on("blas")
     depends_on("lapack")
 
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
-    depends_on("mpi", when="+mpi")
+
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("boost", when="+all-optional-packages")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -62,6 +68,11 @@ class TrilinosTeuchos(TrilinosBaseClass):
     conflicts("~boost", when="+teuchoscore")
     conflicts("~mpi", when="+teuchoscore")
     conflicts("~mpi", when="+teuchoskokkoscomm")
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+kokkos", when="+all-optional-packages")
+    conflicts("+magistrate", when="+all-optional-packages")
+    conflicts("+boost", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -94,9 +105,13 @@ class TrilinosTeuchos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
-        args.append(self.define_from_variant("TPL_ENABLE_magistrate", "magistrate"))
-        if self.spec.satisfies("+boost"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+magistrate"):
+            args.append(self.define("TPL_ENABLE_magistrate", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
         if self.spec.satisfies("+mpi"):

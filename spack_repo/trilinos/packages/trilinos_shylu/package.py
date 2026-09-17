@@ -20,7 +20,7 @@ class TrilinosShylu(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("shylu-node", default=True, description="Enable ShyLU_Node support")
+    variant("shylu-node", default=False, description="Enable ShyLU_Node support")
 
 
     # Required package dependencies

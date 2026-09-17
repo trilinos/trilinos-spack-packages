@@ -20,7 +20,7 @@ class TrilinosGaleri(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("xpetra", default=True, description="Enable Xpetra support")
+    variant("xpetra", default=False, description="Enable Xpetra support")
 
 
     # Required package dependencies
@@ -32,8 +32,14 @@ class TrilinosGaleri(TrilinosBaseClass):
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-xpetra", when="+xpetra")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-xpetra", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+xpetra", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -44,7 +50,9 @@ class TrilinosGaleri(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+xpetra"):
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

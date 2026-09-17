@@ -20,13 +20,13 @@ class TrilinosTrilinoscouplings(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("belos", default=True, description="Enable Belos support")
-    variant("muelu", default=True, description="Enable MueLu support")
-    variant("nox", default=True, description="Enable NOX support")
-    variant("stokhos", default=True, description="Enable Stokhos support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
-    variant("zoltan", default=True, description="Enable Zoltan support")
-    variant("zoltan2core", default=True, description="Enable Zoltan2Core support")
+    variant("belos", default=False, description="Enable Belos support")
+    variant("muelu", default=False, description="Enable MueLu support")
+    variant("nox", default=False, description="Enable NOX support")
+    variant("stokhos", default=False, description="Enable Stokhos support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
+    variant("zoltan", default=False, description="Enable Zoltan support")
+    variant("zoltan2core", default=False, description="Enable Zoltan2Core support")
 
 
     # Optional package dependencies
@@ -38,21 +38,53 @@ class TrilinosTrilinoscouplings(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-zoltan", when="+zoltan")
     depends_on_trilinos_package("trilinos-zoltan2core", when="+zoltan2core")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-nox", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-stokhos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+belos", when="+all-optional-packages")
+    conflicts("+muelu", when="+all-optional-packages")
+    conflicts("+nox", when="+all-optional-packages")
+    conflicts("+stokhos", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+zoltan", when="+all-optional-packages")
+    conflicts("+zoltan2core", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_TrilinosCouplings", True))
 
 
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
-        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
-        args.append(self.define_from_variant("TPL_ENABLE_NOX", "nox"))
-        args.append(self.define_from_variant("TPL_ENABLE_Stokhos", "stokhos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan", "zoltan"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Core", "zoltan2core"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+muelu"):
+            args.append(self.define("TPL_ENABLE_MueLu", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+nox"):
+            args.append(self.define("TPL_ENABLE_NOX", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stokhos"):
+            args.append(self.define("TPL_ENABLE_Stokhos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan"):
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan2core"):
+            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

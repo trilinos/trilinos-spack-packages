@@ -20,9 +20,9 @@ class TrilinosTeko(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("ifpack2", default=True, description="Enable Ifpack2 support")
-    variant("amesos2", default=True, description="Enable Amesos2 support")
-    variant("belos", default=True, description="Enable Belos support")
+    variant("ifpack2", default=False, description="Enable Ifpack2 support")
+    variant("amesos2", default=False, description="Enable Amesos2 support")
+    variant("belos", default=False, description="Enable Belos support")
 
 
     # Scraped CMake options
@@ -41,8 +41,18 @@ class TrilinosTeko(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
     depends_on_trilinos_package("trilinos-belos", when="+belos")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-amesos2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+ifpack2", when="+all-optional-packages")
+    conflicts("+amesos2", when="+all-optional-packages")
+    conflicts("+belos", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -55,9 +65,15 @@ class TrilinosTeko(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+ifpack2"):
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+amesos2"):
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
         # Scraped CMake options
         args.append(self.define_from_variant("TEKO_HAVE_EPETRA", "have-epetra"))
 

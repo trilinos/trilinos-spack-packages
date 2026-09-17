@@ -20,7 +20,7 @@ class TrilinosKrino(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("parmetis", default=True, description="Enable parmetis support")
+    variant("parmetis", default=False, description="Enable parmetis support")
 
 
     # Scraped CMake options
@@ -42,11 +42,16 @@ class TrilinosKrino(TrilinosBaseClass):
     depends_on("boost")
 
     # Optional external (TPL) dependencies
-    depends_on("mpi", when="+mpi")
     depends_on("parmetis", when="+parmetis")
+
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("parmetis", when="+all-optional-packages")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+parmetis", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -73,7 +78,7 @@ class TrilinosKrino(TrilinosBaseClass):
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
 
-        if self.spec.satisfies("+parmetis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+parmetis"):
             args.append(self.define("TPL_ENABLE_ParMETIS", True))
 
         # Scraped CMake options

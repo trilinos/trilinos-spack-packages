@@ -20,21 +20,27 @@ class TrilinosPamgen(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("boost", default=True, description="Enable boost support")
+    variant("boost", default=False, description="Enable boost support")
 
 
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("boost", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+boost", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Pamgen", True))
 
 
-        if self.spec.satisfies("+boost"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
 

@@ -20,9 +20,9 @@ class TrilinosZoltan2core(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("metis", default=True, description="Enable metis support")
-    variant("parmetis", default=True, description="Enable parmetis support")
-    variant("scotch", default=True, description="Enable scotch support")
+    variant("metis", default=False, description="Enable metis support")
+    variant("parmetis", default=False, description="Enable parmetis support")
+    variant("scotch", default=False, description="Enable scotch support")
 
 
     # Required package dependencies
@@ -38,8 +38,18 @@ class TrilinosZoltan2core(TrilinosBaseClass):
     depends_on("parmetis", when="+parmetis")
     depends_on("scotch", when="+scotch")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("metis", when="+all-optional-packages")
+    depends_on("parmetis", when="+all-optional-packages")
+    depends_on("scotch", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+metis", when="+all-optional-packages")
+    conflicts("+parmetis", when="+all-optional-packages")
+    conflicts("+scotch", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -55,13 +65,13 @@ class TrilinosZoltan2core(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Xpetra", True))
         args.append(self.define("TPL_ENABLE_Zoltan", True))
 
-        if self.spec.satisfies("+metis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+metis"):
             args.append(self.define("TPL_ENABLE_METIS", True))
 
-        if self.spec.satisfies("+parmetis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+parmetis"):
             args.append(self.define("TPL_ENABLE_ParMETIS", True))
 
-        if self.spec.satisfies("+scotch"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+scotch"):
             args.append(self.define("TPL_ENABLE_Scotch", True))
 
 

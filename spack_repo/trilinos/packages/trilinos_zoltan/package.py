@@ -20,21 +20,32 @@ class TrilinosZoltan(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("metis", default=True, description="Enable metis support")
-    variant("parmetis", default=True, description="Enable parmetis support")
-    variant("scotch", default=True, description="Enable scotch support")
-    variant("zlib", default=True, description="Enable zlib-api support")
+    variant("metis", default=False, description="Enable metis support")
+    variant("parmetis", default=False, description="Enable parmetis support")
+    variant("scotch", default=False, description="Enable scotch support")
+    variant("zlib", default=False, description="Enable zlib-api support")
 
 
     # Optional external (TPL) dependencies
-    depends_on("mpi", when="+mpi")
     depends_on("metis", when="+metis")
     depends_on("parmetis", when="+parmetis")
     depends_on("scotch", when="+scotch")
     depends_on("zlib-api", when="+zlib")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("metis", when="+all-optional-packages")
+    depends_on("parmetis", when="+all-optional-packages")
+    depends_on("scotch", when="+all-optional-packages")
+    depends_on("zlib-api", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+metis", when="+all-optional-packages")
+    conflicts("+parmetis", when="+all-optional-packages")
+    conflicts("+scotch", when="+all-optional-packages")
+    conflicts("+zlib", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -44,16 +55,16 @@ class TrilinosZoltan(TrilinosBaseClass):
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
 
-        if self.spec.satisfies("+metis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+metis"):
             args.append(self.define("TPL_ENABLE_METIS", True))
 
-        if self.spec.satisfies("+parmetis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+parmetis"):
             args.append(self.define("TPL_ENABLE_ParMETIS", True))
 
-        if self.spec.satisfies("+scotch"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+scotch"):
             args.append(self.define("TPL_ENABLE_Scotch", True))
 
-        if self.spec.satisfies("+zlib"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zlib"):
             args.append(self.define("TPL_ENABLE_Zlib", True))
 
 

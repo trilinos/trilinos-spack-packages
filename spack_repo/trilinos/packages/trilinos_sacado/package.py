@@ -20,12 +20,12 @@ class TrilinosSacado(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("kokkos", default=True, description="Enable Kokkos support")
-    variant("teuchoscore", default=True, description="Enable TeuchosCore support")
-    variant("teuchos", default=True, description="Enable Teuchos support")
-    variant("teuchosnumerics", default=True, description="Enable TeuchosNumerics support")
-    variant("teuchoscomm", default=True, description="Enable TeuchosComm support")
-    variant("teuchoskokkoscomm", default=True, description="Enable TeuchosKokkosComm support")
+    variant("kokkos", default=False, description="Enable Kokkos support")
+    variant("teuchoscore", default=False, description="Enable TeuchosCore support")
+    variant("teuchos", default=False, description="Enable Teuchos support")
+    variant("teuchosnumerics", default=False, description="Enable TeuchosNumerics support")
+    variant("teuchoscomm", default=False, description="Enable TeuchosComm support")
+    variant("teuchoskokkoscomm", default=False, description="Enable TeuchosKokkosComm support")
 
 
     # Scraped CMake options
@@ -42,20 +42,44 @@ class TrilinosSacado(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-teuchos +teuchoscomm", when="+teuchoscomm")
     depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm", when="+teuchoskokkoscomm")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on("kokkos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosnumerics +teuchoscomm +teuchoskokkoscomm", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+kokkos", when="+all-optional-packages")
+    conflicts("+teuchoscore", when="+all-optional-packages")
+    conflicts("+teuchos", when="+all-optional-packages")
+    conflicts("+teuchosnumerics", when="+all-optional-packages")
+    conflicts("+teuchoscomm", when="+all-optional-packages")
+    conflicts("+teuchoskokkoscomm", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Sacado", True))
 
 
-        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosCore", "teuchoscore"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosNumerics", "teuchosnumerics"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosComm", "teuchoscomm"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosKokkosComm", "teuchoskokkoscomm"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoscore"):
+            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchos"):
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchosnumerics"):
+            args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoscomm"):
+            args.append(self.define("TPL_ENABLE_TeuchosComm", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoskokkoscomm"):
+            args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
+
         # Scraped CMake options
         args.append(self.define_from_variant("Sacado_ENABLE_DEPRECATED_CODE", "deprecated-code"))
         args.append(self.define_from_variant("Sacado_ENABLE_ADOLC", "adolc"))

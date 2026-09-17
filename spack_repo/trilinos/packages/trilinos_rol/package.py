@@ -20,21 +20,21 @@ class TrilinosRol(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("boost", default=True, description="Enable boost support")
+    variant("boost", default=False, description="Enable boost support")
 
 
     # Optional package variants
-    variant("belos", default=True, description="Enable Belos support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("sacado", default=True, description="Enable Sacado support")
-    variant("intrepid2", default=True, description="Enable Intrepid2 support")
-    variant("minitensor", default=True, description="Enable MiniTensor support")
-    variant("shards", default=True, description="Enable Shards support")
-    variant("amesos2", default=True, description="Enable Amesos2 support")
-    variant("ifpack2", default=True, description="Enable Ifpack2 support")
-    variant("muelu", default=True, description="Enable MueLu support")
-    variant("tempus", default=True, description="Enable Tempus support")
+    variant("belos", default=False, description="Enable Belos support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("sacado", default=False, description="Enable Sacado support")
+    variant("intrepid2", default=False, description="Enable Intrepid2 support")
+    variant("minitensor", default=False, description="Enable MiniTensor support")
+    variant("shards", default=False, description="Enable Shards support")
+    variant("amesos2", default=False, description="Enable Amesos2 support")
+    variant("ifpack2", default=False, description="Enable Ifpack2 support")
+    variant("muelu", default=False, description="Enable MueLu support")
+    variant("tempus", default=False, description="Enable Tempus support")
 
 
     # Scraped CMake options
@@ -63,11 +63,41 @@ class TrilinosRol(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-muelu", when="+muelu")
     depends_on_trilinos_package("trilinos-tempus", when="+tempus")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-sacado", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-minitensor", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-shards", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-amesos2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tempus", when="+all-optional-packages")
+
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("boost", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+belos", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+sacado", when="+all-optional-packages")
+    conflicts("+intrepid2", when="+all-optional-packages")
+    conflicts("+minitensor", when="+all-optional-packages")
+    conflicts("+shards", when="+all-optional-packages")
+    conflicts("+amesos2", when="+all-optional-packages")
+    conflicts("+ifpack2", when="+all-optional-packages")
+    conflicts("+muelu", when="+all-optional-packages")
+    conflicts("+tempus", when="+all-optional-packages")
+    conflicts("+boost", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -75,18 +105,40 @@ class TrilinosRol(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Sacado", "sacado"))
-        args.append(self.define_from_variant("TPL_ENABLE_Intrepid2", "intrepid2"))
-        args.append(self.define_from_variant("TPL_ENABLE_MiniTensor", "minitensor"))
-        args.append(self.define_from_variant("TPL_ENABLE_Shards", "shards"))
-        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
-        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tempus", "tempus"))
-        if self.spec.satisfies("+boost"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+sacado"):
+            args.append(self.define("TPL_ENABLE_Sacado", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+intrepid2"):
+            args.append(self.define("TPL_ENABLE_Intrepid2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+minitensor"):
+            args.append(self.define("TPL_ENABLE_MiniTensor", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+shards"):
+            args.append(self.define("TPL_ENABLE_Shards", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+amesos2"):
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+ifpack2"):
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+muelu"):
+            args.append(self.define("TPL_ENABLE_MueLu", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tempus"):
+            args.append(self.define("TPL_ENABLE_Tempus", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
         # Scraped CMake options

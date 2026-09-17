@@ -451,7 +451,7 @@ def _header(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
             vname = _tpl_variant_name(tpl)
             spack_name = _tpl_to_spack(tpl)
             lines.append(
-                f'    variant("{vname}", default=True,'
+                f'    variant("{vname}", default=False,'
                 f' description="Enable {spack_name} support")'
             )
         lines.append("")
@@ -471,7 +471,7 @@ def _header(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
         lines.append("    # Optional package variants")
         for dep, vname in visible_opt_pkgs:
             lines.append(
-                f'    variant("{vname}", default=True,'
+                f'    variant("{vname}", default=False,'
                 f' description="Enable {dep} support")'
             )
         lines.append("")
@@ -624,6 +624,30 @@ def _optional_package_deps(pkg: TrilinosPackage, scraped_options: dict = None) -
         when_prefix = "" if when.startswith("+") else "+"
         lines.append(f'    {fn}("{spec}", when="{when_prefix}{when}")')
 
+    # all-optional-packages mode: duplicate deps with when="+all-optional-packages"
+    # Group by (fn, spack_name) to merge variant requirements into one line per target
+    aop_order: list[tuple[str, str]] = []
+    aop_seen: set[tuple[str, str]] = set()
+    aop_variants: dict[tuple[str, str], list[str]] = defaultdict(list)
+    for fn, spack_name, when in order:
+        if when.startswith("+"):
+            continue  # skip scalar sync entries
+        aop_key = (fn, spack_name)
+        if aop_key not in aop_seen:
+            aop_seen.add(aop_key)
+            aop_order.append(aop_key)
+        for v in variants[(fn, spack_name, when)]:
+            if v not in aop_variants[aop_key]:
+                aop_variants[aop_key].append(v)
+
+    if aop_order:
+        lines.append("")
+        lines.append("    # all-optional-packages: enable all optional deps at once")
+        for fn, spack_name in aop_order:
+            vparts = aop_variants[(fn, spack_name)]
+            spec = spack_name + ("".join(f" {v}" for v in vparts) if vparts else "")
+            lines.append(f'    {fn}("{spec}", when="+all-optional-packages")')
+
     lines.append("")
     return lines
 
@@ -655,12 +679,25 @@ def _optional_tpl_deps(pkg: TrilinosPackage) -> list[str]:
         return []
 
     lines = ["    # Optional external (TPL) dependencies"]
+    aop_tpls = []
     for tpl in pkg.optional_tpl_deps:
         spack_name = _tpl_to_spack(tpl)
         if spack_name is None:
             continue
         tpl_vname = _tpl_variant_name(tpl)
+        if tpl_vname in BASE_TRILINOS_VARIANTS:
+            continue
         lines.append(f'    depends_on("{spack_name}", when="+{tpl_vname}")')
+        aop_tpls.append((spack_name, tpl_vname))
+
+    if aop_tpls:
+        lines.append("")
+        lines.append("    # all-optional-packages: enable all optional TPLs at once")
+        seen_spack = set()
+        for spack_name, _ in aop_tpls:
+            if spack_name not in seen_spack:
+                seen_spack.add(spack_name)
+                lines.append(f'    depends_on("{spack_name}", when="+all-optional-packages")')
 
     lines.append("")
     return lines
@@ -721,6 +758,37 @@ def _conflicts(pkg: TrilinosPackage) -> list[str]:
         return []
 
     lines.append("")
+    return lines
+
+
+def _all_optional_conflicts(pkg: TrilinosPackage) -> list[str]:
+    """Render conflicts preventing individual optional dep variants when +all-optional-packages."""
+    lines = []
+    seen_vnames = set()
+
+    # Optional package dep variants
+    for dep in pkg.optional_package_deps:
+        effective = _SUBPKG_PARENT.get(dep, dep)
+        if effective in EXCLUDE_OPTIONAL_PACKAGES or dep in EXCLUDE_OPTIONAL_PACKAGES:
+            continue
+        vname = _variant_name(dep)
+        if vname not in BASE_TRILINOS_VARIANTS and vname not in seen_vnames:
+            seen_vnames.add(vname)
+            lines.append(f'    conflicts("+{vname}", when="+all-optional-packages")')
+
+    # Optional TPL variants
+    for tpl in pkg.optional_tpl_deps:
+        if _tpl_to_spack(tpl) is None:
+            continue
+        tpl_vname = _tpl_variant_name(tpl)
+        if tpl_vname not in BASE_TRILINOS_VARIANTS and tpl_vname not in seen_vnames:
+            seen_vnames.add(tpl_vname)
+            lines.append(f'    conflicts("+{tpl_vname}", when="+all-optional-packages")')
+
+    if lines:
+        lines.insert(0, "    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on")
+        lines.append("")
+
     return lines
 
 
@@ -798,7 +866,7 @@ def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
 
     lines.append("")
 
-    # ---- Optional package deps — keyed on control variant ----------------
+    # ---- Optional package deps — keyed on control variant or all-optional ----
     for dep in pkg.optional_package_deps:
         # Skip excluded packages
         effective = _SUBPKG_PARENT.get(dep, dep)
@@ -811,9 +879,11 @@ def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
 
         vname = _variant_name(dep)
         seen.add(cmake_name)
-        lines.append(
-            f'        args.append(self.define_from_variant("TPL_ENABLE_{cmake_name}", "{vname}"))'
-        )
+        lines += [
+            f'        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+{vname}"):',
+            f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+            '',
+        ]
 
     # ---- Optional TPL deps — conditional TPL_ENABLE_ ----------------
     for tpl in pkg.optional_tpl_deps:
@@ -823,9 +893,19 @@ def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
             continue
 
         tpl_vname = _tpl_variant_name(tpl)
+        if tpl_vname in BASE_TRILINOS_VARIANTS:
+            # Base-class variants (mpi, openmp, etc.) are handled by the base cmake_args
+            seen.add(tpl)
+            lines += [
+                f'        if self.spec.satisfies("+{tpl_vname}"):',
+                f'            args.append(self.define("TPL_ENABLE_{tpl}", True))',
+                '',
+            ]
+            continue
+
         seen.add(tpl)
         lines += [
-            f'        if self.spec.satisfies("+{tpl_vname}"):',
+            f'        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+{tpl_vname}"):',
             f'            args.append(self.define("TPL_ENABLE_{tpl}", True))',
             '',
         ]
@@ -877,6 +957,7 @@ def generate_package_py(pkg: TrilinosPackage, existing_file_path: str = None) ->
         lines += _manual_section()
 
     lines += _conflicts(pkg)
+    lines += _all_optional_conflicts(pkg)
 
     # For cmake_args, we need to preserve the manual CMAKE args section
     # This is handled inside _footer, but we need to pass the file path

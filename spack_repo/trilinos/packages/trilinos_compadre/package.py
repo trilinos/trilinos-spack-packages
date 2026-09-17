@@ -59,7 +59,6 @@ class TrilinosCompadre(TrilinosBaseClass):
     # Optional package dependencies
 
     # Optional external (TPL) dependencies
-    depends_on("mpi", when="+mpi")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION

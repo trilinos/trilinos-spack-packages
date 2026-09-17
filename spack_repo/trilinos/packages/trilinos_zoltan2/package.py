@@ -20,7 +20,7 @@ class TrilinosZoltan2(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("zoltan2sphynx", default=True, description="Enable Zoltan2Sphynx support")
+    variant("zoltan2sphynx", default=False, description="Enable Zoltan2Sphynx support")
 
 
     # Scraped CMake options
@@ -33,8 +33,14 @@ class TrilinosZoltan2(TrilinosBaseClass):
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-zoltan2sphynx", when="+zoltan2sphynx")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-zoltan2sphynx", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+zoltan2sphynx", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -42,7 +48,9 @@ class TrilinosZoltan2(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Sphynx", "zoltan2sphynx"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan2sphynx"):
+            args.append(self.define("TPL_ENABLE_Zoltan2Sphynx", True))
+
         # Scraped CMake options
         args.append(self.define_from_variant("Zoltan2_ENABLE_OpenMP", "openmp"))
         args.append(self.define_from_variant("Zoltan2_ENABLE_HyperGraph", "hypergraph"))

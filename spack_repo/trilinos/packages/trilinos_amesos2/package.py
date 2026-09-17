@@ -20,17 +20,17 @@ class TrilinosAmesos2(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("superlu", default=True, description="Enable superlu support")
-    variant("superludist", default=True, description="Enable superlu-dist support")
-    variant("lapack", default=True, description="Enable lapack support")
-    variant("parmetis", default=True, description="Enable parmetis support")
-    variant("metis", default=True, description="Enable metis support")
+    variant("superlu", default=False, description="Enable superlu support")
+    variant("superludist", default=False, description="Enable superlu-dist support")
+    variant("lapack", default=False, description="Enable lapack support")
+    variant("parmetis", default=False, description="Enable parmetis support")
+    variant("metis", default=False, description="Enable metis support")
 
 
     # Optional package variants
-    variant("shylu-nodebasker", default=True, description="Enable ShyLU_NodeBasker support")
-    variant("shylu-node", default=True, description="Enable ShyLU_Node support")
-    variant("shylu-nodetacho", default=True, description="Enable ShyLU_NodeTacho support")
+    variant("shylu-nodebasker", default=False, description="Enable ShyLU_NodeBasker support")
+    variant("shylu-node", default=False, description="Enable ShyLU_Node support")
+    variant("shylu-nodetacho", default=False, description="Enable ShyLU_NodeTacho support")
 
 
     # Required package dependencies
@@ -43,15 +43,28 @@ class TrilinosAmesos2(TrilinosBaseClass):
     # Optional package dependencies
 
     # Optional external (TPL) dependencies
-    depends_on("mpi", when="+mpi")
     depends_on("superlu", when="+superlu")
     depends_on("superlu-dist", when="+superludist")
     depends_on("lapack", when="+lapack")
     depends_on("parmetis", when="+parmetis")
     depends_on("metis", when="+metis")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("superlu", when="+all-optional-packages")
+    depends_on("superlu-dist", when="+all-optional-packages")
+    depends_on("lapack", when="+all-optional-packages")
+    depends_on("parmetis", when="+all-optional-packages")
+    depends_on("metis", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+superlu", when="+all-optional-packages")
+    conflicts("+superludist", when="+all-optional-packages")
+    conflicts("+lapack", when="+all-optional-packages")
+    conflicts("+parmetis", when="+all-optional-packages")
+    conflicts("+metis", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -66,19 +79,19 @@ class TrilinosAmesos2(TrilinosBaseClass):
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
 
-        if self.spec.satisfies("+superlu"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+superlu"):
             args.append(self.define("TPL_ENABLE_SuperLU", True))
 
-        if self.spec.satisfies("+superludist"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+superludist"):
             args.append(self.define("TPL_ENABLE_SuperLUDist", True))
 
-        if self.spec.satisfies("+lapack"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+lapack"):
             args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        if self.spec.satisfies("+parmetis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+parmetis"):
             args.append(self.define("TPL_ENABLE_ParMETIS", True))
 
-        if self.spec.satisfies("+metis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+metis"):
             args.append(self.define("TPL_ENABLE_METIS", True))
 
 

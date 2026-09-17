@@ -20,18 +20,18 @@ class TrilinosMuelu(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("boost", default=True, description="Enable boost support")
+    variant("boost", default=False, description="Enable boost support")
 
 
     # Optional package variants
-    variant("belos", default=True, description="Enable Belos support")
-    variant("teko", default=True, description="Enable Teko support")
-    variant("intrepid2", default=True, description="Enable Intrepid2 support")
-    variant("zoltan", default=True, description="Enable Zoltan support")
-    variant("zoltan2core", default=True, description="Enable Zoltan2Core support")
-    variant("stratimikos", default=True, description="Enable Stratimikos support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("thyratpetraadapters", default=True, description="Enable ThyraTpetraAdapters support")
+    variant("belos", default=False, description="Enable Belos support")
+    variant("teko", default=False, description="Enable Teko support")
+    variant("intrepid2", default=False, description="Enable Intrepid2 support")
+    variant("zoltan", default=False, description="Enable Zoltan support")
+    variant("zoltan2core", default=False, description="Enable Zoltan2Core support")
+    variant("stratimikos", default=False, description="Enable Stratimikos support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("thyratpetraadapters", default=False, description="Enable ThyraTpetraAdapters support")
 
 
     # Required package dependencies
@@ -53,6 +53,15 @@ class TrilinosMuelu(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+thyratpetraadapters")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teko", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-stratimikos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+all-optional-packages")
+
     # Required external (TPL) dependencies
     depends_on("blas")
     depends_on("lapack")
@@ -60,8 +69,22 @@ class TrilinosMuelu(TrilinosBaseClass):
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("boost", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+belos", when="+all-optional-packages")
+    conflicts("+teko", when="+all-optional-packages")
+    conflicts("+intrepid2", when="+all-optional-packages")
+    conflicts("+zoltan", when="+all-optional-packages")
+    conflicts("+zoltan2core", when="+all-optional-packages")
+    conflicts("+stratimikos", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+thyratpetraadapters", when="+all-optional-packages")
+    conflicts("+boost", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -77,15 +100,31 @@ class TrilinosMuelu(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teko", "teko"))
-        args.append(self.define_from_variant("TPL_ENABLE_Intrepid2", "intrepid2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan", "zoltan"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Core", "zoltan2core"))
-        args.append(self.define_from_variant("TPL_ENABLE_Stratimikos", "stratimikos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_ThyraTpetraAdapters", "thyratpetraadapters"))
-        if self.spec.satisfies("+boost"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teko"):
+            args.append(self.define("TPL_ENABLE_Teko", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+intrepid2"):
+            args.append(self.define("TPL_ENABLE_Intrepid2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan"):
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan2core"):
+            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stratimikos"):
+            args.append(self.define("TPL_ENABLE_Stratimikos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyratpetraadapters"):
+            args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
 

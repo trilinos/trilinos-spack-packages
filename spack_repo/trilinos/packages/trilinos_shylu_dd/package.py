@@ -24,18 +24,18 @@ class TrilinosShyluDd(TrilinosBaseClass):
     variant("shylu-ddcommon", default=True, description="Enable the ShyLU_DDCommon subpackage")
 
     # Optional package variants
-    variant("amesos2", default=True, description="Enable Amesos2 support")
-    variant("teuchos", default=True, description="Enable Teuchos support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
-    variant("xpetra", default=True, description="Enable Xpetra support")
-    variant("kokkos", default=True, description="Enable Kokkos support")
-    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
-    variant("belos", default=True, description="Enable Belos support")
-    variant("ifpack2", default=True, description="Enable Ifpack2 support")
-    variant("muelu", default=True, description="Enable MueLu support")
-    variant("stratimikos", default=True, description="Enable Stratimikos support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("zoltan2", default=True, description="Enable Zoltan2 support")
+    variant("amesos2", default=False, description="Enable Amesos2 support")
+    variant("teuchos", default=False, description="Enable Teuchos support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
+    variant("xpetra", default=False, description="Enable Xpetra support")
+    variant("kokkos", default=False, description="Enable Kokkos support")
+    variant("kokkoskernels", default=False, description="Enable KokkosKernels support")
+    variant("belos", default=False, description="Enable Belos support")
+    variant("ifpack2", default=False, description="Enable Ifpack2 support")
+    variant("muelu", default=False, description="Enable MueLu support")
+    variant("stratimikos", default=False, description="Enable Stratimikos support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("zoltan2", default=False, description="Enable Zoltan2 support")
 
 
     # Optional package dependencies
@@ -52,11 +52,39 @@ class TrilinosShyluDd(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
     depends_on_trilinos_package("trilinos-zoltan2", when="+zoltan2")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-amesos2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-xpetra", when="+all-optional-packages")
+    depends_on("kokkos", when="+all-optional-packages")
+    depends_on("kokkos-kernels", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-stratimikos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan2", when="+all-optional-packages")
+
     # Required external (TPL) dependencies
     depends_on("mpi")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+amesos2", when="+all-optional-packages")
+    conflicts("+teuchos", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+xpetra", when="+all-optional-packages")
+    conflicts("+kokkos", when="+all-optional-packages")
+    conflicts("+kokkoskernels", when="+all-optional-packages")
+    conflicts("+belos", when="+all-optional-packages")
+    conflicts("+ifpack2", when="+all-optional-packages")
+    conflicts("+muelu", when="+all-optional-packages")
+    conflicts("+stratimikos", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+zoltan2", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -70,18 +98,42 @@ class TrilinosShyluDd(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_MPI", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
-        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
-        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
-        args.append(self.define_from_variant("TPL_ENABLE_Stratimikos", "stratimikos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2", "zoltan2"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+amesos2"):
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchos"):
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+xpetra"):
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkoskernels"):
+            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+ifpack2"):
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+muelu"):
+            args.append(self.define("TPL_ENABLE_MueLu", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stratimikos"):
+            args.append(self.define("TPL_ENABLE_Stratimikos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan2"):
+            args.append(self.define("TPL_ENABLE_Zoltan2", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

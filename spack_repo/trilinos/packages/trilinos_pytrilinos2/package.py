@@ -20,7 +20,7 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("muelu", default=True, description="Enable MueLu support")
+    variant("muelu", default=False, description="Enable MueLu support")
 
 
     # Required package dependencies
@@ -32,6 +32,9 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-muelu", when="+muelu")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # PyTrilinos2 requires LLVM, Python, pybind11, binder, and PyTorch
     # See packages/PyTrilinos2/CMakeLists.txt for details
@@ -41,6 +44,9 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
     depends_on("binder", type="build")
     depends_on("py-torch", type="build")
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+muelu", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -52,7 +58,9 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
         args.append(self.define("TPL_ENABLE_Stratimikos", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+muelu"):
+            args.append(self.define("TPL_ENABLE_MueLu", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

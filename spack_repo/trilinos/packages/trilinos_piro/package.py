@@ -20,11 +20,11 @@ class TrilinosPiro(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("nox", default=True, description="Enable NOX support")
-    variant("tempus", default=True, description="Enable Tempus support")
-    variant("rol", default=True, description="Enable ROL support")
-    variant("ifpack2", default=True, description="Enable Ifpack2 support")
-    variant("muelu", default=True, description="Enable MueLu support")
+    variant("nox", default=False, description="Enable NOX support")
+    variant("tempus", default=False, description="Enable Tempus support")
+    variant("rol", default=False, description="Enable ROL support")
+    variant("ifpack2", default=False, description="Enable Ifpack2 support")
+    variant("muelu", default=False, description="Enable MueLu support")
 
 
     # Required package dependencies
@@ -41,8 +41,22 @@ class TrilinosPiro(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
     depends_on_trilinos_package("trilinos-muelu", when="+muelu")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-nox", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tempus", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-rol", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+nox", when="+all-optional-packages")
+    conflicts("+tempus", when="+all-optional-packages")
+    conflicts("+rol", when="+all-optional-packages")
+    conflicts("+ifpack2", when="+all-optional-packages")
+    conflicts("+muelu", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -55,11 +69,21 @@ class TrilinosPiro(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_Teko", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_NOX", "nox"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tempus", "tempus"))
-        args.append(self.define_from_variant("TPL_ENABLE_ROL", "rol"))
-        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
-        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+nox"):
+            args.append(self.define("TPL_ENABLE_NOX", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tempus"):
+            args.append(self.define("TPL_ENABLE_Tempus", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+rol"):
+            args.append(self.define("TPL_ENABLE_ROL", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+ifpack2"):
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+muelu"):
+            args.append(self.define("TPL_ENABLE_MueLu", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

@@ -20,10 +20,10 @@ class TrilinosStratimikos(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("amesos2", default=True, description="Enable Amesos2 support")
-    variant("belos", default=True, description="Enable Belos support")
-    variant("ifpack2", default=True, description="Enable Ifpack2 support")
-    variant("thyratpetraadapters", default=True, description="Enable ThyraTpetraAdapters support")
+    variant("amesos2", default=False, description="Enable Amesos2 support")
+    variant("belos", default=False, description="Enable Belos support")
+    variant("ifpack2", default=False, description="Enable Ifpack2 support")
+    variant("thyratpetraadapters", default=False, description="Enable ThyraTpetraAdapters support")
 
 
     # Required package dependencies
@@ -35,8 +35,20 @@ class TrilinosStratimikos(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+thyratpetraadapters")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-amesos2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+amesos2", when="+all-optional-packages")
+    conflicts("+belos", when="+all-optional-packages")
+    conflicts("+ifpack2", when="+all-optional-packages")
+    conflicts("+thyratpetraadapters", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -45,10 +57,18 @@ class TrilinosStratimikos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_ThyraCore", True))
         args.append(self.define("TPL_ENABLE_Thyra", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
-        args.append(self.define_from_variant("TPL_ENABLE_ThyraTpetraAdapters", "thyratpetraadapters"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+amesos2"):
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+ifpack2"):
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyratpetraadapters"):
+            args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

@@ -20,19 +20,19 @@ class TrilinosIfpack2(TrilinosBaseClass):
     """
 
     # Optional TPL variants
-    variant("metis", default=True, description="Enable metis support")
+    variant("metis", default=False, description="Enable metis support")
 
 
     # Optional package variants
-    variant("xpetra", default=True, description="Enable Xpetra support")
-    variant("zoltan2core", default=True, description="Enable Zoltan2Core support")
-    variant("thyratpetraadapters", default=True, description="Enable ThyraTpetraAdapters support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("amesos2", default=True, description="Enable Amesos2 support")
-    variant("shylu-nodebasker", default=True, description="Enable ShyLU_NodeBasker support")
-    variant("shylu-node", default=True, description="Enable ShyLU_Node support")
-    variant("shylu-nodehts", default=True, description="Enable ShyLU_NodeHTS support")
-    variant("shylu-nodefastilu", default=True, description="Enable ShyLU_NodeFastILU support")
+    variant("xpetra", default=False, description="Enable Xpetra support")
+    variant("zoltan2core", default=False, description="Enable Zoltan2Core support")
+    variant("thyratpetraadapters", default=False, description="Enable ThyraTpetraAdapters support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("amesos2", default=False, description="Enable Amesos2 support")
+    variant("shylu-nodebasker", default=False, description="Enable ShyLU_NodeBasker support")
+    variant("shylu-node", default=False, description="Enable ShyLU_Node support")
+    variant("shylu-nodehts", default=False, description="Enable ShyLU_NodeHTS support")
+    variant("shylu-nodefastilu", default=False, description="Enable ShyLU_NodeFastILU support")
 
 
     # Required package dependencies
@@ -48,12 +48,28 @@ class TrilinosIfpack2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
     depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-xpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-amesos2", when="+all-optional-packages")
+
     # Optional external (TPL) dependencies
     depends_on("metis", when="+metis")
-    depends_on("mpi", when="+mpi")
+
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("metis", when="+all-optional-packages")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+xpetra", when="+all-optional-packages")
+    conflicts("+zoltan2core", when="+all-optional-packages")
+    conflicts("+thyratpetraadapters", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+amesos2", when="+all-optional-packages")
+    conflicts("+metis", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -64,12 +80,22 @@ class TrilinosIfpack2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Core", "zoltan2core"))
-        args.append(self.define_from_variant("TPL_ENABLE_ThyraTpetraAdapters", "thyratpetraadapters"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
-        if self.spec.satisfies("+metis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+xpetra"):
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan2core"):
+            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyratpetraadapters"):
+            args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+amesos2"):
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+metis"):
             args.append(self.define("TPL_ENABLE_METIS", True))
 
         if self.spec.satisfies("+mpi"):

@@ -26,18 +26,18 @@ class TrilinosShyluNode(TrilinosBaseClass):
     variant("shylu-nodefastilu", default=True, description="Enable the ShyLU_NodeFastILU subpackage")
 
     # Optional TPL variants
-    variant("blas", default=True, description="Enable blas support")
-    variant("metis", default=True, description="Enable metis support")
-    variant("lapack", default=True, description="Enable lapack support")
-    variant("scotch", default=True, description="Enable scotch support")
+    variant("blas", default=False, description="Enable blas support")
+    variant("metis", default=False, description="Enable metis support")
+    variant("lapack", default=False, description="Enable lapack support")
+    variant("scotch", default=False, description="Enable scotch support")
 
 
     # Optional package variants
-    variant("kokkos", default=True, description="Enable Kokkos support")
-    variant("trilinosss", default=True, description="Enable TrilinosSS support")
-    variant("teuchos", default=True, description="Enable Teuchos support")
-    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("kokkos", default=False, description="Enable Kokkos support")
+    variant("trilinosss", default=False, description="Enable TrilinosSS support")
+    variant("teuchos", default=False, description="Enable Teuchos support")
+    variant("kokkoskernels", default=False, description="Enable KokkosKernels support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
 
 
     # Optional package dependencies
@@ -47,11 +47,24 @@ class TrilinosShyluNode(TrilinosBaseClass):
     depends_on("kokkos-kernels", when="+kokkoskernels")
     depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on("kokkos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-trilinosss", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos", when="+all-optional-packages")
+    depends_on("kokkos-kernels", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+
     # Optional external (TPL) dependencies
     depends_on("blas", when="+blas")
     depends_on("metis", when="+metis")
     depends_on("lapack", when="+lapack")
     depends_on("scotch", when="+scotch")
+
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("blas", when="+all-optional-packages")
+    depends_on("metis", when="+all-optional-packages")
+    depends_on("lapack", when="+all-optional-packages")
+    depends_on("scotch", when="+all-optional-packages")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -63,6 +76,17 @@ class TrilinosShyluNode(TrilinosBaseClass):
     conflicts("~metis", when="+shylu-nodebasker")
     conflicts("~lapack", when="+shylu-nodetacho")
     conflicts("~scotch", when="+shylu-nodebasker")
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+kokkos", when="+all-optional-packages")
+    conflicts("+trilinosss", when="+all-optional-packages")
+    conflicts("+teuchos", when="+all-optional-packages")
+    conflicts("+kokkoskernels", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+blas", when="+all-optional-packages")
+    conflicts("+metis", when="+all-optional-packages")
+    conflicts("+lapack", when="+all-optional-packages")
+    conflicts("+scotch", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -81,21 +105,31 @@ class TrilinosShyluNode(TrilinosBaseClass):
             args.append(self.define("Trilinos_ENABLE_ShyLU_NodeFastILU", True))
 
 
-        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
-        args.append(self.define_from_variant("TPL_ENABLE_TrilinosSS", "trilinosss"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
-        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        if self.spec.satisfies("+blas"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+trilinosss"):
+            args.append(self.define("TPL_ENABLE_TrilinosSS", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchos"):
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkoskernels"):
+            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+blas"):
             args.append(self.define("TPL_ENABLE_BLAS", True))
 
-        if self.spec.satisfies("+metis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+metis"):
             args.append(self.define("TPL_ENABLE_METIS", True))
 
-        if self.spec.satisfies("+lapack"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+lapack"):
             args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        if self.spec.satisfies("+scotch"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+scotch"):
             args.append(self.define("TPL_ENABLE_Scotch", True))
 
 

@@ -20,8 +20,8 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("muelu", default=True, description="Enable MueLu support")
-    variant("galeri", default=True, description="Enable Galeri support")
+    variant("muelu", default=False, description="Enable MueLu support")
+    variant("galeri", default=False, description="Enable Galeri support")
 
 
     # Required package dependencies
@@ -34,8 +34,16 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-muelu", when="+muelu")
     depends_on_trilinos_package("trilinos-galeri", when="+galeri")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-galeri", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+muelu", when="+all-optional-packages")
+    conflicts("+galeri", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -46,8 +54,12 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
         args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
-        args.append(self.define_from_variant("TPL_ENABLE_Galeri", "galeri"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+muelu"):
+            args.append(self.define("TPL_ENABLE_MueLu", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+galeri"):
+            args.append(self.define("TPL_ENABLE_Galeri", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

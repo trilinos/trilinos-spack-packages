@@ -28,44 +28,44 @@ class TrilinosPanzer(TrilinosBaseClass):
     variant("panzerexpreval", default=True, description="Enable the PanzerExprEval subpackage")
 
     # Optional package variants
-    variant("teuchoscore", default=True, description="Enable TeuchosCore support")
-    variant("teuchos", default=True, description="Enable Teuchos support")
-    variant("teuchoscomm", default=True, description="Enable TeuchosComm support")
-    variant("teuchosparameterlist", default=True, description="Enable TeuchosParameterList support")
-    variant("tpetracore", default=True, description="Enable TpetraCore support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
-    variant("shards", default=True, description="Enable Shards support")
-    variant("intrepid2", default=True, description="Enable Intrepid2 support")
-    variant("phalanx", default=True, description="Enable Phalanx support")
-    variant("kokkos", default=True, description="Enable Kokkos support")
-    variant("sacado", default=True, description="Enable Sacado support")
-    variant("thyracore", default=True, description="Enable ThyraCore support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("thyratpetraadapters", default=True, description="Enable ThyraTpetraAdapters support")
-    variant("zoltan", default=True, description="Enable Zoltan support")
-    variant("stkutil", default=True, description="Enable STKUtil support")
-    variant("stk", default=True, description="Enable STK support")
-    variant("stktools", default=True, description="Enable STKTools support")
-    variant("stktopology", default=True, description="Enable STKTopology support")
-    variant("stkmesh", default=True, description="Enable STKMesh support")
-    variant("stkio", default=True, description="Enable STKIO support")
-    variant("stratimikos", default=True, description="Enable Stratimikos support")
-    variant("piro", default=True, description="Enable Piro support")
-    variant("nox", default=True, description="Enable NOX support")
-    variant("belos", default=True, description="Enable Belos support")
-    variant("teko", default=True, description="Enable Teko support")
-    variant("muelu", default=True, description="Enable MueLu support")
-    variant("teuchosparser", default=True, description="Enable TeuchosParser support")
-    variant("stksearch", default=True, description="Enable STKSearch support")
-    variant("seacasioss", default=True, description="Enable SEACASIoss support")
-    variant("seacas", default=True, description="Enable SEACAS support")
-    variant("seacasexodus", default=True, description="Enable SEACASExodus support")
-    variant("percept", default=True, description="Enable Percept support")
-    variant("ifpack2", default=True, description="Enable Ifpack2 support")
-    variant("tempus", default=True, description="Enable Tempus support")
-    variant("shylu-nodetacho", default=True, description="Enable ShyLU_NodeTacho support")
-    variant("shylu-node", default=True, description="Enable ShyLU_Node support")
-    variant("pamgen", default=True, description="Enable Pamgen support")
+    variant("teuchoscore", default=False, description="Enable TeuchosCore support")
+    variant("teuchos", default=False, description="Enable Teuchos support")
+    variant("teuchoscomm", default=False, description="Enable TeuchosComm support")
+    variant("teuchosparameterlist", default=False, description="Enable TeuchosParameterList support")
+    variant("tpetracore", default=False, description="Enable TpetraCore support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
+    variant("shards", default=False, description="Enable Shards support")
+    variant("intrepid2", default=False, description="Enable Intrepid2 support")
+    variant("phalanx", default=False, description="Enable Phalanx support")
+    variant("kokkos", default=False, description="Enable Kokkos support")
+    variant("sacado", default=False, description="Enable Sacado support")
+    variant("thyracore", default=False, description="Enable ThyraCore support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("thyratpetraadapters", default=False, description="Enable ThyraTpetraAdapters support")
+    variant("zoltan", default=False, description="Enable Zoltan support")
+    variant("stkutil", default=False, description="Enable STKUtil support")
+    variant("stk", default=False, description="Enable STK support")
+    variant("stktools", default=False, description="Enable STKTools support")
+    variant("stktopology", default=False, description="Enable STKTopology support")
+    variant("stkmesh", default=False, description="Enable STKMesh support")
+    variant("stkio", default=False, description="Enable STKIO support")
+    variant("stratimikos", default=False, description="Enable Stratimikos support")
+    variant("piro", default=False, description="Enable Piro support")
+    variant("nox", default=False, description="Enable NOX support")
+    variant("belos", default=False, description="Enable Belos support")
+    variant("teko", default=False, description="Enable Teko support")
+    variant("muelu", default=False, description="Enable MueLu support")
+    variant("teuchosparser", default=False, description="Enable TeuchosParser support")
+    variant("stksearch", default=False, description="Enable STKSearch support")
+    variant("seacasioss", default=False, description="Enable SEACASIoss support")
+    variant("seacas", default=False, description="Enable SEACAS support")
+    variant("seacasexodus", default=False, description="Enable SEACASExodus support")
+    variant("percept", default=False, description="Enable Percept support")
+    variant("ifpack2", default=False, description="Enable Ifpack2 support")
+    variant("tempus", default=False, description="Enable Tempus support")
+    variant("shylu-nodetacho", default=False, description="Enable ShyLU_NodeTacho support")
+    variant("shylu-node", default=False, description="Enable ShyLU_Node support")
+    variant("pamgen", default=False, description="Enable Pamgen support")
 
 
     # Scraped CMake options
@@ -111,6 +111,29 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tempus", when="+tempus")
     depends_on_trilinos_package("trilinos-pamgen", when="+pamgen")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist +teuchosparser", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra +tpetracore", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-shards", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-phalanx", when="+all-optional-packages")
+    depends_on("kokkos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-sacado", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra +thyracore +thyratpetraadapters", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-stk +stkutil +stktools +stktopology +stkmesh +stkio +stksearch", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-stratimikos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-piro", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-nox", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teko", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
+    depends_on("seacas", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-percept", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tempus", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-pamgen", when="+all-optional-packages")
+
     # Required external (TPL) dependencies
     depends_on("mpi")
 
@@ -118,6 +141,44 @@ class TrilinosPanzer(TrilinosBaseClass):
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+teuchoscore", when="+all-optional-packages")
+    conflicts("+teuchos", when="+all-optional-packages")
+    conflicts("+teuchoscomm", when="+all-optional-packages")
+    conflicts("+teuchosparameterlist", when="+all-optional-packages")
+    conflicts("+tpetracore", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+shards", when="+all-optional-packages")
+    conflicts("+intrepid2", when="+all-optional-packages")
+    conflicts("+phalanx", when="+all-optional-packages")
+    conflicts("+kokkos", when="+all-optional-packages")
+    conflicts("+sacado", when="+all-optional-packages")
+    conflicts("+thyracore", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+thyratpetraadapters", when="+all-optional-packages")
+    conflicts("+zoltan", when="+all-optional-packages")
+    conflicts("+stkutil", when="+all-optional-packages")
+    conflicts("+stk", when="+all-optional-packages")
+    conflicts("+stktools", when="+all-optional-packages")
+    conflicts("+stktopology", when="+all-optional-packages")
+    conflicts("+stkmesh", when="+all-optional-packages")
+    conflicts("+stkio", when="+all-optional-packages")
+    conflicts("+stratimikos", when="+all-optional-packages")
+    conflicts("+piro", when="+all-optional-packages")
+    conflicts("+nox", when="+all-optional-packages")
+    conflicts("+belos", when="+all-optional-packages")
+    conflicts("+teko", when="+all-optional-packages")
+    conflicts("+muelu", when="+all-optional-packages")
+    conflicts("+teuchosparser", when="+all-optional-packages")
+    conflicts("+stksearch", when="+all-optional-packages")
+    conflicts("+seacasioss", when="+all-optional-packages")
+    conflicts("+seacas", when="+all-optional-packages")
+    conflicts("+seacasexodus", when="+all-optional-packages")
+    conflicts("+percept", when="+all-optional-packages")
+    conflicts("+ifpack2", when="+all-optional-packages")
+    conflicts("+tempus", when="+all-optional-packages")
+    conflicts("+pamgen", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -143,42 +204,114 @@ class TrilinosPanzer(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_MPI", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosCore", "teuchoscore"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosComm", "teuchoscomm"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosParameterList", "teuchosparameterlist"))
-        args.append(self.define_from_variant("TPL_ENABLE_TpetraCore", "tpetracore"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Shards", "shards"))
-        args.append(self.define_from_variant("TPL_ENABLE_Intrepid2", "intrepid2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Phalanx", "phalanx"))
-        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Sacado", "sacado"))
-        args.append(self.define_from_variant("TPL_ENABLE_ThyraCore", "thyracore"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_ThyraTpetraAdapters", "thyratpetraadapters"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan", "zoltan"))
-        args.append(self.define_from_variant("TPL_ENABLE_STKUtil", "stkutil"))
-        args.append(self.define_from_variant("TPL_ENABLE_STK", "stk"))
-        args.append(self.define_from_variant("TPL_ENABLE_STKTools", "stktools"))
-        args.append(self.define_from_variant("TPL_ENABLE_STKTopology", "stktopology"))
-        args.append(self.define_from_variant("TPL_ENABLE_STKMesh", "stkmesh"))
-        args.append(self.define_from_variant("TPL_ENABLE_STKIO", "stkio"))
-        args.append(self.define_from_variant("TPL_ENABLE_Stratimikos", "stratimikos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Piro", "piro"))
-        args.append(self.define_from_variant("TPL_ENABLE_NOX", "nox"))
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teko", "teko"))
-        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosParser", "teuchosparser"))
-        args.append(self.define_from_variant("TPL_ENABLE_STKSearch", "stksearch"))
-        args.append(self.define_from_variant("TPL_ENABLE_SEACASIoss", "seacasioss"))
-        args.append(self.define_from_variant("TPL_ENABLE_SEACAS", "seacas"))
-        args.append(self.define_from_variant("TPL_ENABLE_SEACASExodus", "seacasexodus"))
-        args.append(self.define_from_variant("TPL_ENABLE_Percept", "percept"))
-        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tempus", "tempus"))
-        args.append(self.define_from_variant("TPL_ENABLE_Pamgen", "pamgen"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoscore"):
+            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchos"):
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoscomm"):
+            args.append(self.define("TPL_ENABLE_TeuchosComm", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchosparameterlist"):
+            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetracore"):
+            args.append(self.define("TPL_ENABLE_TpetraCore", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+shards"):
+            args.append(self.define("TPL_ENABLE_Shards", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+intrepid2"):
+            args.append(self.define("TPL_ENABLE_Intrepid2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+phalanx"):
+            args.append(self.define("TPL_ENABLE_Phalanx", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+sacado"):
+            args.append(self.define("TPL_ENABLE_Sacado", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyracore"):
+            args.append(self.define("TPL_ENABLE_ThyraCore", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyratpetraadapters"):
+            args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan"):
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkutil"):
+            args.append(self.define("TPL_ENABLE_STKUtil", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stk"):
+            args.append(self.define("TPL_ENABLE_STK", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stktools"):
+            args.append(self.define("TPL_ENABLE_STKTools", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stktopology"):
+            args.append(self.define("TPL_ENABLE_STKTopology", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkmesh"):
+            args.append(self.define("TPL_ENABLE_STKMesh", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkio"):
+            args.append(self.define("TPL_ENABLE_STKIO", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stratimikos"):
+            args.append(self.define("TPL_ENABLE_Stratimikos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+piro"):
+            args.append(self.define("TPL_ENABLE_Piro", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+nox"):
+            args.append(self.define("TPL_ENABLE_NOX", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teko"):
+            args.append(self.define("TPL_ENABLE_Teko", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+muelu"):
+            args.append(self.define("TPL_ENABLE_MueLu", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchosparser"):
+            args.append(self.define("TPL_ENABLE_TeuchosParser", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stksearch"):
+            args.append(self.define("TPL_ENABLE_STKSearch", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasioss"):
+            args.append(self.define("TPL_ENABLE_SEACASIoss", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacas"):
+            args.append(self.define("TPL_ENABLE_SEACAS", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasexodus"):
+            args.append(self.define("TPL_ENABLE_SEACASExodus", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+percept"):
+            args.append(self.define("TPL_ENABLE_Percept", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+ifpack2"):
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tempus"):
+            args.append(self.define("TPL_ENABLE_Tempus", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+pamgen"):
+            args.append(self.define("TPL_ENABLE_Pamgen", True))
+
         # Scraped CMake options
         args.append(self.define_from_variant("PANZER_THIS_IS_AN_OPT_BUILD", "this-is-an-opt-build"))
         args.append(self.define_from_variant("PANZER_HAVE_EPETRA_STACK", "have-epetra-stack"))

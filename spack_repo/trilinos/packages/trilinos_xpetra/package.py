@@ -20,7 +20,7 @@ class TrilinosXpetra(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("thyra", default=True, description="Enable Thyra support")
+    variant("thyra", default=False, description="Enable Thyra support")
 
 
     # Scraped CMake options
@@ -36,12 +36,18 @@ class TrilinosXpetra(TrilinosBaseClass):
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-thyra", when="+all-optional-packages")
+
     # Required external (TPL) dependencies
     depends_on("blas")
     depends_on("lapack")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+thyra", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -54,7 +60,9 @@ class TrilinosXpetra(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
         # Scraped CMake options
         args.append(self.define_from_variant("XPETRA_ENABLE_PROFILING", "profiling"))
 

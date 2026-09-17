@@ -20,10 +20,10 @@ class TrilinosAnasazi(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("tpetra", default=True, description="Enable Tpetra support")
-    variant("thyracore", default=True, description="Enable ThyraCore support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("belos", default=True, description="Enable Belos support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
+    variant("thyracore", default=False, description="Enable ThyraCore support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("belos", default=False, description="Enable Belos support")
 
 
     # Required package dependencies
@@ -35,11 +35,21 @@ class TrilinosAnasazi(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
     depends_on_trilinos_package("trilinos-belos", when="+belos")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra +thyracore", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
+
     # Optional external (TPL) dependencies
-    depends_on("mpi", when="+mpi")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+thyracore", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+belos", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -47,10 +57,18 @@ class TrilinosAnasazi(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_ThyraCore", "thyracore"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyracore"):
+            args.append(self.define("TPL_ENABLE_ThyraCore", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
 

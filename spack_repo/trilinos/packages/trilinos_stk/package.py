@@ -45,24 +45,24 @@ class TrilinosStk(TrilinosBaseClass):
     variant("stkperformance-tests", default=True, description="Enable the STKPerformance_tests subpackage")
 
     # Optional TPL variants
-    variant("boost", default=True, description="Enable boost support")
+    variant("boost", default=False, description="Enable boost support")
 
 
     # Optional package variants
-    variant("kokkos", default=True, description="Enable Kokkos support")
-    variant("shards", default=True, description="Enable Shards support")
-    variant("seacasioss", default=True, description="Enable SEACASIoss support")
-    variant("seacas", default=True, description="Enable SEACAS support")
-    variant("seacasexodus", default=True, description="Enable SEACASExodus support")
-    variant("teuchoscore", default=True, description="Enable TeuchosCore support")
-    variant("teuchos", default=True, description="Enable Teuchos support")
-    variant("teuchosparameterlist", default=True, description="Enable TeuchosParameterList support")
-    variant("seacasnemesis", default=True, description="Enable SEACASNemesis support")
-    variant("zoltan2core", default=True, description="Enable Zoltan2Core support")
-    variant("tpetra", default=True, description="Enable Tpetra support")
-    variant("zoltan", default=True, description="Enable Zoltan support")
-    variant("seacasaprepro-lib", default=True, description="Enable SEACASAprepro_lib support")
-    variant("intrepid2", default=True, description="Enable Intrepid2 support")
+    variant("kokkos", default=False, description="Enable Kokkos support")
+    variant("shards", default=False, description="Enable Shards support")
+    variant("seacasioss", default=False, description="Enable SEACASIoss support")
+    variant("seacas", default=False, description="Enable SEACAS support")
+    variant("seacasexodus", default=False, description="Enable SEACASExodus support")
+    variant("teuchoscore", default=False, description="Enable TeuchosCore support")
+    variant("teuchos", default=False, description="Enable Teuchos support")
+    variant("teuchosparameterlist", default=False, description="Enable TeuchosParameterList support")
+    variant("seacasnemesis", default=False, description="Enable SEACASNemesis support")
+    variant("zoltan2core", default=False, description="Enable Zoltan2Core support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
+    variant("zoltan", default=False, description="Enable Zoltan support")
+    variant("seacasaprepro-lib", default=False, description="Enable SEACASAprepro_lib support")
+    variant("intrepid2", default=False, description="Enable Intrepid2 support")
 
 
     # Scraped CMake options
@@ -88,6 +88,16 @@ class TrilinosStk(TrilinosBaseClass):
     depends_on("seacas", when="+seacasaprepro-lib")
     depends_on_trilinos_package("trilinos-intrepid2", when="+intrepid2")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on("kokkos", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-shards", when="+all-optional-packages")
+    depends_on("seacas", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-zoltan", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+all-optional-packages")
+
     # Required external (TPL) dependencies
     depends_on("mpi")
     depends_on("googletest")
@@ -98,11 +108,31 @@ class TrilinosStk(TrilinosBaseClass):
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
 
+    # all-optional-packages: enable all optional TPLs at once
+    depends_on("boost", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
 
     # TPL conflicts: subpackages that require an optional TPL
     conflicts("~boost", when="+stkutil")
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+kokkos", when="+all-optional-packages")
+    conflicts("+shards", when="+all-optional-packages")
+    conflicts("+seacasioss", when="+all-optional-packages")
+    conflicts("+seacas", when="+all-optional-packages")
+    conflicts("+seacasexodus", when="+all-optional-packages")
+    conflicts("+teuchoscore", when="+all-optional-packages")
+    conflicts("+teuchos", when="+all-optional-packages")
+    conflicts("+teuchosparameterlist", when="+all-optional-packages")
+    conflicts("+seacasnemesis", when="+all-optional-packages")
+    conflicts("+zoltan2core", when="+all-optional-packages")
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+zoltan", when="+all-optional-packages")
+    conflicts("+seacasaprepro-lib", when="+all-optional-packages")
+    conflicts("+intrepid2", when="+all-optional-packages")
+    conflicts("+boost", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -183,21 +213,49 @@ class TrilinosStk(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_LAPACK", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
-        args.append(self.define_from_variant("TPL_ENABLE_Shards", "shards"))
-        args.append(self.define_from_variant("TPL_ENABLE_SEACASIoss", "seacasioss"))
-        args.append(self.define_from_variant("TPL_ENABLE_SEACAS", "seacas"))
-        args.append(self.define_from_variant("TPL_ENABLE_SEACASExodus", "seacasexodus"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosCore", "teuchoscore"))
-        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
-        args.append(self.define_from_variant("TPL_ENABLE_TeuchosParameterList", "teuchosparameterlist"))
-        args.append(self.define_from_variant("TPL_ENABLE_SEACASNemesis", "seacasnemesis"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Core", "zoltan2core"))
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Zoltan", "zoltan"))
-        args.append(self.define_from_variant("TPL_ENABLE_SEACASAprepro_lib", "seacasaprepro-lib"))
-        args.append(self.define_from_variant("TPL_ENABLE_Intrepid2", "intrepid2"))
-        if self.spec.satisfies("+boost"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+shards"):
+            args.append(self.define("TPL_ENABLE_Shards", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasioss"):
+            args.append(self.define("TPL_ENABLE_SEACASIoss", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacas"):
+            args.append(self.define("TPL_ENABLE_SEACAS", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasexodus"):
+            args.append(self.define("TPL_ENABLE_SEACASExodus", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoscore"):
+            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchos"):
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchosparameterlist"):
+            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasnemesis"):
+            args.append(self.define("TPL_ENABLE_SEACASNemesis", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan2core"):
+            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan"):
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasaprepro-lib"):
+            args.append(self.define("TPL_ENABLE_SEACASAprepro_lib", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+intrepid2"):
+            args.append(self.define("TPL_ENABLE_Intrepid2", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
         # Scraped CMake options

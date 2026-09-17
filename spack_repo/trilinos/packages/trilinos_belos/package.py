@@ -20,10 +20,10 @@ class TrilinosBelos(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("tpetra", default=True, description="Enable Tpetra support")
-    variant("xpetra", default=True, description="Enable Xpetra support")
-    variant("thyra", default=True, description="Enable Thyra support")
-    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+    variant("tpetra", default=False, description="Enable Tpetra support")
+    variant("xpetra", default=False, description="Enable Xpetra support")
+    variant("thyra", default=False, description="Enable Thyra support")
+    variant("kokkoskernels", default=False, description="Enable KokkosKernels support")
 
 
     # Required package dependencies
@@ -36,8 +36,20 @@ class TrilinosBelos(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
     depends_on("kokkos-kernels", when="+kokkoskernels")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-xpetra", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra", when="+all-optional-packages")
+    depends_on("kokkos-kernels", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+tpetra", when="+all-optional-packages")
+    conflicts("+xpetra", when="+all-optional-packages")
+    conflicts("+thyra", when="+all-optional-packages")
+    conflicts("+kokkoskernels", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -46,10 +58,18 @@ class TrilinosBelos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
 
-        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
-        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
-        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+xpetra"):
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+thyra"):
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkoskernels"):
+            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

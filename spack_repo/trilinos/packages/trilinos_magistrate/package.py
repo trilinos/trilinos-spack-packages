@@ -20,24 +20,36 @@ class TrilinosMagistrate(TrilinosBaseClass):
     """
 
     # Optional package variants
-    variant("kokkos", default=True, description="Enable Kokkos support")
-    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+    variant("kokkos", default=False, description="Enable Kokkos support")
+    variant("kokkoskernels", default=False, description="Enable KokkosKernels support")
 
 
     # Optional package dependencies
     depends_on("kokkos", when="+kokkos")
     depends_on("kokkos-kernels", when="+kokkoskernels")
 
+    # all-optional-packages: enable all optional deps at once
+    depends_on("kokkos", when="+all-optional-packages")
+    depends_on("kokkos-kernels", when="+all-optional-packages")
+
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
+
+    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+kokkos", when="+all-optional-packages")
+    conflicts("+kokkoskernels", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_magistrate", True))
 
 
-        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
-        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+            args.append(self.define("TPL_ENABLE_Kokkos", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkoskernels"):
+            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS
