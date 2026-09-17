@@ -98,6 +98,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     trilinos_variant("complex-double", default=False, description="Enable complex<double> scalar type")
     trilinos_variant("complex-float", default=False, description="Enable complex<float> scalar type")
     trilinos_variant("disable-deprecated-code", default=True, description="Disable deprecated code in Trilinos packages")
+    variant("shared", default=True, description="Enable building shared libraries")
     #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
@@ -207,6 +208,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
         args.append(self.define_from_variant("CMAKE_CXX_STANDARD", "cxxstd"))
         args.append(self.define_from_variant("Trilinos_ENABLE_OpenMP", "openmp"))
         args.append(self.define_from_variant("Trilinos_ENABLE_EXPLICIT_INSTANTIATION", "explicit-instantiation"))
+        args.append(self.define_from_variant("BUILD_SHARED_LIBS", "shared"))
 
         # Scalar type settings
         args.append(self.define_from_variant("Trilinos_ENABLE_FLOAT", "float"))
