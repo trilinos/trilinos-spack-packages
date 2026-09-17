@@ -33,11 +33,17 @@ class TrilinosTeuchos(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
+    # Optional package variants
+    variant("kokkos", default=True, description="Enable Kokkos support")
+
+
+    # Scraped CMake options
+    variant("timer-kokkos-fence", default=False, description="Call Kokkos::fence() whenever a Teuchos timer starts or stops.")
+    variant("trilinos-enable-linear-solver-factory-registration", default=False, description="Whether to enable automatic run-time registration of LinearSolverFactory in downstream packages. All packages that intend to register a LinearSolverFactory at run time, before main() starts, must respect this option. Its default value is ${PROJECT_NAME}_ENABLE_EXPLICIT_INSTANTIATION = ${${PROJECT_NAME}_ENABLE_EXPLICIT_INSTANTIATION}, because if explicit template instantiation (ETI) is OFF, the automatic registration option increases build time. The LinearSolver and LinearSolverFactory interfaces remain even if this option is OFF, but in that case, users must do manual registration for all solver packages which they (or solvers) might like to use.")
+
+
     # Optional package dependencies
-    depends_on("kokkos", when="+teuchoskokkoscompat")
-    depends_on("kokkos", when="+teuchoskokkoscomm")
-    depends_on("kokkos", when="+teuchoscore")
-    depends_on_trilinos_package("trilinos-magistrate", when="+teuchoscomm")
+    depends_on("kokkos", when="+kokkos")
 
     # Required external (TPL) dependencies
     depends_on("blas")
@@ -86,17 +92,16 @@ class TrilinosTeuchos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        if self.spec.satisfies("+teuchoskokkoscompat") or self.spec.satisfies("+teuchoskokkoscomm") or self.spec.satisfies("+teuchoscore"):
-            args.append(self.define("TPL_ENABLE_Kokkos", True))
-
-        if self.spec.satisfies("+teuchoscomm"):
-            args.append(self.define("TPL_ENABLE_magistrate", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
+
+        # Scraped CMake options
+        args.append(self.define_from_variant("Teuchos_TIMER_KOKKOS_FENCE", "timer-kokkos-fence"))
+        args.append(self.define_from_variant("Trilinos_ENABLE_LINEAR_SOLVER_FACTORY_REGISTRATION", "trilinos-enable-linear-solver-factory-registration"))
 
 
     # BEGIN MANUAL CMAKE ARGS

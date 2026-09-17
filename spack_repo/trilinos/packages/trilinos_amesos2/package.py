@@ -20,10 +20,17 @@ class TrilinosAmesos2(TrilinosBaseClass):
     """
 
     # Optional TPL variants
+    variant("superlu", default=True, description="Enable superlu support")
     variant("superludist", default=True, description="Enable superlu-dist support")
     variant("lapack", default=True, description="Enable lapack support")
     variant("parmetis", default=True, description="Enable parmetis support")
     variant("metis", default=True, description="Enable metis support")
+
+
+    # Optional package variants
+    variant("shylu-nodebasker", default=True, description="Enable ShyLU_NodeBasker support")
+    variant("shylu-node", default=True, description="Enable ShyLU_Node support")
+    variant("shylu-nodetacho", default=True, description="Enable ShyLU_NodeTacho support")
 
 
     # Required package dependencies
@@ -37,6 +44,7 @@ class TrilinosAmesos2(TrilinosBaseClass):
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
+    depends_on("superlu", when="+superlu")
     depends_on("superlu-dist", when="+superludist")
     depends_on("lapack", when="+lapack")
     depends_on("parmetis", when="+parmetis")
@@ -57,6 +65,9 @@ class TrilinosAmesos2(TrilinosBaseClass):
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
+
+        if self.spec.satisfies("+superlu"):
+            args.append(self.define("TPL_ENABLE_SuperLU", True))
 
         if self.spec.satisfies("+superludist"):
             args.append(self.define("TPL_ENABLE_SuperLUDist", True))

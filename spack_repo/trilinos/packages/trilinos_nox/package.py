@@ -24,16 +24,36 @@ class TrilinosNox(TrilinosBaseClass):
     variant("blas", default=True, description="Enable blas support")
 
 
+    # Optional package variants
+    variant("thyracore", default=True, description="Enable ThyraCore support")
+    variant("thyra", default=True, description="Enable Thyra support")
+    variant("belos", default=True, description="Enable Belos support")
+    variant("anasazi", default=True, description="Enable Anasazi support")
+    variant("stratimikos", default=True, description="Enable Stratimikos support")
+    variant("teko", default=True, description="Enable Teko support")
+    variant("tpetra", default=True, description="Enable Tpetra support")
+
+
+    # Scraped CMake options
+    variant("abstract-implementation-lapack", default=False, description="Enables support for LAPACK implementation of Abstract Group and Vector classes. Defaults to ON if LAPACK is enabled, otherwise defaults to OFF.")
+    variant("abstract-implementation-thyra", default=False, description="Enables support for Thyra implementation of Abstract Group and Vector classes. Defaults to ON if Thyra is enabled, otherwise defaults to OFF")
+    variant("thyra-tpetra-adapters", default=False, description="Enables support for the Thyra Tpetra adapters Defaults to ON if Thyra and Thyra Tpetra adapters are both enabled, otherwise defaults to OFF")
+    variant("kokkos-solver-stack", default=False, description="Enables support for the Kokkos/Tpetra linear solver stack. Defaults to ON if the Thyra, Tpetra, Stratimikos, Belos, Amesos2, Ifpack2, and MueLu are all enabled, otherwise defaults to OFF.")
+    variant("abstract-implementation-tpetra", default=False, description="Enables support for Tpetra implementation of Abstract Group and Vector classes. Defaults to ON if Tpetra is enabled, otherwise defaults to OFF")
+    variant("abstract-implementation-petsc", default=False, description="Enables support for PETSc implementation of Abstract Group and Vector classes. Defaults to ON if NOX_ENABLE_PETSC is enabled, otherwise defaults to OFF.")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-thyra +thyracore")
-    depends_on_trilinos_package("trilinos-belos")
-    depends_on_trilinos_package("trilinos-anasazi")
-    depends_on_trilinos_package("trilinos-stratimikos")
-    depends_on_trilinos_package("trilinos-teko")
-    depends_on_trilinos_package("trilinos-tpetra")
+    depends_on_trilinos_package("trilinos-thyra +thyracore", when="+thyracore")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
+    depends_on_trilinos_package("trilinos-anasazi", when="+anasazi")
+    depends_on_trilinos_package("trilinos-stratimikos", when="+stratimikos")
+    depends_on_trilinos_package("trilinos-teko", when="+teko")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
 
     # Optional external (TPL) dependencies
     depends_on("lapack", when="+lapack")
@@ -48,25 +68,26 @@ class TrilinosNox(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        args.append(self.define("TPL_ENABLE_ThyraCore", True))
-
-        args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("TPL_ENABLE_Belos", True))
-
-        args.append(self.define("TPL_ENABLE_Anasazi", True))
-
-        args.append(self.define("TPL_ENABLE_Stratimikos", True))
-
-        args.append(self.define("TPL_ENABLE_Teko", True))
-
-        args.append(self.define("TPL_ENABLE_Tpetra", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_ThyraCore", "thyracore"))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Anasazi", "anasazi"))
+        args.append(self.define_from_variant("TPL_ENABLE_Stratimikos", "stratimikos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Teko", "teko"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
         if self.spec.satisfies("+lapack"):
             args.append(self.define("TPL_ENABLE_LAPACK", True))
 
         if self.spec.satisfies("+blas"):
             args.append(self.define("TPL_ENABLE_BLAS", True))
+
+        # Scraped CMake options
+        args.append(self.define_from_variant("NOX_ENABLE_ABSTRACT_IMPLEMENTATION_LAPACK", "abstract-implementation-lapack"))
+        args.append(self.define_from_variant("NOX_ENABLE_ABSTRACT_IMPLEMENTATION_THYRA", "abstract-implementation-thyra"))
+        args.append(self.define_from_variant("NOX_ENABLE_THYRA_TPETRA_ADAPTERS", "thyra-tpetra-adapters"))
+        args.append(self.define_from_variant("NOX_ENABLE_KOKKOS_SOLVER_STACK", "kokkos-solver-stack"))
+        args.append(self.define_from_variant("NOX_ENABLE_ABSTRACT_IMPLEMENTATION_TPETRA", "abstract-implementation-tpetra"))
+        args.append(self.define_from_variant("NOX_ENABLE_ABSTRACT_IMPLEMENTATION_PETSC", "abstract-implementation-petsc"))
 
 
     # BEGIN MANUAL CMAKE ARGS

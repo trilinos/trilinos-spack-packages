@@ -23,6 +23,18 @@ class TrilinosIfpack2(TrilinosBaseClass):
     variant("metis", default=True, description="Enable metis support")
 
 
+    # Optional package variants
+    variant("xpetra", default=True, description="Enable Xpetra support")
+    variant("zoltan2core", default=True, description="Enable Zoltan2Core support")
+    variant("thyratpetraadapters", default=True, description="Enable ThyraTpetraAdapters support")
+    variant("thyra", default=True, description="Enable Thyra support")
+    variant("amesos2", default=True, description="Enable Amesos2 support")
+    variant("shylu-nodebasker", default=True, description="Enable ShyLU_NodeBasker support")
+    variant("shylu-node", default=True, description="Enable ShyLU_Node support")
+    variant("shylu-nodehts", default=True, description="Enable ShyLU_NodeHTS support")
+    variant("shylu-nodefastilu", default=True, description="Enable ShyLU_NodeFastILU support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-tpetra")
@@ -30,10 +42,11 @@ class TrilinosIfpack2(TrilinosBaseClass):
     depends_on("kokkos-kernels")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-xpetra")
-    depends_on_trilinos_package("trilinos-zoltan2core")
-    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
-    depends_on_trilinos_package("trilinos-amesos2")
+    depends_on_trilinos_package("trilinos-xpetra", when="+xpetra")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+zoltan2core")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
+    depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
 
     # Optional external (TPL) dependencies
     depends_on("metis", when="+metis")
@@ -51,16 +64,11 @@ class TrilinosIfpack2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define("TPL_ENABLE_Xpetra", True))
-
-        args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
-
-        args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
-
-        args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Core", "zoltan2core"))
+        args.append(self.define_from_variant("TPL_ENABLE_ThyraTpetraAdapters", "thyratpetraadapters"))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
         if self.spec.satisfies("+metis"):
             args.append(self.define("TPL_ENABLE_METIS", True))
 

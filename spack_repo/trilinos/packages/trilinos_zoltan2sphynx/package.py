@@ -19,6 +19,11 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("muelu", default=True, description="Enable MueLu support")
+    variant("galeri", default=True, description="Enable Galeri support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-anasazi")
     depends_on_trilinos_package("trilinos-belos")
@@ -26,8 +31,8 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-zoltan2core")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-muelu")
-    depends_on_trilinos_package("trilinos-galeri")
+    depends_on_trilinos_package("trilinos-muelu", when="+muelu")
+    depends_on_trilinos_package("trilinos-galeri", when="+galeri")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -41,10 +46,8 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
         args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define("TPL_ENABLE_MueLu", True))
-
-        args.append(self.define("TPL_ENABLE_Galeri", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
+        args.append(self.define_from_variant("TPL_ENABLE_Galeri", "galeri"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

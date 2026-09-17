@@ -19,15 +19,22 @@ class TrilinosBelos(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("xpetra", default=True, description="Enable Xpetra support")
+    variant("thyra", default=True, description="Enable Thyra support")
+    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on("kokkos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-xpetra")
-    depends_on_trilinos_package("trilinos-thyra")
-    depends_on("kokkos-kernels")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
+    depends_on_trilinos_package("trilinos-xpetra", when="+xpetra")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
+    depends_on("kokkos-kernels", when="+kokkoskernels")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -39,14 +46,10 @@ class TrilinosBelos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
 
-        args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        args.append(self.define("TPL_ENABLE_Xpetra", True))
-
-        args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

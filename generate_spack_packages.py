@@ -144,7 +144,7 @@ INCLUDE_TPLS: dict[str, str] = {
     "Parmetis":     "parmetis",
     "Zlib":         "zlib-api",
     "ZLIB":         "zlib-api",
-    # "SuperLU":      "superlu",  # Disabled - incompatible version
+    "SuperLU":      "superlu",
     "SuperLUDist":  "superlu-dist",
     "SuperLU_Dist": "superlu-dist",
     "Scotch":       "scotch",
@@ -243,15 +243,25 @@ def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
     Returns a mapping: cmake_var -> (description, default_value).
     """
     options = {}
-    pkg_dir = f"/projects/packages/{pkg_name.lower()}"
+    pkg_dir = f"/projects/Trilinos/packages/{pkg_name.lower()}"
     if not os.path.isdir(pkg_dir):
         return options
 
-    # Pattern for option(VAR "DESC" DEFAULT) or TRIBITS_ADD_OPTION_AND_DEFINE(VAR ...
-    # Group 1: Variable name, Group 2: Description, Group 3: Default value
-    pattern = re.compile(
-        r'(?:option\s*\(\s*([A-Za-z0-9_]+)\s*"?([^"]*)"?\s*([^)]*)\)|'
-        r'TRIBITS_ADD_OPTION_AND_DEFINE\s*\(\s*([A-Za-z0-9_]+)[,\s]+(?:[^"]*"?([^"]*)"?[,\s]+)?([^)]*)\))',
+    # Pattern for option(VAR "DESC" DEFAULT) — word boundary prevents matching COMBINED_OPTION
+    option_pat = re.compile(
+        r'\boption\s*\(\s*([A-Za-z0-9_]+)\s*"([^"]*)"\s*([^)]*)\)',
+        re.IGNORECASE | re.DOTALL
+    )
+
+    # Pattern for TRIBITS_ADD_OPTION_AND_DEFINE(VAR ...)
+    tribits_pat = re.compile(
+        r'TRIBITS_ADD_OPTION_AND_DEFINE\s*\(\s*([A-Za-z0-9_]+)[,\s]+(?:[^"]*"([^"]*)"\s*[,\s]+)?([^)]*)\)',
+        re.IGNORECASE | re.DOTALL
+    )
+
+    # Pattern for COMBINED_OPTION(VAR DEP_OPTIONS_NAMES ... DOCSTR "desc")
+    combined_pat = re.compile(
+        r'COMBINED_OPTION\s*\(\s*([A-Za-z0-9_${}]+)\s+DEP_OPTIONS_NAMES\s+[^)]*?DOCSTR\s+"([^"]*(?:"\s*"[^"]*)*)"?\s*\)',
         re.IGNORECASE | re.DOTALL
     )
 
@@ -261,21 +271,28 @@ def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
                 try:
                     with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                         content = f.read()
-                        for match in pattern.finditer(content):
-                            # The regex has two alternative groups. We need to find which one matched.
-                            groups = match.groups()
-                            if groups[0]: # option() match
-                                var, desc, default = groups[0], groups[1], groups[2]
-                            else: # TRIBITS_ADD_OPTION_AND_DEFINE match
-                                var, desc, default = groups[3], groups[4], groups[5]
 
-                            # Clean up description: collapse newlines and extra whitespace
+                        for match in option_pat.finditer(content):
+                            var, desc, default = match.group(1), match.group(2), match.group(3)
                             if desc:
                                 desc = " ".join(desc.split())
+                            default_val = default.strip().upper() == "ON"
+                            options[var] = (desc or "", default_val)
 
-                            # Normalize default to boolean
-                            default_val = True if default.strip().upper() == "ON" else False
-                            options[var] = (desc, default_val)
+                        for match in tribits_pat.finditer(content):
+                            var, desc, default = match.group(1), match.group(2), match.group(3)
+                            if desc:
+                                desc = " ".join(desc.split())
+                            default_val = default.strip().upper() == "ON"
+                            options[var] = (desc or "", default_val)
+
+                        for match in combined_pat.finditer(content):
+                            var, raw_desc = match.group(1), match.group(2)
+                            if "${" in var:
+                                continue
+                            desc = " ".join(raw_desc.replace('"', '').split())
+                            options[var] = (desc, False)
+
                 except Exception:
                     continue
     return options
@@ -404,6 +421,26 @@ def _header(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
         lines.append("")
         lines.append("")
 
+    # One variant per optional package dependency — package-local, plain variant().
+    # These control whether the optional dependency is pulled into the build.
+    visible_opt_pkgs = []
+    seen_opt_vnames = set()
+    for dep in pkg.optional_package_deps:
+        vname = _variant_name(dep)
+        if vname not in BASE_TRILINOS_VARIANTS and vname not in seen_opt_vnames:
+            visible_opt_pkgs.append((dep, vname))
+            seen_opt_vnames.add(vname)
+
+    if visible_opt_pkgs:
+        lines.append("    # Optional package variants")
+        for dep, vname in visible_opt_pkgs:
+            lines.append(
+                f'    variant("{vname}", default=True,'
+                f' description="Enable {dep} support")'
+            )
+        lines.append("")
+        lines.append("")
+
     # Scraped CMake options as variants
     if scraped_options:
         lines.append("    # Scraped CMake options")
@@ -495,8 +532,8 @@ def _optional_package_deps(pkg: TrilinosPackage, scraped_options: dict = None) -
     from collections import defaultdict
     sp_variant_names: set[str] = {_variant_name(sp) for sp in pkg.subpackages}
 
-    # Group by (fn, spack_name, when_variant) → [variant, ...]
-    order: list[tuple[str, str, str | None]] = []
+    # Group by (fn, spack_name, control_variant) → [dep_variant, ...]
+    order: list[tuple[str, str, str]] = []
     seen_keys: set[tuple] = set()
     variants: dict[tuple, list[str]] = defaultdict(list)
     bare_parents: set[str] = set()
@@ -507,27 +544,20 @@ def _optional_package_deps(pkg: TrilinosPackage, scraped_options: dict = None) -
         if effective in EXCLUDE_OPTIONAL_PACKAGES or dep in EXCLUDE_OPTIONAL_PACKAGES:
             continue
 
-        spack_name, variant = _pkg_dep_spec(dep)
+        spack_name, dep_variant = _pkg_dep_spec(dep)
         fn = _dep_call(dep)
-        if variant:
+        vname = _variant_name(dep)
+
+        # We use the control variant vname as the 'when' condition
+        key = (fn, spack_name, vname)
+        if key not in seen_keys:
+            seen_keys.add(key)
+            order.append(key)
+
+        # The dependency itself might require a specific variant (e.g. +tpetracore)
+        if dep_variant and dep_variant not in variants[key]:
+            variants[key].append(dep_variant)
             bare_parents.add(spack_name)
-
-        sources: list[str] = pkg.optional_package_sources.get(dep, [])
-        sp_sources = [sp for sp in sources if _variant_name(sp) in sp_variant_names]
-        non_sp_sources = [sp for sp in sources if _variant_name(sp) not in sp_variant_names]
-
-        whens: list[str | None] = (
-            [None] if (not sp_sources or non_sp_sources)
-            else [_variant_name(sp) for sp in sp_sources]
-        )
-
-        for when in whens:
-            key = (fn, spack_name, when)
-            if key not in seen_keys:
-                seen_keys.add(key)
-                order.append(key)
-            if variant and variant not in variants[key]:
-                variants[key].append(variant)
 
     # Handle cross-package synchronized variants (from SCALAR_SYNC_MAP)
     # This adds depends_on requirements to other packages based on variants enabled in this one.
@@ -551,14 +581,12 @@ def _optional_package_deps(pkg: TrilinosPackage, scraped_options: dict = None) -
 
     lines = ["    # Optional package dependencies"]
     for fn, spack_name, when in order:
-        if not variants[(fn, spack_name, when)] and spack_name in bare_parents:
-            continue
         vparts = variants[(fn, spack_name, when)]
         spec = spack_name + ("".join(f" {v}" for v in vparts) if vparts else "")
-        if when:
-            lines.append(f'    {fn}("{spec}", when="+{when}")')
-        else:
-            lines.append(f'    {fn}("{spec}")')
+        # If 'when' starts with '+', it's a scalar sync variant; otherwise it's a control variant.
+        # We use + prefix regardless.
+        when_prefix = "" if when.startswith("+") else "+"
+        lines.append(f'    {fn}("{spec}", when="{when_prefix}{when}")')
 
     lines.append("")
     return lines
@@ -624,8 +652,7 @@ def _conflicts(pkg: TrilinosPackage) -> list[str]:
     when a subpackage that requires them is enabled.
 
     For each optional TPL introduced by specific subpackages:
-        conflicts("~with-mpi", when="+teuchoscore")
-        conflicts("~with-mpi", when="+teuchoskokkoscomm")
+        conflicts("~mpi", when="+teuchoscore")
 
     If the TPL was introduced at the top level (not by any subpackage), no
     conflict is needed — the TPL variant alone controls it.
@@ -647,7 +674,6 @@ def _conflicts(pkg: TrilinosPackage) -> list[str]:
         non_sp_sources = [sp for sp in sources if _variant_name(sp) not in sp_variant_names]
 
         if not sp_sources or non_sp_sources:
-            # Top-level dep — no subpackage conflict needed
             continue
 
         for sp in sp_sources:
@@ -736,7 +762,7 @@ def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
 
     lines.append("")
 
-    # ---- Optional package deps — conditional, TPL_ENABLE_ only for externals ----------------
+    # ---- Optional package deps — keyed on control variant ----------------
     for dep in pkg.optional_package_deps:
         # Skip excluded packages
         effective = _SUBPKG_PARENT.get(dep, dep)
@@ -747,27 +773,11 @@ def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
         if cmake_name in seen:
             continue
 
-        sources: list[str] = pkg.optional_package_sources.get(dep, [])
-        sp_sources = [sp for sp in sources if _variant_name(sp) in sp_variant_names]
-        non_sp_sources = [sp for sp in sources if _variant_name(sp) not in sp_variant_names]
-
-        # All dependencies are treated as TPLs
+        vname = _variant_name(dep)
         seen.add(cmake_name)
-        if not sp_sources or non_sp_sources:
-            lines += [
-                f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
-                '',
-            ]
-        else:
-            condition = " or ".join(
-                f'self.spec.satisfies("+{_variant_name(sp)}")'
-                for sp in sp_sources
-            )
-            lines += [
-                f'        if {condition}:',
-                f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
-                '',
-            ]
+        lines.append(
+            f'        args.append(self.define_from_variant("TPL_ENABLE_{cmake_name}", "{vname}"))'
+        )
 
     # ---- Optional TPL deps — conditional TPL_ENABLE_ ----------------
     for tpl in pkg.optional_tpl_deps:

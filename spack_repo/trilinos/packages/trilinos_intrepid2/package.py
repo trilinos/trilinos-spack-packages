@@ -19,14 +19,19 @@ class TrilinosIntrepid2(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("sacado", default=True, description="Enable Sacado support")
+    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosnumerics")
     depends_on_trilinos_package("trilinos-shards")
     depends_on("kokkos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-sacado")
-    depends_on("kokkos-kernels")
+    depends_on_trilinos_package("trilinos-sacado", when="+sacado")
+    depends_on("kokkos-kernels", when="+kokkoskernels")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -41,10 +46,8 @@ class TrilinosIntrepid2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Shards", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
 
-        args.append(self.define("TPL_ENABLE_Sacado", True))
-
-        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Sacado", "sacado"))
+        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

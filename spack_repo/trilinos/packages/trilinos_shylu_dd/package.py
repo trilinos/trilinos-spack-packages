@@ -23,19 +23,34 @@ class TrilinosShyluDd(TrilinosBaseClass):
     variant("shylu-ddfrosch", default=True, description="Enable the ShyLU_DDFROSch subpackage")
     variant("shylu-ddcommon", default=True, description="Enable the ShyLU_DDCommon subpackage")
 
+    # Optional package variants
+    variant("amesos2", default=True, description="Enable Amesos2 support")
+    variant("teuchos", default=True, description="Enable Teuchos support")
+    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("xpetra", default=True, description="Enable Xpetra support")
+    variant("kokkos", default=True, description="Enable Kokkos support")
+    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+    variant("belos", default=True, description="Enable Belos support")
+    variant("ifpack2", default=True, description="Enable Ifpack2 support")
+    variant("muelu", default=True, description="Enable MueLu support")
+    variant("stratimikos", default=True, description="Enable Stratimikos support")
+    variant("thyra", default=True, description="Enable Thyra support")
+    variant("zoltan2", default=True, description="Enable Zoltan2 support")
+
+
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-amesos2", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-teuchos", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-tpetra", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-xpetra", when="+shylu-ddfrosch")
-    depends_on("kokkos", when="+shylu-ddfrosch")
-    depends_on("kokkos-kernels", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-belos", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-ifpack2", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-muelu", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-stratimikos", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-thyra", when="+shylu-ddfrosch")
-    depends_on_trilinos_package("trilinos-zoltan2", when="+shylu-ddfrosch")
+    depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
+    depends_on_trilinos_package("trilinos-xpetra", when="+xpetra")
+    depends_on("kokkos", when="+kokkos")
+    depends_on("kokkos-kernels", when="+kokkoskernels")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
+    depends_on_trilinos_package("trilinos-muelu", when="+muelu")
+    depends_on_trilinos_package("trilinos-stratimikos", when="+stratimikos")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
+    depends_on_trilinos_package("trilinos-zoltan2", when="+zoltan2")
 
     # Required external (TPL) dependencies
     depends_on("mpi")
@@ -55,42 +70,18 @@ class TrilinosShyluDd(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_MPI", True))
 
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Amesos2", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Xpetra", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Kokkos", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Belos", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Ifpack2", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_MueLu", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Stratimikos", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        if self.spec.satisfies("+shylu-ddfrosch"):
-            args.append(self.define("TPL_ENABLE_Zoltan2", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
+        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
+        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
+        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
+        args.append(self.define_from_variant("TPL_ENABLE_Stratimikos", "stratimikos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2", "zoltan2"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

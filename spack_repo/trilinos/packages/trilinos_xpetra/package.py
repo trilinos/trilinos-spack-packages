@@ -19,6 +19,14 @@ class TrilinosXpetra(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("thyra", default=True, description="Enable Thyra support")
+
+
+    # Scraped CMake options
+    variant("profiling", default=False, description="Enable detailed timing of Xpetra.")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on("kokkos")
@@ -26,7 +34,7 @@ class TrilinosXpetra(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tpetra")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-thyra")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
 
     # Required external (TPL) dependencies
     depends_on("blas")
@@ -46,7 +54,9 @@ class TrilinosXpetra(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        args.append(self.define("TPL_ENABLE_Thyra", True))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        # Scraped CMake options
+        args.append(self.define_from_variant("XPETRA_ENABLE_PROFILING", "profiling"))
 
 
     # BEGIN MANUAL CMAKE ARGS

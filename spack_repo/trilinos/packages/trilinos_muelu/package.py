@@ -23,6 +23,17 @@ class TrilinosMuelu(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
+    # Optional package variants
+    variant("belos", default=True, description="Enable Belos support")
+    variant("teko", default=True, description="Enable Teko support")
+    variant("intrepid2", default=True, description="Enable Intrepid2 support")
+    variant("zoltan", default=True, description="Enable Zoltan support")
+    variant("zoltan2core", default=True, description="Enable Zoltan2Core support")
+    variant("stratimikos", default=True, description="Enable Stratimikos support")
+    variant("thyra", default=True, description="Enable Thyra support")
+    variant("thyratpetraadapters", default=True, description="Enable ThyraTpetraAdapters support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-tpetra")
@@ -33,13 +44,14 @@ class TrilinosMuelu(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-ifpack2")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-belos")
-    depends_on_trilinos_package("trilinos-teko")
-    depends_on_trilinos_package("trilinos-intrepid2")
-    depends_on_trilinos_package("trilinos-zoltan")
-    depends_on_trilinos_package("trilinos-zoltan2core")
-    depends_on_trilinos_package("trilinos-stratimikos")
-    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
+    depends_on_trilinos_package("trilinos-teko", when="+teko")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+intrepid2")
+    depends_on_trilinos_package("trilinos-zoltan", when="+zoltan")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+zoltan2core")
+    depends_on_trilinos_package("trilinos-stratimikos", when="+stratimikos")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+thyratpetraadapters")
 
     # Required external (TPL) dependencies
     depends_on("blas")
@@ -65,22 +77,14 @@ class TrilinosMuelu(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        args.append(self.define("TPL_ENABLE_Belos", True))
-
-        args.append(self.define("TPL_ENABLE_Teko", True))
-
-        args.append(self.define("TPL_ENABLE_Intrepid2", True))
-
-        args.append(self.define("TPL_ENABLE_Zoltan", True))
-
-        args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
-
-        args.append(self.define("TPL_ENABLE_Stratimikos", True))
-
-        args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Teko", "teko"))
+        args.append(self.define_from_variant("TPL_ENABLE_Intrepid2", "intrepid2"))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan", "zoltan"))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Core", "zoltan2core"))
+        args.append(self.define_from_variant("TPL_ENABLE_Stratimikos", "stratimikos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        args.append(self.define_from_variant("TPL_ENABLE_ThyraTpetraAdapters", "thyratpetraadapters"))
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 

@@ -19,14 +19,21 @@ class TrilinosStratimikos(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("amesos2", default=True, description="Enable Amesos2 support")
+    variant("belos", default=True, description="Enable Belos support")
+    variant("ifpack2", default=True, description="Enable Ifpack2 support")
+    variant("thyratpetraadapters", default=True, description="Enable ThyraTpetraAdapters support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-thyra +thyracore")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-amesos2")
-    depends_on_trilinos_package("trilinos-belos")
-    depends_on_trilinos_package("trilinos-ifpack2")
-    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+thyratpetraadapters")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -38,14 +45,10 @@ class TrilinosStratimikos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_ThyraCore", True))
         args.append(self.define("TPL_ENABLE_Thyra", True))
 
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
-
-        args.append(self.define("TPL_ENABLE_Belos", True))
-
-        args.append(self.define("TPL_ENABLE_Ifpack2", True))
-
-        args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
+        args.append(self.define_from_variant("TPL_ENABLE_ThyraTpetraAdapters", "thyratpetraadapters"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

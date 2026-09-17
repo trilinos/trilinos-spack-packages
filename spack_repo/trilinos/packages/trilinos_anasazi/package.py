@@ -19,13 +19,21 @@ class TrilinosAnasazi(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("thyracore", default=True, description="Enable ThyraCore support")
+    variant("thyra", default=True, description="Enable Thyra support")
+    variant("belos", default=True, description="Enable Belos support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-thyra +thyracore")
-    depends_on_trilinos_package("trilinos-belos")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
+    depends_on_trilinos_package("trilinos-thyra +thyracore", when="+thyracore")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
@@ -39,14 +47,10 @@ class TrilinosAnasazi(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        args.append(self.define("TPL_ENABLE_ThyraCore", True))
-
-        args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("TPL_ENABLE_Belos", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_ThyraCore", "thyracore"))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
 

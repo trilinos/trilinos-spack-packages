@@ -23,12 +23,20 @@ class TrilinosKrino(TrilinosBaseClass):
     variant("parmetis", default=True, description="Enable parmetis support")
 
 
+    # Scraped CMake options
+    variant("tpl-enable-yamlcpp", default=False, description="Enable support for YAML parser in ${PACKAGE_NAME}.")
+    variant("tpl-enable-parmetis", default=False, description="Enable support for ParMETIS in ${PACKAGE_NAME}.")
+    variant("tpl-enable-pnetcdf", default=False, description="Enable support for Pnetcdf in ${PACKAGE_NAME}.")
+
+
     # Required package dependencies
     depends_on("seacas")
-    depends_on_trilinos_package("trilinos-stk +stkbalance +stkexpreval +stkmath +stkio +stksearch +stktopology +stkutil +stktools +stkemend +stkunit-test-utils")
+    depends_on_trilinos_package("trilinos-stk +stkbalance +stkexpreval +stkmath +stkio +stksearch +stktopology +stkutil +stktools +stkemend")
     depends_on_trilinos_package("trilinos-intrepid2")
     depends_on_trilinos_package("trilinos-sacado")
     depends_on_trilinos_package("trilinos-rol")
+
+    # Optional package dependencies
 
     # Required external (TPL) dependencies
     depends_on("boost")
@@ -57,7 +65,6 @@ class TrilinosKrino(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_STKUtil", True))
         args.append(self.define("TPL_ENABLE_STKTools", True))
         args.append(self.define("TPL_ENABLE_STKEmend", True))
-        args.append(self.define("TPL_ENABLE_STKUnit_test_utils", True))
         args.append(self.define("TPL_ENABLE_Intrepid2", True))
         args.append(self.define("TPL_ENABLE_Sacado", True))
         args.append(self.define("TPL_ENABLE_ROL", True))
@@ -68,6 +75,11 @@ class TrilinosKrino(TrilinosBaseClass):
 
         if self.spec.satisfies("+parmetis"):
             args.append(self.define("TPL_ENABLE_ParMETIS", True))
+
+        # Scraped CMake options
+        args.append(self.define_from_variant("TPL_ENABLE_yamlcpp", "tpl-enable-yamlcpp"))
+        args.append(self.define_from_variant("TPL_ENABLE_ParMETIS", "tpl-enable-parmetis"))
+        args.append(self.define_from_variant("TPL_ENABLE_Pnetcdf", "tpl-enable-pnetcdf"))
 
 
     # BEGIN MANUAL CMAKE ARGS

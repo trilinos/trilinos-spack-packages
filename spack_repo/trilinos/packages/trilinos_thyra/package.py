@@ -23,10 +23,24 @@ class TrilinosThyra(TrilinosBaseClass):
     variant("thyracore", default=True, description="Enable the ThyraCore subpackage")
     variant("thyratpetraadapters", default=True, description="Enable the ThyraTpetraAdapters subpackage")
 
+    # Optional package variants
+    variant("teuchoscore", default=True, description="Enable TeuchosCore support")
+    variant("teuchos", default=True, description="Enable Teuchos support")
+    variant("teuchosparameterlist", default=True, description="Enable TeuchosParameterList support")
+    variant("teuchoscomm", default=True, description="Enable TeuchosComm support")
+    variant("teuchosnumerics", default=True, description="Enable TeuchosNumerics support")
+    variant("rtop", default=True, description="Enable RTOp support")
+    variant("tpetra", default=True, description="Enable Tpetra support")
+
+
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist +teuchoscomm +teuchosnumerics", when="+thyracore")
-    depends_on_trilinos_package("trilinos-rtop", when="+thyracore")
-    depends_on_trilinos_package("trilinos-tpetra", when="+thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore", when="+teuchoscore")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
+    depends_on_trilinos_package("trilinos-teuchos +teuchosparameterlist", when="+teuchosparameterlist")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscomm", when="+teuchoscomm")
+    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+teuchosnumerics")
+    depends_on_trilinos_package("trilinos-rtop", when="+rtop")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -42,27 +56,13 @@ class TrilinosThyra(TrilinosBaseClass):
             args.append(self.define("Trilinos_ENABLE_ThyraTpetraAdapters", True))
 
 
-        if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
-
-        if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
-
-        if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
-
-        if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TPL_ENABLE_TeuchosComm", True))
-
-        if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
-
-        if self.spec.satisfies("+thyracore"):
-            args.append(self.define("TPL_ENABLE_RTOp", True))
-
-        if self.spec.satisfies("+thyratpetraadapters"):
-            args.append(self.define("TPL_ENABLE_Tpetra", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosCore", "teuchoscore"))
+        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosParameterList", "teuchosparameterlist"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosComm", "teuchoscomm"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosNumerics", "teuchosnumerics"))
+        args.append(self.define_from_variant("TPL_ENABLE_RTOp", "rtop"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

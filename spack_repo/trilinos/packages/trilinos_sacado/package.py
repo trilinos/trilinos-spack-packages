@@ -19,9 +19,28 @@ class TrilinosSacado(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("kokkos", default=True, description="Enable Kokkos support")
+    variant("teuchoscore", default=True, description="Enable TeuchosCore support")
+    variant("teuchos", default=True, description="Enable Teuchos support")
+    variant("teuchosnumerics", default=True, description="Enable TeuchosNumerics support")
+    variant("teuchoscomm", default=True, description="Enable TeuchosComm support")
+    variant("teuchoskokkoscomm", default=True, description="Enable TeuchosKokkosComm support")
+
+
+    # Scraped CMake options
+    variant("deprecated-code", default=False, description="Whether Sacado enables deprecated code (that is, anything marked with the Sacado_DEPRECATED macro) at compile time. Default is ON (deprecated code enabled).")
+    variant("adolc", default=False, description="Enable ADOLC support for optional sacado tests")
+    variant("adic", default=False, description="Enable ADIC support for optional sacado tests")
+
+
     # Optional package dependencies
-    depends_on("kokkos")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosnumerics +teuchoscomm +teuchoskokkoscomm")
+    depends_on("kokkos", when="+kokkos")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore", when="+teuchoscore")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
+    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscomm", when="+teuchoscomm")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm", when="+teuchoskokkoscomm")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -31,17 +50,16 @@ class TrilinosSacado(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_Sacado", True))
 
 
-        args.append(self.define("TPL_ENABLE_Kokkos", True))
-
-        args.append(self.define("TPL_ENABLE_TeuchosCore", True))
-
-        args.append(self.define("TPL_ENABLE_Teuchos", True))
-
-        args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
-
-        args.append(self.define("TPL_ENABLE_TeuchosComm", True))
-
-        args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
+        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosCore", "teuchoscore"))
+        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosNumerics", "teuchosnumerics"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosComm", "teuchoscomm"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosKokkosComm", "teuchoskokkoscomm"))
+        # Scraped CMake options
+        args.append(self.define_from_variant("Sacado_ENABLE_DEPRECATED_CODE", "deprecated-code"))
+        args.append(self.define_from_variant("Sacado_ENABLE_ADOLC", "adolc"))
+        args.append(self.define_from_variant("Sacado_ENABLE_ADIC", "adic"))
 
 
     # BEGIN MANUAL CMAKE ARGS

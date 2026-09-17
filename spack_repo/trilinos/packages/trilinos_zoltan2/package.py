@@ -19,11 +19,19 @@ class TrilinosZoltan2(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("zoltan2sphynx", default=True, description="Enable Zoltan2Sphynx support")
+
+
+    # Scraped CMake options
+    variant("hypergraph", default=True, description="Enable Hypergraph partitioning support in Zoltan2.")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-zoltan2core")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-zoltan2sphynx")
+    depends_on_trilinos_package("trilinos-zoltan2sphynx", when="+zoltan2sphynx")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -34,7 +42,10 @@ class TrilinosZoltan2(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        args.append(self.define("TPL_ENABLE_Zoltan2Sphynx", True))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Sphynx", "zoltan2sphynx"))
+        # Scraped CMake options
+        args.append(self.define_from_variant("Zoltan2_ENABLE_OpenMP", "openmp"))
+        args.append(self.define_from_variant("Zoltan2_ENABLE_HyperGraph", "hypergraph"))
 
 
     # BEGIN MANUAL CMAKE ARGS

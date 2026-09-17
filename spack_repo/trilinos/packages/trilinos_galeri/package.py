@@ -19,6 +19,10 @@ class TrilinosGaleri(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("xpetra", default=True, description="Enable Xpetra support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-tpetra")
@@ -26,7 +30,7 @@ class TrilinosGaleri(TrilinosBaseClass):
     depends_on("kokkos-kernels")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-xpetra")
+    depends_on_trilinos_package("trilinos-xpetra", when="+xpetra")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -40,8 +44,7 @@ class TrilinosGaleri(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define("TPL_ENABLE_Xpetra", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

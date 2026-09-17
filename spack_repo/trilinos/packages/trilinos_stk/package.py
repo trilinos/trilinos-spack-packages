@@ -48,40 +48,45 @@ class TrilinosStk(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
+    # Optional package variants
+    variant("kokkos", default=True, description="Enable Kokkos support")
+    variant("shards", default=True, description="Enable Shards support")
+    variant("seacasioss", default=True, description="Enable SEACASIoss support")
+    variant("seacas", default=True, description="Enable SEACAS support")
+    variant("seacasexodus", default=True, description="Enable SEACASExodus support")
+    variant("teuchoscore", default=True, description="Enable TeuchosCore support")
+    variant("teuchos", default=True, description="Enable Teuchos support")
+    variant("teuchosparameterlist", default=True, description="Enable TeuchosParameterList support")
+    variant("seacasnemesis", default=True, description="Enable SEACASNemesis support")
+    variant("zoltan2core", default=True, description="Enable Zoltan2Core support")
+    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("zoltan", default=True, description="Enable Zoltan support")
+    variant("seacasaprepro-lib", default=True, description="Enable SEACASAprepro_lib support")
+    variant("intrepid2", default=True, description="Enable Intrepid2 support")
+
+
     # Scraped CMake options
-    variant("builtforsierra", default=False, description="Enable SIERRA capability")
-    variant("enablecuda", default=False, description="Enable build targeting GPU")
-    variant("enableallwarnings", default=True, description="Show most warnings for most compilers")
-    variant("enablewerror", default=True, description="Warnings are errors")
-    variant("enableopenmp", default=False, description="Enable OpenMP flags")
-    variant("stksimdnone", default=False, description="Disable SIMD")
+    variant("built-for-sierra", default=False, description="Enable SIERRA capability")
+    variant("all-warnings", default=True, description="Show most warnings for most compilers")
+    variant("werror", default=True, description="Warnings are errors")
+    variant("stk-simd-none", default=False, description="Disable SIMD")
 
 
     # Optional package dependencies
-    depends_on("kokkos", when="+stkutil")
-    depends_on("kokkos", when="+stkmath")
-    depends_on("kokkos", when="+stksimd")
-    depends_on("kokkos", when="+stkngp-test")
-    depends_on("kokkos", when="+stkexpreval")
-    depends_on("kokkos", when="+stksearch")
-    depends_on("kokkos", when="+stkmesh")
-    depends_on("kokkos", when="+stksearchutil")
-    depends_on("kokkos", when="+stktools")
-    depends_on("kokkos", when="+stkbalance")
-    depends_on("kokkos", when="+stkunit-test-utils")
-    depends_on("kokkos", when="+stkdoc-tests")
-    depends_on("kokkos", when="+stkintegration-tests")
-    depends_on("kokkos", when="+stkperformance-tests")
-    depends_on_trilinos_package("trilinos-shards", when="+stkmesh")
-    depends_on("seacas", when="+stkio")
-    depends_on("seacas", when="+stkbalance")
-    depends_on("seacas", when="+stkutil")
-    depends_on("seacas", when="+stktools")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-zoltan2core", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-tpetra", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-zoltan", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-intrepid2", when="+stksearchutil")
+    depends_on("kokkos", when="+kokkos")
+    depends_on_trilinos_package("trilinos-shards", when="+shards")
+    depends_on("seacas", when="+seacasioss")
+    depends_on("seacas", when="+seacas")
+    depends_on("seacas", when="+seacasexodus")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore", when="+teuchoscore")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
+    depends_on_trilinos_package("trilinos-teuchos +teuchosparameterlist", when="+teuchosparameterlist")
+    depends_on("seacas", when="+seacasnemesis")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+zoltan2core")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
+    depends_on_trilinos_package("trilinos-zoltan", when="+zoltan")
+    depends_on("seacas", when="+seacasaprepro-lib")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+intrepid2")
 
     # Required external (TPL) dependencies
     depends_on("mpi")
@@ -178,58 +183,30 @@ class TrilinosStk(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_LAPACK", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
 
-        if self.spec.satisfies("+stkutil") or self.spec.satisfies("+stkmath") or self.spec.satisfies("+stksimd") or self.spec.satisfies("+stkngp-test") or self.spec.satisfies("+stkexpreval") or self.spec.satisfies("+stksearch") or self.spec.satisfies("+stkmesh") or self.spec.satisfies("+stksearchutil") or self.spec.satisfies("+stktools") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkunit-test-utils") or self.spec.satisfies("+stkdoc-tests") or self.spec.satisfies("+stkintegration-tests") or self.spec.satisfies("+stkperformance-tests"):
-            args.append(self.define("TPL_ENABLE_Kokkos", True))
-
-        if self.spec.satisfies("+stkmesh"):
-            args.append(self.define("TPL_ENABLE_Shards", True))
-
-        if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_SEACASIoss", True))
-
-        if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkutil") or self.spec.satisfies("+stktools"):
-            args.append(self.define("TPL_ENABLE_SEACAS", True))
-
-        if self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_SEACASExodus", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
-
-        if self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stktools"):
-            args.append(self.define("TPL_ENABLE_SEACASNemesis", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        if self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_Zoltan", True))
-
-        if self.spec.satisfies("+stkutil"):
-            args.append(self.define("TPL_ENABLE_SEACASAprepro_lib", True))
-
-        if self.spec.satisfies("+stksearchutil"):
-            args.append(self.define("TPL_ENABLE_Intrepid2", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Shards", "shards"))
+        args.append(self.define_from_variant("TPL_ENABLE_SEACASIoss", "seacasioss"))
+        args.append(self.define_from_variant("TPL_ENABLE_SEACAS", "seacas"))
+        args.append(self.define_from_variant("TPL_ENABLE_SEACASExodus", "seacasexodus"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosCore", "teuchoscore"))
+        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosParameterList", "teuchosparameterlist"))
+        args.append(self.define_from_variant("TPL_ENABLE_SEACASNemesis", "seacasnemesis"))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Core", "zoltan2core"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan", "zoltan"))
+        args.append(self.define_from_variant("TPL_ENABLE_SEACASAprepro_lib", "seacasaprepro-lib"))
+        args.append(self.define_from_variant("TPL_ENABLE_Intrepid2", "intrepid2"))
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
         # Scraped CMake options
-        args.append(self.define("STK_BUILT_FOR_SIERRA", self.spec["builtforsierra"].value))
-        args.append(self.define("ENABLE_CUDA", self.spec["enablecuda"].value))
-        args.append(self.define("ENABLE_ALL_WARNINGS", self.spec["enableallwarnings"].value))
-        args.append(self.define("ENABLE_WERROR", self.spec["enablewerror"].value))
-        args.append(self.define("ENABLE_OPENMP", self.spec["enableopenmp"].value))
-        args.append(self.define("USE_STK_SIMD_NONE", self.spec["stksimdnone"].value))
+        args.append(self.define_from_variant("STK_BUILT_FOR_SIERRA", "built-for-sierra"))
+        args.append(self.define_from_variant("ENABLE_CUDA", "cuda"))
+        args.append(self.define_from_variant("ENABLE_ALL_WARNINGS", "all-warnings"))
+        args.append(self.define_from_variant("ENABLE_WERROR", "werror"))
+        args.append(self.define_from_variant("ENABLE_OPENMP", "openmp"))
+        args.append(self.define_from_variant("USE_STK_SIMD_NONE", "stk-simd-none"))
 
 
     # BEGIN MANUAL CMAKE ARGS

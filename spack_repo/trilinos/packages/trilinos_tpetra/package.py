@@ -23,12 +23,60 @@ class TrilinosTpetra(TrilinosBaseClass):
     variant("tpetratsqr", default=True, description="Enable the TpetraTSQR subpackage")
     variant("tpetracore", default=True, description="Enable the TpetraCore subpackage")
 
+    # Optional package variants
+    variant("teuchos", default=True, description="Enable Teuchos support")
+    variant("kokkos", default=True, description="Enable Kokkos support")
+    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+    variant("teuchoskokkoscompat", default=True, description="Enable TeuchosKokkosCompat support")
+    variant("teuchoskokkoscomm", default=True, description="Enable TeuchosKokkosComm support")
+    variant("teuchosnumerics", default=True, description="Enable TeuchosNumerics support")
+
+
+    # Scraped CMake options
+    variant("deprecated-code", default=False, description="Whether Tpetra enables deprecated code (that is, anything marked with the TPETRA_DEPRECATED macro) at compile time. Default is ON (deprecated code enabled).")
+    variant("ignore-kokkos-compatibility", default=False, description="")
+    variant("blockcrs-littleblock-layoutleft", default=False, description="Tpetra enables block crs little block layout left (default is layout right)")
+    variant("inst-serial", default=False, description="Instantiate and/or test Tpetra classes over Node = Tpetra::KokkosCompat::KokkosSerialWrapperNode. If ETI is OFF, enable tests for that Node type. This option is ${HAVE_TPETRA_INST_SERIAL_DEFAULT} by default.")
+    variant("inst-openmp", default=False, description="Instantiate and/or test Tpetra classes over Node = Tpetra::KokkosCompat::KokkosOpenMPWrapperNode. If ETI is OFF, enable tests for that Node type. This option is ${HAVE_TPETRA_INST_OPENMP_DEFAULT} by default.")
+    variant("inst-pthread", default=False, description="Instantiate and/or test Tpetra classes over Node = Tpetra::KokkosCompat::KokkosThreadsWrapperNode. If ETI is OFF, enable tests for that Node type. This option is ${HAVE_TPETRA_INST_PTHREAD_DEFAULT} by default.")
+    variant("inst-cuda", default=False, description="Instantiate and/or test Tpetra classes over Node = Tpetra::KokkosCompat::KokkosCudaWrapperNode. If ETI is OFF, enable tests for that Node type. This option is ${HAVE_TPETRA_INST_CUDA_DEFAULT} by default.")
+    variant("inst-hip", default=False, description="Instantiate and/or test Tpetra classes over Node = Tpetra::KokkosCompat::KokkosHIPWrapperNode. If ETI is OFF, enable tests for that Node type. This option is ${HAVE_TPETRA_INST_HIP_DEFAULT} by default.")
+    variant("inst-sycl", default=False, description="Instantiate and/or test Tpetra classes over Node = Tpetra::KokkosCompat::KokkosSYCLWrapperNode. If ETI is OFF, enable tests for that Node type. This option is ${HAVE_TPETRA_INST_SYCL_DEFAULT} by default.")
+    variant("allocate-in-shared-space", default=False, description="Have Tpetra allocate memory in shared/managed space by default")
+    variant("assume-cuda-aware-mpi", default=False, description="")
+    variant("assume-gpu-aware-mpi", default=False, description="")
+    variant("inst-int-int", default=False, description="Enable GlobalOrdinal = int in Tpetra. This option is ${HAVE_TPETRA_INST_INT_INT_DEFAULT} by default.")
+    variant("inst-int-unsigned", default=False, description="Enable GlobalOrdinal = unsigned in Tpetra. This option is ${HAVE_TPETRA_INST_INT_UNSIGNED_DEFAULT} by default. Please don't set this option. We only maintain it for backwards compatibility.")
+    variant("inst-int-long-long", default=False, description="Enable GlobalOrdinal = long long in Tpetra. This option is ${HAVE_TPETRA_INST_INT_LONG_LONG_DEFAULT} by default.")
+    variant("inst-int-long", default=False, description="Enable GlobalOrdinal = long in Tpetra. This option is ${HAVE_TPETRA_INST_INT_LONG_DEFAULT} by default.")
+    variant("inst-int-unsigned-long", default=False, description="Enable GlobalOrdinal = unsigned long in Tpetra. This option is ${HAVE_TPETRA_INST_INT_UNSIGNED_LONG_DEFAULT} by default. We do NOT recommend using this type. We are NOT responsible for ensuring that it builds or passes tests. If you want a 64-bit type, we prefer that you use long long (Tpetra_INST_INT_LONG_LONG=ON), or long (Tpetra_INST_INT_LONG=ON) if you know that it is 64 bits. If you are interested in using unsigned long, Roger Pawlowski is the responsible party; please contact him.")
+    variant("inst-double", default=False, description="Instantiate and/or test Tpetra classes over Scalar = double. This option is ${Tpetra_INST_DOUBLE_DEFAULT} by default.")
+    variant("inst-float", default=False, description="Instantiate and/or test classes over Scalar = float. This option is ${Tpetra_INST_FLOAT_DEFAULT} by default.")
+    variant("inst-long-double", default=False, description="Instantiate and/or test classes over Scalar = long double. This option is ${Tpetra_INST_LONG_DOUBLE_DEFAULT} by default.")
+    variant("inst-complex-double", default=False, description="Instantiate and/or test Tpetra classes with Scalar = std::complex<double>. This option is ${HAVE_TPETRA_INST_COMPLEX_DOUBLE_DEFAULT} by default.")
+    variant("inst-complex-float", default=False, description="Instantiate and/or test Tpetra classes with Scalar = std::complex<float>. This option is ${HAVE_TPETRA_INST_COMPLEX_FLOAT_DEFAULT} by default.")
+    variant("inst-float128", default=False, description="Instantiate and/or test Tpetra classes with Scalar = __float128. This option is ${HAVE_TPETRA_INST_FLOAT128_DEFAULT} by default. __float128 is a GCC-specific C++ language extension. It requires building with GCC, enabling the 'quadmath' TPL, and setting build flags -std=gnu+11 (not c++11, else warnings) and -fext-numeric-literals (else build errors). Be sure also to turn off -ansi -pedantic; __float128 is a language extension, so it is NOT ANSI C++.")
+    variant("inst-qd-real", default=False, description="Instantiate and/or test Tpetra classes over Scalar = qd_real (requries TPL QD). This option is ${HAVE_TPETRA_INST_QD_REAL_DEFAULT} by default.")
+    variant("inst-dd-real", default=False, description="Instantiate and/or test Tpetra classes over Scalar = dd_real (requries TPL QD). This option is ${HAVE_TPETRA_INST_DD_REAL_DEFAULT} by default.")
+    variant("reduced-eti", default=False, description="Uses reduced ETI of Tpetra to speed compilation.")
+    variant("throw-warnings", default=False, description="Enable exception throwing for a number of warnings in Tpetra.")
+    variant("print-warnings", default=False, description="Enable printing of a number of warnings in Tpetra.")
+    variant("print-efficiency-warnings", default=False, description="Enable printing of Tpetra efficiency warnings.")
+    variant("throw-abuse-warnings", default=False, description="Enable exception throwing for potential Tpetra abuse warnings.")
+    variant("print-abuse-warnings", default=False, description="Enable printing of potential Tpetra abuse warnings.")
+    variant("murmur-hash", default=False, description="Use the Murmur hash function in Tpetra::Map for global-to-local index lookups, rather than the default hash function. Murmur hash is more expensive to evaluate, but does a better job of avoiding hash table collisions for Maps that do not look like local permutations of contiguous Maps.")
+    variant("mmm-timings", default=False, description="Enable the timings for the MMM kernels")
+    variant("mmm-statistics", default=False, description="Enable statistics for the MMM kernels. Warning: This involves extra communication and should only be enabled for diagnostic purposes.")
+    variant("bcrs-point-import", default=False, description="Do MV import instead of BMV import.")
+
+
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat +teuchoskokkoscomm +teuchosnumerics", when="+tpetracore")
-    depends_on("kokkos", when="+tpetratsqr")
-    depends_on("kokkos", when="+tpetracore")
-    depends_on("kokkos-kernels", when="+tpetratsqr")
-    depends_on("kokkos-kernels", when="+tpetracore")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
+    depends_on("kokkos", when="+kokkos")
+    depends_on("kokkos-kernels", when="+kokkoskernels")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat", when="+teuchoskokkoscompat")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm", when="+teuchoskokkoscomm")
+    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+teuchosnumerics")
 
     # Optional external (TPL) dependencies
     depends_on("mpi", when="+mpi")
@@ -50,26 +98,52 @@ class TrilinosTpetra(TrilinosBaseClass):
             args.append(self.define("Trilinos_ENABLE_TpetraCore", True))
 
 
-        if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
-
-        if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TPL_ENABLE_Kokkos", True))
-
-        if self.spec.satisfies("+tpetratsqr") or self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-
-        if self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TPL_ENABLE_TeuchosKokkosCompat", True))
-
-        if self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
-
-        if self.spec.satisfies("+tpetracore"):
-            args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
+        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosKokkosCompat", "teuchoskokkoscompat"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosKokkosComm", "teuchoskokkoscomm"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosNumerics", "teuchosnumerics"))
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
+
+        # Scraped CMake options
+        args.append(self.define_from_variant("Tpetra_ENABLE_DEPRECATED_CODE", "deprecated-code"))
+        args.append(self.define_from_variant("Tpetra_IGNORE_KOKKOS_COMPATIBILITY", "ignore-kokkos-compatibility"))
+        args.append(self.define_from_variant("Tpetra_ENABLE_BLOCKCRS_LITTLEBLOCK_LAYOUTLEFT", "blockcrs-littleblock-layoutleft"))
+        args.append(self.define_from_variant("Tpetra_INST_SERIAL", "inst-serial"))
+        args.append(self.define_from_variant("Tpetra_INST_OPENMP", "inst-openmp"))
+        args.append(self.define_from_variant("Tpetra_INST_PTHREAD", "inst-pthread"))
+        args.append(self.define_from_variant("Tpetra_INST_CUDA", "inst-cuda"))
+        args.append(self.define_from_variant("Tpetra_INST_HIP", "inst-hip"))
+        args.append(self.define_from_variant("Tpetra_INST_SYCL", "inst-sycl"))
+        args.append(self.define_from_variant("Tpetra_ALLOCATE_IN_SHARED_SPACE", "allocate-in-shared-space"))
+        args.append(self.define_from_variant("Tpetra_ASSUME_CUDA_AWARE_MPI", "assume-cuda-aware-mpi"))
+        args.append(self.define_from_variant("Tpetra_ASSUME_GPU_AWARE_MPI", "assume-gpu-aware-mpi"))
+        args.append(self.define_from_variant("Tpetra_INST_INT_INT", "inst-int-int"))
+        args.append(self.define_from_variant("Tpetra_INST_INT_UNSIGNED", "inst-int-unsigned"))
+        args.append(self.define_from_variant("Tpetra_INST_INT_LONG_LONG", "inst-int-long-long"))
+        args.append(self.define_from_variant("Tpetra_INST_INT_LONG", "inst-int-long"))
+        args.append(self.define_from_variant("Tpetra_INST_INT_UNSIGNED_LONG", "inst-int-unsigned-long"))
+        args.append(self.define_from_variant("Tpetra_INST_DOUBLE", "inst-double"))
+        args.append(self.define_from_variant("Tpetra_INST_FLOAT", "inst-float"))
+        args.append(self.define_from_variant("Tpetra_INST_LONG_DOUBLE", "inst-long-double"))
+        args.append(self.define_from_variant("Tpetra_INST_COMPLEX_DOUBLE", "inst-complex-double"))
+        args.append(self.define_from_variant("Tpetra_INST_COMPLEX_FLOAT", "inst-complex-float"))
+        args.append(self.define_from_variant("Tpetra_INST_FLOAT128", "inst-float128"))
+        args.append(self.define_from_variant("Tpetra_INST_QD_REAL", "inst-qd-real"))
+        args.append(self.define_from_variant("Tpetra_INST_DD_REAL", "inst-dd-real"))
+        args.append(self.define_from_variant("Tpetra_ENABLE_EXPLICIT_INSTANTIATION", "explicit-instantiation"))
+        args.append(self.define_from_variant("Tpetra_ENABLE_Reduced_ETI", "reduced-eti"))
+        args.append(self.define_from_variant("Tpetra_THROW_Warnings", "throw-warnings"))
+        args.append(self.define_from_variant("Tpetra_PRINT_Warnings", "print-warnings"))
+        args.append(self.define_from_variant("Tpetra_PRINT_Efficiency_Warnings", "print-efficiency-warnings"))
+        args.append(self.define_from_variant("Tpetra_THROW_Abuse_Warnings", "throw-abuse-warnings"))
+        args.append(self.define_from_variant("Tpetra_PRINT_Abuse_Warnings", "print-abuse-warnings"))
+        args.append(self.define_from_variant("Tpetra_USE_MURMUR_HASH", "murmur-hash"))
+        args.append(self.define_from_variant("Tpetra_ENABLE_MMM_Timings", "mmm-timings"))
+        args.append(self.define_from_variant("Tpetra_ENABLE_MMM_Statistics", "mmm-statistics"))
+        args.append(self.define_from_variant("Tpetra_BCRS_Point_Import", "bcrs-point-import"))
 
 
     # BEGIN MANUAL CMAKE ARGS

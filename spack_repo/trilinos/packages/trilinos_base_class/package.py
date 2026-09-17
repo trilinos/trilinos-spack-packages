@@ -24,12 +24,12 @@ def depends_on_trilinos_package(trilinos_package_spec, when=None):
     pkg_name = trilinos_package_spec.split()[0]
 
     for tril_ver in trilinos_versions:
-        depends_on(f"{pkg_name}@{tril_ver}", when=f"@{tril_ver}")
+        depends_on(f"{pkg_name}@{tril_ver}", when=f"@{tril_ver}" if when is None else f"{when} @{tril_ver}")
 
     for t_variant in list_of_trilinos_variants:
-        depends_on(f"{pkg_name}")
-        conflicts(f"^{pkg_name}+{t_variant}", when=f"~{t_variant}")
-        conflicts(f"^{pkg_name}~{t_variant}", when=f"+{t_variant}")
+        depends_on(f"{pkg_name}", when=when)
+        conflicts(f"^{pkg_name}+{t_variant}", when=f"~{t_variant}" if when is None else f"{when} ~{t_variant}")
+        conflicts(f"^{pkg_name}~{t_variant}", when=f"+{t_variant}" if when is None else f"{when} +{t_variant}")
     
 class TrilinosBaseClass(CMakePackage):
     """The Trilinos Project is an effort to develop algorithms and enabling
@@ -95,20 +95,12 @@ class TrilinosBaseClass(CMakePackage):
 
     # ###################### Dependencies ##########################
     kokkos_version="5.2.1"
-    openmpi_version="4.1.6"
-    superlu_version="5.3.0"
 
     with when ("^kokkos"):
         depends_on(f"kokkos@{kokkos_version}")
 
     with when ("^kokkos" and "+cuda"):
         depends_on(f"kokkos@{kokkos_version} +cuda")
-
-    with when ("^openmpi"):
-        depends_on(f"openmpi@{openmpi_version}")
-
-    with when ("^superlu"):
-        depends_on(f"superlu@{superlu_version}")
 
     depends_on("blas")
     depends_on("lapack")
@@ -124,6 +116,7 @@ class TrilinosBaseClass(CMakePackage):
 
     def generated_trilinos_base_cmake_args(self):
         args = []
+        args.append("-DTrilinos_ENABLE_Fortran=OFF")
 
         # Depricated Packages
         args.append("-DTrilinos_ENABLE_AztecOO=OFF")

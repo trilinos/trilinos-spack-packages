@@ -23,23 +23,41 @@ class TrilinosStokhos(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
+    # Optional package variants
+    variant("anasazi", default=True, description="Enable Anasazi support")
+    variant("sacado", default=True, description="Enable Sacado support")
+    variant("nox", default=True, description="Enable NOX support")
+    variant("teuchoskokkoscomm", default=True, description="Enable TeuchosKokkosComm support")
+    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("ifpack2", default=True, description="Enable Ifpack2 support")
+    variant("muelu", default=True, description="Enable MueLu support")
+    variant("belos", default=True, description="Enable Belos support")
+    variant("amesos2", default=True, description="Enable Amesos2 support")
+    variant("thyra", default=True, description="Enable Thyra support")
+    variant("xpetra", default=True, description="Enable Xpetra support")
+
+
+    # Scraped CMake options
+    variant("ensemble-scalar-type", default=False, description="Enable use of the ensemble UQ scalar type in stokhos")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on("kokkos")
     depends_on("kokkos-kernels")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-anasazi")
-    depends_on_trilinos_package("trilinos-sacado")
-    depends_on_trilinos_package("trilinos-nox")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm")
-    depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-ifpack2")
-    depends_on_trilinos_package("trilinos-muelu")
-    depends_on_trilinos_package("trilinos-belos")
-    depends_on_trilinos_package("trilinos-amesos2")
-    depends_on_trilinos_package("trilinos-thyra")
-    depends_on_trilinos_package("trilinos-xpetra")
+    depends_on_trilinos_package("trilinos-anasazi", when="+anasazi")
+    depends_on_trilinos_package("trilinos-sacado", when="+sacado")
+    depends_on_trilinos_package("trilinos-nox", when="+nox")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm", when="+teuchoskokkoscomm")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
+    depends_on_trilinos_package("trilinos-muelu", when="+muelu")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
+    depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
+    depends_on_trilinos_package("trilinos-xpetra", when="+xpetra")
 
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
@@ -55,30 +73,23 @@ class TrilinosStokhos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define("TPL_ENABLE_Anasazi", True))
-
-        args.append(self.define("TPL_ENABLE_Sacado", True))
-
-        args.append(self.define("TPL_ENABLE_NOX", True))
-
-        args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
-
-        args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        args.append(self.define("TPL_ENABLE_Ifpack2", True))
-
-        args.append(self.define("TPL_ENABLE_MueLu", True))
-
-        args.append(self.define("TPL_ENABLE_Belos", True))
-
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
-
-        args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("TPL_ENABLE_Xpetra", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Anasazi", "anasazi"))
+        args.append(self.define_from_variant("TPL_ENABLE_Sacado", "sacado"))
+        args.append(self.define_from_variant("TPL_ENABLE_NOX", "nox"))
+        args.append(self.define_from_variant("TPL_ENABLE_TeuchosKokkosComm", "teuchoskokkoscomm"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
+        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Xpetra", "xpetra"))
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
+
+        # Scraped CMake options
+        args.append(self.define_from_variant("Stokhos_ENABLE_Ensemble_Scalar_Type", "ensemble-scalar-type"))
+        args.append(self.define_from_variant("Stokhos_ENABLE_OpenMP", "openmp"))
 
 
     # BEGIN MANUAL CMAKE ARGS

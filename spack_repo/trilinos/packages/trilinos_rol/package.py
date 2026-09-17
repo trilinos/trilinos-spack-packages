@@ -23,25 +23,45 @@ class TrilinosRol(TrilinosBaseClass):
     variant("boost", default=True, description="Enable boost support")
 
 
+    # Optional package variants
+    variant("belos", default=True, description="Enable Belos support")
+    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("thyra", default=True, description="Enable Thyra support")
+    variant("sacado", default=True, description="Enable Sacado support")
+    variant("intrepid2", default=True, description="Enable Intrepid2 support")
+    variant("minitensor", default=True, description="Enable MiniTensor support")
+    variant("shards", default=True, description="Enable Shards support")
+    variant("amesos2", default=True, description="Enable Amesos2 support")
+    variant("ifpack2", default=True, description="Enable Ifpack2 support")
+    variant("muelu", default=True, description="Enable MueLu support")
+    variant("tempus", default=True, description="Enable Tempus support")
+
+
     # Scraped CMake options
-    variant("enablempi", default=False, description="Enable real MPI (native Teuchos-free ROL::GlobalMPISession + PinT)")
+    variant("pyrol-pip-install", default=False, description="Logic specific to the scikit-build-core backend.")
+    variant("pyrol-enable-binder", default=False, description="Enable regeneration of source files with Binder.")
+    variant("pyrol-binder-suppress-errors", default=False, description="Enable the suppress errors option of Binder.")
+    variant("pyrol-binder-use-one-file", default=False, description="Enable the use of one file by Binder.")
+    variant("pyrol-binder-cmake-error", default=True, description="Stop the configuration if Binder fails.")
+    variant("pyrol-binder-verbose", default=False, description="Increase the verbosity of Binder")
+    variant("pyrol-enable-binder-update", default=False, description="Enable the update of the generated source files with Binder.")
 
 
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-belos")
-    depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-thyra")
-    depends_on_trilinos_package("trilinos-sacado")
-    depends_on_trilinos_package("trilinos-intrepid2")
-    depends_on_trilinos_package("trilinos-minitensor")
-    depends_on_trilinos_package("trilinos-shards")
-    depends_on_trilinos_package("trilinos-amesos2")
-    depends_on_trilinos_package("trilinos-ifpack2")
-    depends_on_trilinos_package("trilinos-muelu")
-    depends_on_trilinos_package("trilinos-tempus")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyra")
+    depends_on_trilinos_package("trilinos-sacado", when="+sacado")
+    depends_on_trilinos_package("trilinos-intrepid2", when="+intrepid2")
+    depends_on_trilinos_package("trilinos-minitensor", when="+minitensor")
+    depends_on_trilinos_package("trilinos-shards", when="+shards")
+    depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
+    depends_on_trilinos_package("trilinos-muelu", when="+muelu")
+    depends_on_trilinos_package("trilinos-tempus", when="+tempus")
 
     # Optional external (TPL) dependencies
     depends_on("boost", when="+boost")
@@ -55,33 +75,29 @@ class TrilinosRol(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        args.append(self.define("TPL_ENABLE_Belos", True))
-
-        args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        args.append(self.define("TPL_ENABLE_Thyra", True))
-
-        args.append(self.define("TPL_ENABLE_Sacado", True))
-
-        args.append(self.define("TPL_ENABLE_Intrepid2", True))
-
-        args.append(self.define("TPL_ENABLE_MiniTensor", True))
-
-        args.append(self.define("TPL_ENABLE_Shards", True))
-
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
-
-        args.append(self.define("TPL_ENABLE_Ifpack2", True))
-
-        args.append(self.define("TPL_ENABLE_MueLu", True))
-
-        args.append(self.define("TPL_ENABLE_Tempus", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Thyra", "thyra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Sacado", "sacado"))
+        args.append(self.define_from_variant("TPL_ENABLE_Intrepid2", "intrepid2"))
+        args.append(self.define_from_variant("TPL_ENABLE_MiniTensor", "minitensor"))
+        args.append(self.define_from_variant("TPL_ENABLE_Shards", "shards"))
+        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
+        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
+        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tempus", "tempus"))
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
         # Scraped CMake options
-        args.append(self.define("ENABLE_MPI", self.spec["enablempi"].value))
+        args.append(self.define_from_variant("ENABLE_MPI", "mpi"))
+        args.append(self.define_from_variant("PYROL_PIP_INSTALL", "pyrol-pip-install"))
+        args.append(self.define_from_variant("PYROL_ENABLE_BINDER", "pyrol-enable-binder"))
+        args.append(self.define_from_variant("PYROL_BINDER_SUPPRESS_ERRORS", "pyrol-binder-suppress-errors"))
+        args.append(self.define_from_variant("PYROL_BINDER_USE_ONE_FILE", "pyrol-binder-use-one-file"))
+        args.append(self.define_from_variant("PYROL_BINDER_CMAKE_ERROR", "pyrol-binder-cmake-error"))
+        args.append(self.define_from_variant("PYROL_BINDER_VERBOSE", "pyrol-binder-verbose"))
+        args.append(self.define_from_variant("PYROL_ENABLE_BINDER_UPDATE", "pyrol-enable-binder-update"))
 
 
     # BEGIN MANUAL CMAKE ARGS

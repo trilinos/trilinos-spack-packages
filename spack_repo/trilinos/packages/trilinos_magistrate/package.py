@@ -19,9 +19,14 @@ class TrilinosMagistrate(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("kokkos", default=True, description="Enable Kokkos support")
+    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+
+
     # Optional package dependencies
-    depends_on("kokkos")
-    depends_on("kokkos-kernels")
+    depends_on("kokkos", when="+kokkos")
+    depends_on("kokkos-kernels", when="+kokkoskernels")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -31,10 +36,8 @@ class TrilinosMagistrate(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_magistrate", True))
 
 
-        args.append(self.define("TPL_ENABLE_Kokkos", True))
-
-        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
+        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

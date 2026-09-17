@@ -21,10 +21,10 @@ def test_cmake_variant_conversion():
     assert _cmake_var_to_spack_variant("Teuchos_something", "Teuchos") == "something"
     # Test omission of "use" prefix
     assert _cmake_var_to_spack_variant("USE_MPI", "Something") == "mpi"
-    # Test alphanumeric cleaning (TPL_ENABLE is not explicitly stripped)
-    assert _cmake_var_to_spack_variant("TPL_ENABLE_Something_Complex", "Something") == "tplenablesomethingcomplex"
-    # Test simple case
-    assert _cmake_var_to_spack_variant("ENABLE_Foo", "Bar") == "enablefoo"
+    # Test that underscores become hyphens and TPL_ENABLE prefix is preserved (not a known strip prefix)
+    assert _cmake_var_to_spack_variant("TPL_ENABLE_Something_Complex", "Something") == "tpl-enable-something-complex"
+    # Test omission of "enable" prefix
+    assert _cmake_var_to_spack_variant("ENABLE_Foo", "Bar") == "foo"
 
 def test_cycle_detection():
     # Create 3 packages: A, B, C

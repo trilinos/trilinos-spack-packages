@@ -32,16 +32,20 @@ class TrilinosShyluNode(TrilinosBaseClass):
     variant("scotch", default=True, description="Enable scotch support")
 
 
+    # Optional package variants
+    variant("kokkos", default=True, description="Enable Kokkos support")
+    variant("trilinosss", default=True, description="Enable TrilinosSS support")
+    variant("teuchos", default=True, description="Enable Teuchos support")
+    variant("kokkoskernels", default=True, description="Enable KokkosKernels support")
+    variant("tpetra", default=True, description="Enable Tpetra support")
+
+
     # Optional package dependencies
-    depends_on("kokkos", when="+shylu-nodetacho")
-    depends_on("kokkos", when="+shylu-nodebasker")
-    depends_on("kokkos", when="+shylu-nodefastilu")
-    depends_on_trilinos_package("trilinos-trilinosss", when="+shylu-nodetacho")
-    depends_on_trilinos_package("trilinos-trilinosss", when="+shylu-nodebasker")
-    depends_on_trilinos_package("trilinos-teuchos", when="+shylu-nodebasker")
-    depends_on("kokkos-kernels", when="+shylu-nodefastilu")
-    depends_on("kokkos-kernels", when="+shylu-nodehts")
-    depends_on_trilinos_package("trilinos-tpetra", when="+shylu-nodefastilu")
+    depends_on("kokkos", when="+kokkos")
+    depends_on_trilinos_package("trilinos-trilinosss", when="+trilinosss")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
+    depends_on("kokkos-kernels", when="+kokkoskernels")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
 
     # Optional external (TPL) dependencies
     depends_on("blas", when="+blas")
@@ -77,21 +81,11 @@ class TrilinosShyluNode(TrilinosBaseClass):
             args.append(self.define("Trilinos_ENABLE_ShyLU_NodeFastILU", True))
 
 
-        if self.spec.satisfies("+shylu-nodetacho") or self.spec.satisfies("+shylu-nodebasker") or self.spec.satisfies("+shylu-nodefastilu"):
-            args.append(self.define("TPL_ENABLE_Kokkos", True))
-
-        if self.spec.satisfies("+shylu-nodetacho") or self.spec.satisfies("+shylu-nodebasker"):
-            args.append(self.define("TPL_ENABLE_TrilinosSS", True))
-
-        if self.spec.satisfies("+shylu-nodebasker"):
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
-
-        if self.spec.satisfies("+shylu-nodefastilu") or self.spec.satisfies("+shylu-nodehts"):
-            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-
-        if self.spec.satisfies("+shylu-nodefastilu"):
-            args.append(self.define("TPL_ENABLE_Tpetra", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
+        args.append(self.define_from_variant("TPL_ENABLE_TrilinosSS", "trilinosss"))
+        args.append(self.define_from_variant("TPL_ENABLE_Teuchos", "teuchos"))
+        args.append(self.define_from_variant("TPL_ENABLE_KokkosKernels", "kokkoskernels"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
         if self.spec.satisfies("+blas"):
             args.append(self.define("TPL_ENABLE_BLAS", True))
 

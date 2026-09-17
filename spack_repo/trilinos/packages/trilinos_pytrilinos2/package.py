@@ -19,6 +19,10 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("muelu", default=True, description="Enable MueLu support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-tpetra")
@@ -26,7 +30,7 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-stratimikos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-muelu")
+    depends_on_trilinos_package("trilinos-muelu", when="+muelu")
 
     # BEGIN MANUAL SECTION
     # PyTrilinos2 requires LLVM, Python, pybind11, binder, and PyTorch
@@ -48,8 +52,7 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
         args.append(self.define("TPL_ENABLE_Stratimikos", True))
 
-        args.append(self.define("TPL_ENABLE_MueLu", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

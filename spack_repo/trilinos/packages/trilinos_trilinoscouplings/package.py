@@ -19,14 +19,24 @@ class TrilinosTrilinoscouplings(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("belos", default=True, description="Enable Belos support")
+    variant("muelu", default=True, description="Enable MueLu support")
+    variant("nox", default=True, description="Enable NOX support")
+    variant("stokhos", default=True, description="Enable Stokhos support")
+    variant("tpetra", default=True, description="Enable Tpetra support")
+    variant("zoltan", default=True, description="Enable Zoltan support")
+    variant("zoltan2core", default=True, description="Enable Zoltan2Core support")
+
+
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-belos")
-    depends_on_trilinos_package("trilinos-muelu")
-    depends_on_trilinos_package("trilinos-nox")
-    depends_on_trilinos_package("trilinos-stokhos")
-    depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-zoltan")
-    depends_on_trilinos_package("trilinos-zoltan2core")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
+    depends_on_trilinos_package("trilinos-muelu", when="+muelu")
+    depends_on_trilinos_package("trilinos-nox", when="+nox")
+    depends_on_trilinos_package("trilinos-stokhos", when="+stokhos")
+    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
+    depends_on_trilinos_package("trilinos-zoltan", when="+zoltan")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+zoltan2core")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -36,20 +46,13 @@ class TrilinosTrilinoscouplings(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_TrilinosCouplings", True))
 
 
-        args.append(self.define("TPL_ENABLE_Belos", True))
-
-        args.append(self.define("TPL_ENABLE_MueLu", True))
-
-        args.append(self.define("TPL_ENABLE_NOX", True))
-
-        args.append(self.define("TPL_ENABLE_Stokhos", True))
-
-        args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        args.append(self.define("TPL_ENABLE_Zoltan", True))
-
-        args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
+        args.append(self.define_from_variant("TPL_ENABLE_NOX", "nox"))
+        args.append(self.define_from_variant("TPL_ENABLE_Stokhos", "stokhos"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tpetra", "tpetra"))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan", "zoltan"))
+        args.append(self.define_from_variant("TPL_ENABLE_Zoltan2Core", "zoltan2core"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

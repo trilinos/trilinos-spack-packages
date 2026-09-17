@@ -19,6 +19,10 @@ class TrilinosShylu(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("shylu-node", default=True, description="Enable ShyLU_Node support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-shylu-dd")
 

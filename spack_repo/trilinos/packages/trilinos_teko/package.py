@@ -19,6 +19,16 @@ class TrilinosTeko(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("ifpack2", default=True, description="Enable Ifpack2 support")
+    variant("amesos2", default=True, description="Enable Amesos2 support")
+    variant("belos", default=True, description="Enable Belos support")
+
+
+    # Scraped CMake options
+    variant("have-epetra", default=False, description="Enabled support for Epetra stack in Teko. Defaults to ON if Epetra, EpetraExt, ThyraEpetraAdapters, ThyraEpetraExtAdapters, AztecOO, Ifpack, Amesos and ML are enabled, otherwise defaults to OFF.")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
@@ -27,9 +37,9 @@ class TrilinosTeko(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tpetra")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-ifpack2")
-    depends_on_trilinos_package("trilinos-amesos2")
-    depends_on_trilinos_package("trilinos-belos")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
+    depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
+    depends_on_trilinos_package("trilinos-belos", when="+belos")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -45,11 +55,11 @@ class TrilinosTeko(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
 
-        args.append(self.define("TPL_ENABLE_Ifpack2", True))
-
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
-
-        args.append(self.define("TPL_ENABLE_Belos", True))
+        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
+        args.append(self.define_from_variant("TPL_ENABLE_Amesos2", "amesos2"))
+        args.append(self.define_from_variant("TPL_ENABLE_Belos", "belos"))
+        # Scraped CMake options
+        args.append(self.define_from_variant("TEKO_HAVE_EPETRA", "have-epetra"))
 
 
     # BEGIN MANUAL CMAKE ARGS

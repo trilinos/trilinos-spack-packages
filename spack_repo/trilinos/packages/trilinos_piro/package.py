@@ -19,6 +19,14 @@ class TrilinosPiro(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
+    # Optional package variants
+    variant("nox", default=True, description="Enable NOX support")
+    variant("tempus", default=True, description="Enable Tempus support")
+    variant("rol", default=True, description="Enable ROL support")
+    variant("ifpack2", default=True, description="Enable Ifpack2 support")
+    variant("muelu", default=True, description="Enable MueLu support")
+
+
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-stratimikos")
@@ -27,11 +35,11 @@ class TrilinosPiro(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-teko")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-nox")
-    depends_on_trilinos_package("trilinos-tempus")
-    depends_on_trilinos_package("trilinos-rol")
-    depends_on_trilinos_package("trilinos-ifpack2")
-    depends_on_trilinos_package("trilinos-muelu")
+    depends_on_trilinos_package("trilinos-nox", when="+nox")
+    depends_on_trilinos_package("trilinos-tempus", when="+tempus")
+    depends_on_trilinos_package("trilinos-rol", when="+rol")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
+    depends_on_trilinos_package("trilinos-muelu", when="+muelu")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -47,16 +55,11 @@ class TrilinosPiro(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_Teko", True))
 
-        args.append(self.define("TPL_ENABLE_NOX", True))
-
-        args.append(self.define("TPL_ENABLE_Tempus", True))
-
-        args.append(self.define("TPL_ENABLE_ROL", True))
-
-        args.append(self.define("TPL_ENABLE_Ifpack2", True))
-
-        args.append(self.define("TPL_ENABLE_MueLu", True))
-
+        args.append(self.define_from_variant("TPL_ENABLE_NOX", "nox"))
+        args.append(self.define_from_variant("TPL_ENABLE_Tempus", "tempus"))
+        args.append(self.define_from_variant("TPL_ENABLE_ROL", "rol"))
+        args.append(self.define_from_variant("TPL_ENABLE_Ifpack2", "ifpack2"))
+        args.append(self.define_from_variant("TPL_ENABLE_MueLu", "muelu"))
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS
