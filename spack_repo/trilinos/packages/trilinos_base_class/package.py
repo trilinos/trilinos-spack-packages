@@ -31,7 +31,7 @@ def depends_on_trilinos_package(trilinos_package_spec, when=None):
         conflicts(f"^{pkg_name}+{t_variant}", when=f"~{t_variant}" if when is None else f"{when} ~{t_variant}")
         conflicts(f"^{pkg_name}~{t_variant}", when=f"+{t_variant}" if when is None else f"{when} +{t_variant}")
     
-class TrilinosBaseClass(CMakePackage):
+class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     """The Trilinos Project is an effort to develop algorithms and enabling
     technologies within an object-oriented software framework for the solution
     of large-scale, complex multi-physics engineering and scientific problems.
@@ -86,7 +86,9 @@ class TrilinosBaseClass(CMakePackage):
     
     # List of variants we want to be the same between all packages built together
     trilinos_variant("mpi", default=True, description="Enable mpi")
-    trilinos_variant("cuda", default=False, description="Enable cuda")
+    # cuda and rocm variants are provided by CudaPackage/ROCmPackage — just sync them
+    list_of_trilinos_variants.append("cuda")
+    list_of_trilinos_variants.append("rocm")
     trilinos_variant("fortran", default=True, description="Enable fortran")
     trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
     trilinos_variant("openmp", default=False, description="use openmp")
@@ -151,10 +153,26 @@ class TrilinosBaseClass(CMakePackage):
     depends_on("kokkos-kernels+mkl", when="^intel-mkl")
     depends_on("kokkos-kernels+mkl", when="^intel-oneapi-mkl")
     depends_on("kokkos-kernels+cuda+cublas+cusolver+cusparse+execspace_cuda+memspace_cudaspace", when="+cuda")
+    depends_on("kokkos+hip_relocatable_device_code", when="+rocm")
+    depends_on("kokkos-kernels+rocblas+rocsolver+rocsparse", when="+rocm")
+
+    # Forward cuda_arch to kokkos and kokkos-kernels
+    for _a in CudaPackage.cuda_arch_values:
+        _arch = f"+cuda cuda_arch={_a}"
+        depends_on(f"kokkos {_arch}", when=_arch)
+        depends_on(f"kokkos-kernels {_arch}", when=_arch)
+
+    # Forward amdgpu_target to kokkos
+    for _a in ROCmPackage.amdgpu_targets:
+        _arch = f"+rocm amdgpu_target={_a}"
+        depends_on(f"kokkos {_arch}", when=_arch)
 
     depends_on("blas")
     depends_on("lapack")
-    
+    depends_on("rocblas", when="+rocm")
+    depends_on("rocsolver", when="+rocm")
+    depends_on("rocsparse", when="+rocm")
+
     depends_on("c", type="build")
     depends_on("cxx", type="build")
     depends_on("fortran", type="build", when="+fortran")
@@ -204,6 +222,21 @@ class TrilinosBaseClass(CMakePackage):
         args.append(self.define_from_variant("Tpetra_INST_FLOAT", "float"))
         args.append(self.define_from_variant("Tpetra_INST_COMPLEX_DOUBLE", "complex-double"))
         args.append(self.define_from_variant("Tpetra_INST_COMPLEX_FLOAT", "complex-float"))
+
+        # CUDA settings
+        if "+cuda" in self.spec:
+            args.append(self.define("TPL_ENABLE_CUDA", True))
+            args.append(self.define("TPL_ENABLE_CUSPARSE", True))
+            args.append(self.define("Tpetra_ASSUME_GPU_AWARE_MPI", False))
+            args.append(self.define("Tpetra_INST_CUDA", True))
+
+        # ROCm settings
+        if "+rocm" in self.spec:
+            args.append(self.define("TPL_ENABLE_ROCBLAS", True))
+            args.append(self.define("TPL_ENABLE_ROCSPARSE", True))
+            args.append(self.define("TPL_ENABLE_ROCSOLVER", True))
+            args.append(self.define("Tpetra_ASSUME_GPU_AWARE_MPI", True))
+            args.append(self.define("Tpetra_INST_HIP", True))
 
         # Deprecated code handling
         if "+disable-deprecated-code" in self.spec:
