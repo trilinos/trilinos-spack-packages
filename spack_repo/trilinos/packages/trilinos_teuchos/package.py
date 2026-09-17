@@ -35,6 +35,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
     # Optional package variants
     variant("kokkos", default=True, description="Enable Kokkos support")
+    variant("magistrate", default=True, description="Enable magistrate support")
 
 
     # Scraped CMake options
@@ -44,6 +45,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
     # Optional package dependencies
     depends_on("kokkos", when="+kokkos")
+    depends_on_trilinos_package("trilinos-magistrate", when="+magistrate")
 
     # Required external (TPL) dependencies
     depends_on("blas")
@@ -93,6 +95,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
         args.append(self.define_from_variant("TPL_ENABLE_Kokkos", "kokkos"))
+        args.append(self.define_from_variant("TPL_ENABLE_magistrate", "magistrate"))
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 

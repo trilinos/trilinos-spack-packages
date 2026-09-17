@@ -194,6 +194,16 @@ class TrilinosBaseClass(CMakePackage):
         args.append(self.define_from_variant("Trilinos_ENABLE_COMPLEX_DOUBLE", "complex-double"))
         args.append(self.define_from_variant("Trilinos_ENABLE_COMPLEX_FLOAT", "complex-float"))
 
+        # Tpetra instantiation knobs (global — must be consistent across all packages)
+        args.append(self.define("Tpetra_INST_INT_LONG", False))
+        args.append(self.define("Tpetra_INST_INT_LONG_LONG", True))
+        args.append(self.define("Tpetra_INST_SERIAL", True))
+        args.append(self.define_from_variant("Tpetra_INST_OPENMP", "openmp"))
+        args.append(self.define_from_variant("Tpetra_INST_DOUBLE", "double"))
+        args.append(self.define_from_variant("Tpetra_INST_FLOAT", "float"))
+        args.append(self.define_from_variant("Tpetra_INST_COMPLEX_DOUBLE", "complex-double"))
+        args.append(self.define_from_variant("Tpetra_INST_COMPLEX_FLOAT", "complex-float"))
+
         # Disable auto-enabling of optional packages - we explicitly enable what we need
         args.append("-DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF")
 

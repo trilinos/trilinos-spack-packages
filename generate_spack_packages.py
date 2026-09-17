@@ -112,6 +112,35 @@ BASE_TRILINOS_VARIANTS: set[str] = {
     "complex-float",
 }
 
+# Scraped CMake options to exclude from generated packages.
+# These are handled globally by the base class cmake_args.
+# Key = package TriBITS name, Value = set of CMake variable names to exclude.
+EXCLUDE_SCRAPED_OPTIONS: dict[str, set[str]] = {
+    "Tpetra": {
+        "Tpetra_INST_SERIAL",
+        "Tpetra_INST_OPENMP",
+        "Tpetra_INST_CUDA",
+        "Tpetra_INST_HIP",
+        "Tpetra_INST_SYCL",
+        "Tpetra_INST_INT_INT",
+        "Tpetra_INST_INT_LONG",
+        "Tpetra_INST_INT_LONG_LONG",
+        "Tpetra_INST_INT_UNSIGNED",
+        "Tpetra_INST_INT_UNSIGNED_LONG",
+        "Tpetra_INST_DOUBLE",
+        "Tpetra_INST_FLOAT",
+        "Tpetra_INST_COMPLEX_DOUBLE",
+        "Tpetra_INST_COMPLEX_FLOAT",
+        "Tpetra_INST_FLOAT128",
+        "Tpetra_INST_DD_REAL",
+        "Tpetra_INST_LONG_DOUBLE",
+        "Tpetra_INST_QD_REAL",
+        "Tpetra_INST_PTHREAD",
+        "Tpetra_ASSUME_GPU_AWARE_MPI",
+        "Tpetra_ASSUME_CUDA_AWARE_MPI",
+    },
+}
+
 # Synchronization requirements for scalar variants.
 # Key: The variant that triggers the requirement.
 # Value: List of (type, target, requirement)
@@ -295,6 +324,11 @@ def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
 
                 except Exception:
                     continue
+
+    exclusions = EXCLUDE_SCRAPED_OPTIONS.get(pkg_name, set())
+    if exclusions:
+        options = {k: v for k, v in options.items() if k not in exclusions}
+
     return options
 
 
