@@ -12,12 +12,19 @@ from spack_repo.builtin.build_systems.rocm import ROCmPackage
 import spack.store
 
 list_of_trilinos_variants=[]
+trilinos_multi_variants={}
 trilinos_versions=[]
 
-def trilinos_variant(variant_name, default, description):
-    variant(variant_name, default=default, description=description)
+def trilinos_variant(variant_name, default, description, values=None, multi=False):
+    if values is not None:
+        variant(variant_name, default=default, values=values, multi=multi, description=description)
+        if multi:
+            trilinos_multi_variants[variant_name] = list(values)
+            return
+    else:
+        variant(variant_name, default=default, description=description)
     list_of_trilinos_variants.append(variant_name)
-    
+
 def depends_on_trilinos_package(trilinos_package_spec, when=None):
     depends_on(trilinos_package_spec, when=when)
 
@@ -30,6 +37,11 @@ def depends_on_trilinos_package(trilinos_package_spec, when=None):
         depends_on(f"{pkg_name}", when=when)
         conflicts(f"^{pkg_name}+{t_variant}", when=f"~{t_variant}" if when is None else f"{when} ~{t_variant}")
         conflicts(f"^{pkg_name}~{t_variant}", when=f"+{t_variant}" if when is None else f"{when} +{t_variant}")
+
+    for mv_name, mv_values in trilinos_multi_variants.items():
+        for val in mv_values:
+            when_clause = f"{mv_name}={val}" if when is None else f"{when} {mv_name}={val}"
+            depends_on(f"{pkg_name} {mv_name}={val}", when=when_clause)
     
 class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     """The Trilinos Project is an effort to develop algorithms and enabling
@@ -98,6 +110,8 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     trilinos_variant("complex-double", default=False, description="Enable complex<double> scalar type")
     trilinos_variant("complex-float", default=False, description="Enable complex<float> scalar type")
     trilinos_variant("disable-deprecated-code", default=True, description="Disable deprecated code in Trilinos packages")
+    trilinos_variant("gotype", default="long_long", values=("int", "long", "long_long"), multi=True,
+                     description="Global ordinal type(s) for Tpetra instantiation")
     variant("shared", default=True, description="Enable building shared libraries")
     variant("all-optional-packages", default=False, description="Enable all optional packages")
 
@@ -219,8 +233,10 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
         args.append(self.define_from_variant("Trilinos_ENABLE_COMPLEX_FLOAT", "complex-float"))
 
         # Tpetra instantiation knobs (global — must be consistent across all packages)
-        args.append(self.define("Tpetra_INST_INT_LONG", False))
-        args.append(self.define("Tpetra_INST_INT_LONG_LONG", True))
+        gotype = self.spec.variants["gotype"].value
+        args.append(self.define("Tpetra_INST_INT_INT", "int" in gotype))
+        args.append(self.define("Tpetra_INST_INT_LONG", "long" in gotype))
+        args.append(self.define("Tpetra_INST_INT_LONG_LONG", "long_long" in gotype))
         args.append(self.define("Tpetra_INST_SERIAL", True))
         args.append(self.define_from_variant("Tpetra_INST_OPENMP", "openmp"))
         args.append(self.define_from_variant("Tpetra_INST_DOUBLE", "double"))

@@ -111,6 +111,7 @@ BASE_TRILINOS_VARIANTS: set[str] = {
     "complex-double",
     "complex-float",
     "disable-deprecated-code",
+    "gotype",
     "rocm",
 }
 
