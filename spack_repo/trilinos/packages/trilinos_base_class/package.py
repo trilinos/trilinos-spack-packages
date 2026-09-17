@@ -94,13 +94,45 @@ class TrilinosBaseClass(CMakePackage):
     #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
-    kokkos_version="5.2.1"
+    # Kokkos version pinning by Trilinos version
+    depends_on("kokkos@5.2.2", when="@2026.09.11:")
+    depends_on("kokkos@5.2.1", when="@2026.08.18:2026.09.10")
+    depends_on("kokkos@5.2.0", when="@2026.07.24:2026.08.17")
+    depends_on("kokkos@5.1.1", when="@2026.04.28:2026.07.23")
+    depends_on("kokkos@5.1.0", when="@2026.03.26:2026.04.27")
+    depends_on("kokkos@5.0.2", when="@2026.02.03:2026.03.25")
+    depends_on("kokkos@5.0.1", when="@2025.11.25:2026.02.02")
+    depends_on("kokkos@4.7.01", when="@2025.09.16:2025.11.24")
+    depends_on("kokkos@4.7.00", when="@2025.08.11:2025.09.15")
+    depends_on("kokkos@4.6.02", when="@2025.07.10:2025.08.10")
+    depends_on("kokkos@4.6.01", when="@2025.04.30:2025.07.09")
+    depends_on("kokkos@4.6.00", when="@2025.03.26:2025.04.29")
+    depends_on("kokkos@4.5.01", when="@2024.11:2025.03.25")
+    depends_on("kokkos@4.4.01", when="@2024.09:2024.10")
+    depends_on("kokkos@4.3.01", when="@2024.04:2024.08")
+    depends_on("kokkos@4.2.01", when="@2024.01:2024.03")
+    depends_on("kokkos@5.2.1", when="@develop")
+    depends_on("kokkos@5.2.1", when="@jfrye-spack-changes")
 
-    with when ("^kokkos"):
-        depends_on(f"kokkos@{kokkos_version}")
-
-    with when ("^kokkos" and "+cuda"):
-        depends_on(f"kokkos@{kokkos_version} +cuda")
+    # Kokkos-kernels version pinning by Trilinos version
+    depends_on("kokkos-kernels@5.2.2", when="@2026.09.11:")
+    depends_on("kokkos-kernels@5.2.1", when="@2026.08.18:2026.09.10")
+    depends_on("kokkos-kernels@5.2.0", when="@2026.07.24:2026.08.17")
+    depends_on("kokkos-kernels@5.1.1", when="@2026.04.28:2026.07.23")
+    depends_on("kokkos-kernels@5.1.0", when="@2026.03.26:2026.04.27")
+    depends_on("kokkos-kernels@5.0.2", when="@2026.02.03:2026.03.25")
+    depends_on("kokkos-kernels@5.0.1", when="@2025.11.25:2026.02.02")
+    depends_on("kokkos-kernels@4.7.01", when="@2025.09.16:2025.11.24")
+    depends_on("kokkos-kernels@4.7.00", when="@2025.08.11:2025.09.15")
+    depends_on("kokkos-kernels@4.6.02", when="@2025.07.10:2025.08.10")
+    depends_on("kokkos-kernels@4.6.01", when="@2025.04.30:2025.07.09")
+    depends_on("kokkos-kernels@4.6.00", when="@2025.03.26:2025.04.29")
+    depends_on("kokkos-kernels@4.5.01", when="@2024.11:2025.03.25")
+    depends_on("kokkos-kernels@4.4.01", when="@2024.09:2024.10")
+    depends_on("kokkos-kernels@4.3.01", when="@2024.04:2024.08")
+    depends_on("kokkos-kernels@4.2.01", when="@2024.01:2024.03")
+    depends_on("kokkos-kernels@5.2.1", when="@develop")
+    depends_on("kokkos-kernels@5.2.1", when="@jfrye-spack-changes")
 
     depends_on("blas")
     depends_on("lapack")
