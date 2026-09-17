@@ -134,6 +134,19 @@ class TrilinosBaseClass(CMakePackage):
     depends_on("kokkos-kernels@5.2.1", when="@develop")
     depends_on("kokkos-kernels@5.2.1", when="@jfrye-spack-changes")
 
+    # Kokkos variant requirements
+    depends_on("kokkos+serial~shared~complex_align")
+    depends_on("kokkos+openmp", when="+openmp")
+    depends_on("kokkos+wrapper+cuda+cuda_relocatable_device_code+cuda_constexpr", when="+cuda")
+    depends_on("kokkos+cuda_lambda", when="+cuda ^kokkos@:4")
+
+    # Kokkos-kernels variant requirements
+    depends_on("kokkos-kernels+serial+execspace_serial~shared")
+    depends_on("kokkos-kernels+blas+lapack", when="^netlib-lapack")
+    depends_on("kokkos-kernels+mkl", when="^intel-mkl")
+    depends_on("kokkos-kernels+mkl", when="^intel-oneapi-mkl")
+    depends_on("kokkos-kernels+cuda+cublas+cusolver+cusparse+execspace_cuda+memspace_cudaspace", when="+cuda")
+
     depends_on("blas")
     depends_on("lapack")
     
