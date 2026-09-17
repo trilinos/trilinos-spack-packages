@@ -91,6 +91,10 @@ class TrilinosBaseClass(CMakePackage):
     trilinos_variant("wrapper", default=False, description="use kokkos-nvcc-wrapper")
     trilinos_variant("openmp", default=False, description="use openmp")
     trilinos_variant("explicit-instantiation", default=True, description="use explicit instantiation")
+    trilinos_variant("double", default=True, description="Enable double precision scalar type")
+    trilinos_variant("float", default=False, description="Enable float scalar type")
+    trilinos_variant("complex-double", default=False, description="Enable complex<double> scalar type")
+    trilinos_variant("complex-float", default=False, description="Enable complex<float> scalar type")
     #trilinos_variant("all-optional-packages", default=True, description="Enable all optional packages")
 
     # ###################### Dependencies ##########################
@@ -184,6 +188,11 @@ class TrilinosBaseClass(CMakePackage):
         args.append(self.define_from_variant("CMAKE_CXX_STANDARD", "cxxstd"))
         args.append(self.define_from_variant("Trilinos_ENABLE_OpenMP", "openmp"))
         args.append(self.define_from_variant("Trilinos_ENABLE_EXPLICIT_INSTANTIATION", "explicit-instantiation"))
+
+        # Scalar type settings
+        args.append(self.define_from_variant("Trilinos_ENABLE_FLOAT", "float"))
+        args.append(self.define_from_variant("Trilinos_ENABLE_COMPLEX_DOUBLE", "complex-double"))
+        args.append(self.define_from_variant("Trilinos_ENABLE_COMPLEX_FLOAT", "complex-float"))
 
         # Disable auto-enabling of optional packages - we explicitly enable what we need
         args.append("-DTrilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF")
