@@ -11,3 +11,10 @@ Testing/
 *.trash
 tmp-*
 .claude
+
+# Generated test logs
+trilinos_install_logs/
+
+# Build artifacts and logs
+*.log
+*.out
