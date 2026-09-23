@@ -30,7 +30,7 @@ class TrilinosPiro(TrilinosBaseClass):
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-stratimikos")
-    depends_on_trilinos_package("trilinos-thyra +thyracore")
+    depends_on_trilinos_package("trilinos-thyra")
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-teko")
 

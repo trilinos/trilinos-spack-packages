@@ -49,10 +49,10 @@ class TrilinosTpetra(TrilinosBaseClass):
     depends_on("kokkos-kernels")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchosnumerics")
 
     # all-optional-packages: enable all optional deps at once
-    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos", when="+all-optional-packages")
 
     # Optional external (TPL) dependencies
 

@@ -35,6 +35,9 @@ from parse_tribits_xml import parse_xml, TrilinosPackage
 # e.g. {"TeuchosCore": "Teuchos", "TpetraCore": "Tpetra", ...}
 _SUBPKG_PARENT: dict[str, str] = {}
 
+# Populated in main() — subpackages that are required by their parent (no variant)
+_REQUIRED_SUBPKGS: set[str] = set()
+
 
 def _pkg_dep_spec(dep_name: str) -> tuple[str, str | None]:
     """Return (spack_package_name, variant_condition) for a package dep.
@@ -54,8 +57,9 @@ def _pkg_dep_spec(dep_name: str) -> tuple[str, str | None]:
     if dep_name in _SUBPKG_PARENT:
         parent = _SUBPKG_PARENT[dep_name]
         if parent in EXTERNAL_PACKAGES:
-            # Subpackage of an external — just depend on the external
             return EXTERNAL_PACKAGES[parent], None
+        if dep_name in _REQUIRED_SUBPKGS:
+            return _spack_pkg_name(parent), None
         return _spack_pkg_name(parent), f"+{_variant_name(dep_name)}"
 
     return _spack_pkg_name(dep_name), None
@@ -1150,6 +1154,10 @@ def main():
     # Populate the global subpackage→parent map used by dep rendering
     _SUBPKG_PARENT.update(subpkg_parent)
     _SUBPKG_PARENT.update(EXTRA_SUBPACKAGES)
+
+    # Build global set of required subpackages (no variant generated for these)
+    for p in packages:
+        _REQUIRED_SUBPKGS.update(p.required_subpackages)
 
     # Filter out external packages – they already exist in Spack
     packages = [p for p in packages if p.name not in _EXTERNAL_NAMES]

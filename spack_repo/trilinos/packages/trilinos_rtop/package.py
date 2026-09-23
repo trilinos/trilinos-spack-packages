@@ -20,7 +20,7 @@ class TrilinosRtop(TrilinosBaseClass):
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION

@@ -25,7 +25,7 @@ class TrilinosIntrepid2(TrilinosBaseClass):
 
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-shards")
     depends_on("kokkos")
 

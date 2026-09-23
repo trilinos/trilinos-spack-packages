@@ -23,7 +23,7 @@ class TrilinosThyra(TrilinosBaseClass):
     variant("thyratpetraadapters", default=True, description="Enable the ThyraTpetraAdapters subpackage")
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist +teuchoscomm +teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-rtop")
 
     # Optional package dependencies

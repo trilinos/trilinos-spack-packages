@@ -31,13 +31,13 @@ class TrilinosAnasazi(TrilinosBaseClass):
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
-    depends_on_trilinos_package("trilinos-thyra +thyracore", when="+thyracore")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyracore")
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
     depends_on_trilinos_package("trilinos-belos", when="+belos")
 
     # all-optional-packages: enable all optional deps at once
     depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
-    depends_on_trilinos_package("trilinos-thyra +thyracore", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
 
     # Optional external (TPL) dependencies

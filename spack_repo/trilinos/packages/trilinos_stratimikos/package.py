@@ -27,7 +27,7 @@ class TrilinosStratimikos(TrilinosBaseClass):
 
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-thyra +thyracore")
+    depends_on_trilinos_package("trilinos-thyra")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")

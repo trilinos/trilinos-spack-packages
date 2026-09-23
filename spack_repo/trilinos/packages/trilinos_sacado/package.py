@@ -36,15 +36,15 @@ class TrilinosSacado(TrilinosBaseClass):
 
     # Optional package dependencies
     depends_on("kokkos", when="+kokkos")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore", when="+teuchoscore")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchoscore")
     depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
-    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+teuchosnumerics")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscomm", when="+teuchoscomm")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchosnumerics")
+    depends_on_trilinos_package("trilinos-teuchos", when="+teuchoscomm")
     depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm", when="+teuchoskokkoscomm")
 
     # all-optional-packages: enable all optional deps at once
     depends_on("kokkos", when="+all-optional-packages")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosnumerics +teuchoscomm +teuchoskokkoscomm", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm", when="+all-optional-packages")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION

@@ -47,7 +47,7 @@ class TrilinosNox(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-teuchos")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-thyra +thyracore", when="+thyracore")
+    depends_on_trilinos_package("trilinos-thyra", when="+thyracore")
     depends_on_trilinos_package("trilinos-thyra", when="+thyra")
     depends_on_trilinos_package("trilinos-belos", when="+belos")
     depends_on_trilinos_package("trilinos-anasazi", when="+anasazi")
@@ -56,7 +56,7 @@ class TrilinosNox(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
 
     # all-optional-packages: enable all optional deps at once
-    depends_on_trilinos_package("trilinos-thyra +thyracore", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-anasazi", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-stratimikos", when="+all-optional-packages")

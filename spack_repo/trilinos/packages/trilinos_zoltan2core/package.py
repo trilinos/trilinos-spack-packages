@@ -29,7 +29,7 @@ class TrilinosZoltan2core(TrilinosBaseClass):
     depends_on("kokkos")
     depends_on("kokkos-kernels")
     depends_on_trilinos_package("trilinos-tpetra")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist")
+    depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-xpetra")
     depends_on_trilinos_package("trilinos-zoltan")
 

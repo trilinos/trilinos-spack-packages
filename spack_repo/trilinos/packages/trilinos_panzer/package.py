@@ -45,8 +45,8 @@ class TrilinosPanzer(TrilinosBaseClass):
 
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchoscomm +teuchosparameterlist")
-    depends_on_trilinos_package("trilinos-tpetra +tpetracore")
+    depends_on_trilinos_package("trilinos-teuchos")
+    depends_on_trilinos_package("trilinos-tpetra")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-shards", when="+panzerdofmgr")
@@ -58,7 +58,7 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on("kokkos", when="+panzerdiscfe")
     depends_on("kokkos", when="+panzerexpreval")
     depends_on_trilinos_package("trilinos-sacado", when="+panzerdiscfe")
-    depends_on_trilinos_package("trilinos-thyra +thyracore +thyratpetraadapters", when="+panzerdiscfe")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+panzerdiscfe")
     depends_on_trilinos_package("trilinos-zoltan", when="+panzerdiscfe")
     depends_on_trilinos_package("trilinos-zoltan", when="+panzeradaptersstk")
     depends_on_trilinos_package("trilinos-stk +stkutil +stktools +stktopology +stkmesh +stkio", when="+panzeradaptersstk")
@@ -68,7 +68,7 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-belos", when="+panzerminiem")
     depends_on_trilinos_package("trilinos-teko", when="+panzerminiem")
     depends_on_trilinos_package("trilinos-muelu", when="+panzerminiem")
-    depends_on_trilinos_package("trilinos-teuchos +teuchosparser", when="+panzerexpreval")
+    depends_on_trilinos_package("trilinos-teuchos", when="+panzerexpreval")
     depends_on_trilinos_package("trilinos-stk +stksearch", when="+stksearch")
     depends_on("seacas", when="+seacasioss")
     depends_on("seacas", when="+seacas")
@@ -84,7 +84,7 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-phalanx", when="+all-optional-packages")
     depends_on("kokkos", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-sacado", when="+all-optional-packages")
-    depends_on_trilinos_package("trilinos-thyra +thyracore +thyratpetraadapters", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-zoltan", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-stk +stkutil +stktools +stktopology +stkmesh +stkio +stksearch", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-stratimikos", when="+all-optional-packages")
@@ -93,7 +93,7 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-teko", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-muelu", when="+all-optional-packages")
-    depends_on_trilinos_package("trilinos-teuchos +teuchosparser", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos", when="+all-optional-packages")
     depends_on("seacas", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-percept", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
