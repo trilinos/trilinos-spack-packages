@@ -25,9 +25,9 @@ class TrilinosZoltan2sphynx(TrilinosBaseClass):
 
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-anasazi")
+    depends_on_trilinos_package("trilinos-anasazi +belos")
     depends_on_trilinos_package("trilinos-belos")
-    depends_on_trilinos_package("trilinos-ifpack2")
+    depends_on_trilinos_package("trilinos-ifpack2 +zoltan2core")
     depends_on_trilinos_package("trilinos-zoltan2core")
 
     # Optional package dependencies

@@ -38,6 +38,9 @@ _SUBPKG_PARENT: dict[str, str] = {}
 # Populated in main() — subpackages that are required by their parent (no variant)
 _REQUIRED_SUBPKGS: set[str] = set()
 
+# Populated in main() — maps TriBITS package name → TrilinosPackage object
+_PKG_BY_NAME: dict[str, TrilinosPackage] = {}
+
 
 def _pkg_dep_spec(dep_name: str) -> tuple[str, str | None]:
     """Return (spack_package_name, variant_condition) for a package dep.
@@ -312,11 +315,9 @@ def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
         re.IGNORECASE | re.DOTALL
     )
 
-    # Pattern for COMBINED_OPTION(VAR DEP_OPTIONS_NAMES ... DOCSTR "desc")
-    combined_pat = re.compile(
-        r'COMBINED_OPTION\s*\(\s*([A-Za-z0-9_${}]+)\s+DEP_OPTIONS_NAMES\s+[^)]*?DOCSTR\s+"([^"]*(?:"\s*"[^"]*)*)"?\s*\)',
-        re.IGNORECASE | re.DOTALL
-    )
+    # COMBINED_OPTION variables are intentionally NOT scraped — their defaults
+    # are dynamically derived from other cmake variables (DEP_OPTIONS_NAMES),
+    # and overriding them with static spack variants breaks the auto-derivation.
 
     for root, _, files in os.walk(pkg_dir):
         for file in files:
@@ -338,13 +339,6 @@ def _scrape_cmake_options(pkg_name: str) -> dict[str, tuple[str, bool]]:
                                 desc = " ".join(desc.split())
                             default_val = default.strip().upper() == "ON"
                             options[var] = (desc or "", default_val)
-
-                        for match in combined_pat.finditer(content):
-                            var, raw_desc = match.group(1), match.group(2)
-                            if "${" in var:
-                                continue
-                            desc = " ".join(raw_desc.replace('"', '').split())
-                            options[var] = (desc, False)
 
                 except Exception:
                     continue
@@ -569,6 +563,31 @@ def _required_package_deps(pkg: TrilinosPackage) -> list[str]:
         if variant and variant not in variants[key]:
             variants[key].append(variant)
             bare_parents.add(spack_name)
+
+    # Variant propagation: when P requires both A and B, and A optionally
+    # depends on B, P needs A built with B support (+variant_for_B).
+    required_dep_set = set(all_required)
+    for dep_a in all_required:
+        if dep_a in _SUBPKG_PARENT:
+            continue
+        pkg_a = _PKG_BY_NAME.get(dep_a)
+        if pkg_a is None:
+            continue
+        fn_a = _dep_call(dep_a)
+        spack_a = _pkg_dep_spec(dep_a)[0]
+        key_a = (fn_a, spack_a)
+        for opt_dep in pkg_a.optional_package_deps:
+            if opt_dep not in required_dep_set:
+                continue
+            if _is_subpkg_gated(opt_dep, pkg_a):
+                continue
+            vname = _variant_name(opt_dep)
+            if vname in BASE_TRILINOS_VARIANTS:
+                continue
+            variant_str = f"+{vname}"
+            if variant_str not in variants[key_a]:
+                variants[key_a].append(variant_str)
+                bare_parents.add(spack_a)
 
     lines = ["    # Required package dependencies"]
     for fn, spack_name in order:
@@ -1161,6 +1180,9 @@ def main():
 
     # Filter out external packages – they already exist in Spack
     packages = [p for p in packages if p.name not in _EXTERNAL_NAMES]
+
+    # Build name→package map for cross-package variant propagation (excludes externals)
+    _PKG_BY_NAME.update({p.name: p for p in packages})
     print(f"    {len(packages)} top-level packages to generate.")
     print(f"    Externals (skipped): {', '.join(sorted(_EXTERNAL_NAMES))}")
 

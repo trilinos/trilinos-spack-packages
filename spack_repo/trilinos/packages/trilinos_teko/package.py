@@ -25,15 +25,11 @@ class TrilinosTeko(TrilinosBaseClass):
     variant("belos", default=False, description="Enable Belos support")
 
 
-    # Scraped CMake options
-    variant("have-epetra", default=False, description="Enabled support for Epetra stack in Teko. Defaults to ON if Epetra, EpetraExt, ThyraEpetraAdapters, ThyraEpetraExtAdapters, AztecOO, Ifpack, Amesos and ML are enabled, otherwise defaults to OFF.")
-
-
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
-    depends_on_trilinos_package("trilinos-stratimikos")
-    depends_on_trilinos_package("trilinos-anasazi")
+    depends_on_trilinos_package("trilinos-stratimikos +thyratpetraadapters")
+    depends_on_trilinos_package("trilinos-anasazi +tpetra +thyra")
     depends_on_trilinos_package("trilinos-tpetra")
 
     # Optional package dependencies
@@ -73,9 +69,6 @@ class TrilinosTeko(TrilinosBaseClass):
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
             args.append(self.define("TPL_ENABLE_Belos", True))
-
-        # Scraped CMake options
-        args.append(self.define_from_variant("TEKO_HAVE_EPETRA", "have-epetra"))
 
 
     # BEGIN MANUAL CMAKE ARGS

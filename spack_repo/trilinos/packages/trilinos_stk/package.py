@@ -68,20 +68,11 @@ class TrilinosStk(TrilinosBaseClass):
     depends_on("kokkos", when="+stkexpreval")
     depends_on("kokkos", when="+stksearch")
     depends_on("kokkos", when="+stkmesh")
-    depends_on("kokkos", when="+stksearchutil")
-    depends_on("kokkos", when="+stktools")
-    depends_on("kokkos", when="+stkbalance")
-    depends_on("kokkos", when="+stkunit-test-utils")
-    depends_on("kokkos", when="+stkdoc-tests")
-    depends_on("kokkos", when="+stkintegration-tests")
-    depends_on("kokkos", when="+stkperformance-tests")
     depends_on_trilinos_package("trilinos-shards", when="+stkmesh")
     depends_on("seacas", when="+stkio")
     depends_on("seacas", when="+stkbalance")
     depends_on_trilinos_package("trilinos-teuchos", when="+stkbalance")
     depends_on_trilinos_package("trilinos-zoltan2core", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-tpetra", when="+stkbalance")
-    depends_on_trilinos_package("trilinos-zoltan", when="+stkbalance")
     depends_on("seacas", when="+seacasaprepro-lib")
     depends_on_trilinos_package("trilinos-intrepid2", when="+intrepid2")
 
@@ -91,8 +82,6 @@ class TrilinosStk(TrilinosBaseClass):
     depends_on("seacas", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-teuchos", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-zoltan2core", when="+all-optional-packages")
-    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
-    depends_on_trilinos_package("trilinos-zoltan", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-intrepid2", when="+all-optional-packages")
 
     # Required external (TPL) dependencies
@@ -202,7 +191,7 @@ class TrilinosStk(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_LAPACK", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkutil") or self.spec.satisfies("+stkmath") or self.spec.satisfies("+stksimd") or self.spec.satisfies("+stkngp-test") or self.spec.satisfies("+stkexpreval") or self.spec.satisfies("+stksearch") or self.spec.satisfies("+stkmesh") or self.spec.satisfies("+stksearchutil") or self.spec.satisfies("+stktools") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkunit-test-utils") or self.spec.satisfies("+stkdoc-tests") or self.spec.satisfies("+stkintegration-tests") or self.spec.satisfies("+stkperformance-tests"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkutil") or self.spec.satisfies("+stkmath") or self.spec.satisfies("+stksimd") or self.spec.satisfies("+stkngp-test") or self.spec.satisfies("+stkexpreval") or self.spec.satisfies("+stksearch") or self.spec.satisfies("+stkmesh"):
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkmesh"):
@@ -231,12 +220,6 @@ class TrilinosStk(TrilinosBaseClass):
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
-
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_Tpetra", True))
-
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
-            args.append(self.define("TPL_ENABLE_Zoltan", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasaprepro-lib"):
             args.append(self.define("TPL_ENABLE_SEACASAprepro_lib", True))

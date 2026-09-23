@@ -22,7 +22,7 @@ class TrilinosPhalanx(TrilinosBaseClass):
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on("kokkos")
-    depends_on_trilinos_package("trilinos-sacado")
+    depends_on_trilinos_package("trilinos-sacado +kokkos +teuchoscore +teuchos +teuchoscomm")
     depends_on("kokkos-kernels")
 
     # BEGIN MANUAL SECTION

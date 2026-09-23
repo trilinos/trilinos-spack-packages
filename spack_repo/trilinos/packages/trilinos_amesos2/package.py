@@ -38,7 +38,6 @@ class TrilinosAmesos2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-trilinosss")
     depends_on("kokkos")
-    depends_on("kokkos-kernels")
 
     # Optional package dependencies
 
@@ -74,7 +73,6 @@ class TrilinosAmesos2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_TrilinosSS", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
-        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))

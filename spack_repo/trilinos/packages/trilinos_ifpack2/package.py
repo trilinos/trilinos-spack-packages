@@ -38,7 +38,6 @@ class TrilinosIfpack2(TrilinosBaseClass):
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-tpetra")
-    depends_on("kokkos")
     depends_on("kokkos-kernels")
 
     # Optional package dependencies
@@ -77,7 +76,6 @@ class TrilinosIfpack2(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Tpetra", True))
-        args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+xpetra"):

@@ -36,11 +36,6 @@ class TrilinosNox(TrilinosBaseClass):
 
     # Scraped CMake options
     variant("abstract-implementation-lapack", default=False, description="Enables support for LAPACK implementation of Abstract Group and Vector classes. Defaults to ON if LAPACK is enabled, otherwise defaults to OFF.")
-    variant("abstract-implementation-thyra", default=False, description="Enables support for Thyra implementation of Abstract Group and Vector classes. Defaults to ON if Thyra is enabled, otherwise defaults to OFF")
-    variant("thyra-tpetra-adapters", default=False, description="Enables support for the Thyra Tpetra adapters Defaults to ON if Thyra and Thyra Tpetra adapters are both enabled, otherwise defaults to OFF")
-    variant("kokkos-solver-stack", default=False, description="Enables support for the Kokkos/Tpetra linear solver stack. Defaults to ON if the Thyra, Tpetra, Stratimikos, Belos, Amesos2, Ifpack2, and MueLu are all enabled, otherwise defaults to OFF.")
-    variant("abstract-implementation-tpetra", default=False, description="Enables support for Tpetra implementation of Abstract Group and Vector classes. Defaults to ON if Tpetra is enabled, otherwise defaults to OFF")
-    variant("abstract-implementation-petsc", default=False, description="Enables support for PETSc implementation of Abstract Group and Vector classes. Defaults to ON if NOX_ENABLE_PETSC is enabled, otherwise defaults to OFF.")
 
 
     # Required package dependencies
@@ -120,11 +115,6 @@ class TrilinosNox(TrilinosBaseClass):
 
         # Scraped CMake options
         args.append(self.define_from_variant("NOX_ENABLE_ABSTRACT_IMPLEMENTATION_LAPACK", "abstract-implementation-lapack"))
-        args.append(self.define_from_variant("NOX_ENABLE_ABSTRACT_IMPLEMENTATION_THYRA", "abstract-implementation-thyra"))
-        args.append(self.define_from_variant("NOX_ENABLE_THYRA_TPETRA_ADAPTERS", "thyra-tpetra-adapters"))
-        args.append(self.define_from_variant("NOX_ENABLE_KOKKOS_SOLVER_STACK", "kokkos-solver-stack"))
-        args.append(self.define_from_variant("NOX_ENABLE_ABSTRACT_IMPLEMENTATION_TPETRA", "abstract-implementation-tpetra"))
-        args.append(self.define_from_variant("NOX_ENABLE_ABSTRACT_IMPLEMENTATION_PETSC", "abstract-implementation-petsc"))
 
 
     # BEGIN MANUAL CMAKE ARGS

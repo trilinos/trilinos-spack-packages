@@ -19,16 +19,10 @@ class TrilinosTempus(TrilinosBaseClass):
     Part of the Trilinos Project (https://trilinos.github.io).
     """
 
-    # Scraped CMake options
-    variant("tpetra-stack", default=False, description="Enables support for Tpetra. Defaults to ON if the Tpetra, Stratimikos, and Belos are all enabled, otherwise defaults to OFF.")
-
-
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-thyra")
-    depends_on_trilinos_package("trilinos-nox")
-
-    # Optional package dependencies
+    depends_on_trilinos_package("trilinos-nox +thyra")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
@@ -40,9 +34,6 @@ class TrilinosTempus(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Thyra", True))
         args.append(self.define("TPL_ENABLE_NOX", True))
-
-        # Scraped CMake options
-        args.append(self.define_from_variant("TEMPUS_ENABLE_TPETRA_STACK", "tpetra-stack"))
 
 
     # BEGIN MANUAL CMAKE ARGS

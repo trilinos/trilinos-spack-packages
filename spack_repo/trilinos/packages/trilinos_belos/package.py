@@ -28,7 +28,6 @@ class TrilinosBelos(TrilinosBaseClass):
 
     # Required package dependencies
     depends_on_trilinos_package("trilinos-teuchos")
-    depends_on("kokkos")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
@@ -56,7 +55,6 @@ class TrilinosBelos(TrilinosBaseClass):
         args.append(self.define("Trilinos_ENABLE_Belos", True))
 
         args.append(self.define("TPL_ENABLE_Teuchos", True))
-        args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
             args.append(self.define("TPL_ENABLE_Tpetra", True))

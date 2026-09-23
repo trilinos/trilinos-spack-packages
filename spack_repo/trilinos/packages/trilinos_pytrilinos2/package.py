@@ -27,7 +27,7 @@ class TrilinosPytrilinos2(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
-    depends_on_trilinos_package("trilinos-stratimikos")
+    depends_on_trilinos_package("trilinos-stratimikos +thyratpetraadapters")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-muelu", when="+muelu")

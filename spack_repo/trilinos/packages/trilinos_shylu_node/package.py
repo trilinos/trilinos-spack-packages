@@ -32,6 +32,10 @@ class TrilinosShyluNode(TrilinosBaseClass):
     variant("scotch", default=False, description="Enable scotch support")
 
 
+    # Optional package variants
+    variant("kokkoskernels", default=False, description="Enable KokkosKernels support")
+
+
     # Optional package dependencies
     depends_on("kokkos", when="+shylu-nodetacho")
     depends_on("kokkos", when="+shylu-nodebasker")
@@ -39,15 +43,13 @@ class TrilinosShyluNode(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-trilinosss", when="+shylu-nodetacho")
     depends_on_trilinos_package("trilinos-trilinosss", when="+shylu-nodebasker")
     depends_on_trilinos_package("trilinos-teuchos", when="+shylu-nodebasker")
-    depends_on("kokkos-kernels", when="+shylu-nodefastilu")
-    depends_on_trilinos_package("trilinos-tpetra", when="+shylu-nodefastilu")
+    depends_on("kokkos-kernels", when="+kokkoskernels")
 
     # all-optional-packages: enable all optional deps at once
     depends_on("kokkos", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-trilinosss", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-teuchos", when="+all-optional-packages")
     depends_on("kokkos-kernels", when="+all-optional-packages")
-    depends_on_trilinos_package("trilinos-tpetra", when="+all-optional-packages")
 
     # Optional external (TPL) dependencies
     depends_on("blas", when="+blas")
@@ -72,7 +74,11 @@ class TrilinosShyluNode(TrilinosBaseClass):
     conflicts("~lapack", when="+shylu-nodetacho")
     conflicts("~scotch", when="+shylu-nodebasker")
 
+    # Optional dep conflicts: can't enable without the subpackage
+    conflicts("+kokkoskernels", when="~shylu-nodehts")
+
     # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+kokkoskernels", when="+all-optional-packages")
     conflicts("+blas", when="+all-optional-packages")
     conflicts("+metis", when="+all-optional-packages")
     conflicts("+lapack", when="+all-optional-packages")
@@ -104,11 +110,8 @@ class TrilinosShyluNode(TrilinosBaseClass):
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+shylu-nodebasker"):
             args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+shylu-nodefastilu"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkoskernels"):
             args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+shylu-nodefastilu"):
-            args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+blas"):
             args.append(self.define("TPL_ENABLE_BLAS", True))

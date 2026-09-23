@@ -24,8 +24,10 @@ class TrilinosMuelu(TrilinosBaseClass):
 
 
     # Optional package variants
+    variant("amesos2", default=False, description="Enable Amesos2 support")
     variant("belos", default=False, description="Enable Belos support")
     variant("teko", default=False, description="Enable Teko support")
+    variant("ifpack2", default=False, description="Enable Ifpack2 support")
     variant("intrepid2", default=False, description="Enable Intrepid2 support")
     variant("zoltan", default=False, description="Enable Zoltan support")
     variant("zoltan2core", default=False, description="Enable Zoltan2Core support")
@@ -40,12 +42,12 @@ class TrilinosMuelu(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-xpetra")
     depends_on("kokkos")
     depends_on("kokkos-kernels")
-    depends_on_trilinos_package("trilinos-amesos2")
-    depends_on_trilinos_package("trilinos-ifpack2")
 
     # Optional package dependencies
+    depends_on_trilinos_package("trilinos-amesos2", when="+amesos2")
     depends_on_trilinos_package("trilinos-belos", when="+belos")
     depends_on_trilinos_package("trilinos-teko", when="+teko")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
     depends_on_trilinos_package("trilinos-intrepid2", when="+intrepid2")
     depends_on_trilinos_package("trilinos-zoltan", when="+zoltan")
     depends_on_trilinos_package("trilinos-zoltan2core", when="+zoltan2core")
@@ -54,8 +56,10 @@ class TrilinosMuelu(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters", when="+thyratpetraadapters")
 
     # all-optional-packages: enable all optional deps at once
+    depends_on_trilinos_package("trilinos-amesos2", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-belos", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-teko", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-intrepid2", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-zoltan", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-zoltan2core", when="+all-optional-packages")
@@ -76,8 +80,10 @@ class TrilinosMuelu(TrilinosBaseClass):
     # END MANUAL SECTION
 
     # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
+    conflicts("+amesos2", when="+all-optional-packages")
     conflicts("+belos", when="+all-optional-packages")
     conflicts("+teko", when="+all-optional-packages")
+    conflicts("+ifpack2", when="+all-optional-packages")
     conflicts("+intrepid2", when="+all-optional-packages")
     conflicts("+zoltan", when="+all-optional-packages")
     conflicts("+zoltan2core", when="+all-optional-packages")
@@ -95,16 +101,20 @@ class TrilinosMuelu(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Xpetra", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-        args.append(self.define("TPL_ENABLE_Amesos2", True))
-        args.append(self.define("TPL_ENABLE_Ifpack2", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+amesos2"):
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+belos"):
             args.append(self.define("TPL_ENABLE_Belos", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teko"):
             args.append(self.define("TPL_ENABLE_Teko", True))
+
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+ifpack2"):
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+intrepid2"):
             args.append(self.define("TPL_ENABLE_Intrepid2", True))

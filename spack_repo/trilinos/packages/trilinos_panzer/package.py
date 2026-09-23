@@ -36,12 +36,10 @@ class TrilinosPanzer(TrilinosBaseClass):
     variant("tempus", default=False, description="Enable Tempus support")
     variant("shylu-nodetacho", default=False, description="Enable ShyLU_NodeTacho support")
     variant("shylu-node", default=False, description="Enable ShyLU_Node support")
-    variant("pamgen", default=False, description="Enable Pamgen support")
 
 
     # Scraped CMake options
     variant("this-is-an-opt-build", default=False, description="Enable the transient optimization tests (automatically disabled for Debug builds).")
-    variant("have-epetra-stack", default=False, description="Enabled support for Epetra in PanzerDiscFE and downstream panzer subpackages. Defaults to ON if Epetra, EpetraExt, ThyraEpetraAdapters and ThyraEpetraExtAdapters are enabled, otherwise defaults to OFF.")
 
 
     # Required package dependencies
@@ -76,7 +74,6 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-percept", when="+percept")
     depends_on_trilinos_package("trilinos-ifpack2", when="+ifpack2")
     depends_on_trilinos_package("trilinos-tempus", when="+tempus")
-    depends_on_trilinos_package("trilinos-pamgen", when="+pamgen")
 
     # all-optional-packages: enable all optional deps at once
     depends_on_trilinos_package("trilinos-shards", when="+all-optional-packages")
@@ -98,7 +95,6 @@ class TrilinosPanzer(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-percept", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-ifpack2", when="+all-optional-packages")
     depends_on_trilinos_package("trilinos-tempus", when="+all-optional-packages")
-    depends_on_trilinos_package("trilinos-pamgen", when="+all-optional-packages")
 
     # Required external (TPL) dependencies
     depends_on("mpi")
@@ -116,7 +112,6 @@ class TrilinosPanzer(TrilinosBaseClass):
     conflicts("+percept", when="~panzeradaptersstk")
     conflicts("+ifpack2", when="~panzeradaptersstk")
     conflicts("+tempus", when="~panzeradaptersstk")
-    conflicts("+pamgen", when="~panzerminiem")
 
     # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
     conflicts("+stksearch", when="+all-optional-packages")
@@ -126,7 +121,6 @@ class TrilinosPanzer(TrilinosBaseClass):
     conflicts("+percept", when="+all-optional-packages")
     conflicts("+ifpack2", when="+all-optional-packages")
     conflicts("+tempus", when="+all-optional-packages")
-    conflicts("+pamgen", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
@@ -244,12 +238,8 @@ class TrilinosPanzer(TrilinosBaseClass):
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tempus"):
             args.append(self.define("TPL_ENABLE_Tempus", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+pamgen"):
-            args.append(self.define("TPL_ENABLE_Pamgen", True))
-
         # Scraped CMake options
         args.append(self.define_from_variant("PANZER_THIS_IS_AN_OPT_BUILD", "this-is-an-opt-build"))
-        args.append(self.define_from_variant("PANZER_HAVE_EPETRA_STACK", "have-epetra-stack"))
 
 
     # BEGIN MANUAL CMAKE ARGS

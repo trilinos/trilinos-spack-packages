@@ -23,7 +23,7 @@ class TrilinosMinitensor(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-teuchos")
     depends_on("kokkos")
     depends_on("kokkos-kernels")
-    depends_on_trilinos_package("trilinos-sacado")
+    depends_on_trilinos_package("trilinos-sacado +kokkos +teuchoscore +teuchos")
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
