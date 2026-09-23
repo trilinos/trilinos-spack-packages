@@ -387,6 +387,11 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
                     f.write("# OpenBLAS and most BLAS implementations support single-precision.\n")
                     f.write("set(HAVE_TEUCHOS_BLASFLOAT ON CACHE BOOL \"\" FORCE)\n\n")
 
+                if ("+complex-double" in self.spec or "+complex-float" in self.spec) and "blas" in self.spec:
+                    f.write("# Set HAVE_COMPLEX_BLAS when complex scalars are enabled\n")
+                    f.write("# Normally detected via CHECK_BLAS_COMPLEX, but not propagated from external Teuchos.\n")
+                    f.write("set(HAVE_COMPLEX_BLAS ON CACHE BOOL \"\" FORCE)\n\n")
+
             args.append(f"-DCMAKE_PROJECT_INCLUDE={include_file}")
 
         return args
