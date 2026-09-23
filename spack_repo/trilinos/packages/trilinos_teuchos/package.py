@@ -20,12 +20,6 @@ class TrilinosTeuchos(TrilinosBaseClass):
     """
 
     # Subpackage variants
-    variant("teuchoscore", default=True, description="Enable the TeuchosCore subpackage")
-    variant("teuchosparser", default=True, description="Enable the TeuchosParser subpackage")
-    variant("teuchosparameterlist", default=True, description="Enable the TeuchosParameterList subpackage")
-    variant("teuchoscomm", default=True, description="Enable the TeuchosComm subpackage")
-    variant("teuchosnumerics", default=True, description="Enable the TeuchosNumerics subpackage")
-    variant("teuchosremainder", default=True, description="Enable the TeuchosRemainder subpackage")
     variant("teuchoskokkoscompat", default=True, description="Enable the TeuchosKokkosCompat subpackage")
     variant("teuchoskokkoscomm", default=True, description="Enable the TeuchosKokkosComm subpackage")
 
@@ -34,7 +28,6 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
 
     # Optional package variants
-    variant("kokkos", default=False, description="Enable Kokkos support")
     variant("magistrate", default=False, description="Enable magistrate support")
 
 
@@ -44,7 +37,8 @@ class TrilinosTeuchos(TrilinosBaseClass):
 
 
     # Optional package dependencies
-    depends_on("kokkos", when="+kokkos")
+    depends_on("kokkos", when="+teuchoskokkoscompat")
+    depends_on("kokkos", when="+teuchoskokkoscomm")
     depends_on_trilinos_package("trilinos-magistrate", when="+magistrate")
 
     # all-optional-packages: enable all optional deps at once
@@ -64,13 +58,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
 
-    # TPL conflicts: subpackages that require an optional TPL
-    conflicts("~boost", when="+teuchoscore")
-    conflicts("~mpi", when="+teuchoscore")
-    conflicts("~mpi", when="+teuchoskokkoscomm")
-
     # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
-    conflicts("+kokkos", when="+all-optional-packages")
     conflicts("+magistrate", when="+all-optional-packages")
     conflicts("+boost", when="+all-optional-packages")
 
@@ -78,23 +66,12 @@ class TrilinosTeuchos(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Teuchos", True))
 
-        if self.spec.satisfies("+teuchoscore"):
-            args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
-
-        if self.spec.satisfies("+teuchosparser"):
-            args.append(self.define("Trilinos_ENABLE_TeuchosParser", True))
-
-        if self.spec.satisfies("+teuchosparameterlist"):
-            args.append(self.define("Trilinos_ENABLE_TeuchosParameterList", True))
-
-        if self.spec.satisfies("+teuchoscomm"):
-            args.append(self.define("Trilinos_ENABLE_TeuchosComm", True))
-
-        if self.spec.satisfies("+teuchosnumerics"):
-            args.append(self.define("Trilinos_ENABLE_TeuchosNumerics", True))
-
-        if self.spec.satisfies("+teuchosremainder"):
-            args.append(self.define("Trilinos_ENABLE_TeuchosRemainder", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosCore", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosParser", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosParameterList", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosComm", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosNumerics", True))
+        args.append(self.define("Trilinos_ENABLE_TeuchosRemainder", True))
 
         if self.spec.satisfies("+teuchoskokkoscompat"):
             args.append(self.define("Trilinos_ENABLE_TeuchosKokkosCompat", True))
@@ -105,7 +82,7 @@ class TrilinosTeuchos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_BLAS", True))
         args.append(self.define("TPL_ENABLE_LAPACK", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoskokkoscompat") or self.spec.satisfies("+teuchoskokkoscomm"):
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+magistrate"):

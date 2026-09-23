@@ -21,14 +21,8 @@ class TrilinosTpetra(TrilinosBaseClass):
 
     # Subpackage variants
     variant("tpetratsqr", default=True, description="Enable the TpetraTSQR subpackage")
-    variant("tpetracore", default=True, description="Enable the TpetraCore subpackage")
 
     # Optional package variants
-    variant("teuchos", default=False, description="Enable Teuchos support")
-    variant("kokkos", default=False, description="Enable Kokkos support")
-    variant("kokkoskernels", default=False, description="Enable KokkosKernels support")
-    variant("teuchoskokkoscompat", default=False, description="Enable TeuchosKokkosCompat support")
-    variant("teuchoskokkoscomm", default=False, description="Enable TeuchosKokkosComm support")
     variant("teuchosnumerics", default=False, description="Enable TeuchosNumerics support")
 
 
@@ -49,60 +43,39 @@ class TrilinosTpetra(TrilinosBaseClass):
     variant("bcrs-point-import", default=False, description="Do MV import instead of BMV import.")
 
 
+    # Required package dependencies
+    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat +teuchoskokkoscomm")
+    depends_on("kokkos")
+    depends_on("kokkos-kernels")
+
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
-    depends_on("kokkos", when="+kokkos")
-    depends_on("kokkos-kernels", when="+kokkoskernels")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat", when="+teuchoskokkoscompat")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscomm", when="+teuchoskokkoscomm")
     depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+teuchosnumerics")
 
     # all-optional-packages: enable all optional deps at once
-    depends_on_trilinos_package("trilinos-teuchos +teuchoskokkoscompat +teuchoskokkoscomm +teuchosnumerics", when="+all-optional-packages")
-    depends_on("kokkos", when="+all-optional-packages")
-    depends_on("kokkos-kernels", when="+all-optional-packages")
+    depends_on_trilinos_package("trilinos-teuchos +teuchosnumerics", when="+all-optional-packages")
 
     # Optional external (TPL) dependencies
 
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
 
-    # TPL conflicts: subpackages that require an optional TPL
-    conflicts("~mpi", when="+tpetracore")
-
     # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
-    conflicts("+teuchos", when="+all-optional-packages")
-    conflicts("+kokkos", when="+all-optional-packages")
-    conflicts("+kokkoskernels", when="+all-optional-packages")
-    conflicts("+teuchoskokkoscompat", when="+all-optional-packages")
-    conflicts("+teuchoskokkoscomm", when="+all-optional-packages")
     conflicts("+teuchosnumerics", when="+all-optional-packages")
 
     def cmake_args(self):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_Tpetra", True))
 
+        args.append(self.define("Trilinos_ENABLE_TpetraCore", True))
+
         if self.spec.satisfies("+tpetratsqr"):
             args.append(self.define("Trilinos_ENABLE_TpetraTSQR", True))
 
-        if self.spec.satisfies("+tpetracore"):
-            args.append(self.define("Trilinos_ENABLE_TpetraCore", True))
-
-
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchos"):
-            args.append(self.define("TPL_ENABLE_Teuchos", True))
-
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
-            args.append(self.define("TPL_ENABLE_Kokkos", True))
-
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkoskernels"):
-            args.append(self.define("TPL_ENABLE_KokkosKernels", True))
-
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoskokkoscompat"):
-            args.append(self.define("TPL_ENABLE_TeuchosKokkosCompat", True))
-
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoskokkoscomm"):
-            args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
+        args.append(self.define("TPL_ENABLE_Kokkos", True))
+        args.append(self.define("TPL_ENABLE_TeuchosKokkosCompat", True))
+        args.append(self.define("TPL_ENABLE_TeuchosKokkosComm", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchosnumerics"):
             args.append(self.define("TPL_ENABLE_TeuchosNumerics", True))

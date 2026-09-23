@@ -49,18 +49,6 @@ class TrilinosStk(TrilinosBaseClass):
 
 
     # Optional package variants
-    variant("kokkos", default=False, description="Enable Kokkos support")
-    variant("shards", default=False, description="Enable Shards support")
-    variant("seacasioss", default=False, description="Enable SEACASIoss support")
-    variant("seacas", default=False, description="Enable SEACAS support")
-    variant("seacasexodus", default=False, description="Enable SEACASExodus support")
-    variant("teuchoscore", default=False, description="Enable TeuchosCore support")
-    variant("teuchos", default=False, description="Enable Teuchos support")
-    variant("teuchosparameterlist", default=False, description="Enable TeuchosParameterList support")
-    variant("seacasnemesis", default=False, description="Enable SEACASNemesis support")
-    variant("zoltan2core", default=False, description="Enable Zoltan2Core support")
-    variant("tpetra", default=False, description="Enable Tpetra support")
-    variant("zoltan", default=False, description="Enable Zoltan support")
     variant("seacasaprepro-lib", default=False, description="Enable SEACASAprepro_lib support")
     variant("intrepid2", default=False, description="Enable Intrepid2 support")
 
@@ -73,18 +61,27 @@ class TrilinosStk(TrilinosBaseClass):
 
 
     # Optional package dependencies
-    depends_on("kokkos", when="+kokkos")
-    depends_on_trilinos_package("trilinos-shards", when="+shards")
-    depends_on("seacas", when="+seacasioss")
-    depends_on("seacas", when="+seacas")
-    depends_on("seacas", when="+seacasexodus")
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore", when="+teuchoscore")
-    depends_on_trilinos_package("trilinos-teuchos", when="+teuchos")
-    depends_on_trilinos_package("trilinos-teuchos +teuchosparameterlist", when="+teuchosparameterlist")
-    depends_on("seacas", when="+seacasnemesis")
-    depends_on_trilinos_package("trilinos-zoltan2core", when="+zoltan2core")
-    depends_on_trilinos_package("trilinos-tpetra", when="+tpetra")
-    depends_on_trilinos_package("trilinos-zoltan", when="+zoltan")
+    depends_on("kokkos", when="+stkutil")
+    depends_on("kokkos", when="+stkmath")
+    depends_on("kokkos", when="+stksimd")
+    depends_on("kokkos", when="+stkngp-test")
+    depends_on("kokkos", when="+stkexpreval")
+    depends_on("kokkos", when="+stksearch")
+    depends_on("kokkos", when="+stkmesh")
+    depends_on("kokkos", when="+stksearchutil")
+    depends_on("kokkos", when="+stktools")
+    depends_on("kokkos", when="+stkbalance")
+    depends_on("kokkos", when="+stkunit-test-utils")
+    depends_on("kokkos", when="+stkdoc-tests")
+    depends_on("kokkos", when="+stkintegration-tests")
+    depends_on("kokkos", when="+stkperformance-tests")
+    depends_on_trilinos_package("trilinos-shards", when="+stkmesh")
+    depends_on("seacas", when="+stkio")
+    depends_on("seacas", when="+stkbalance")
+    depends_on_trilinos_package("trilinos-teuchos +teuchoscore +teuchosparameterlist", when="+stkbalance")
+    depends_on_trilinos_package("trilinos-zoltan2core", when="+stkbalance")
+    depends_on_trilinos_package("trilinos-tpetra", when="+stkbalance")
+    depends_on_trilinos_package("trilinos-zoltan", when="+stkbalance")
     depends_on("seacas", when="+seacasaprepro-lib")
     depends_on_trilinos_package("trilinos-intrepid2", when="+intrepid2")
 
@@ -117,19 +114,11 @@ class TrilinosStk(TrilinosBaseClass):
     # TPL conflicts: subpackages that require an optional TPL
     conflicts("~boost", when="+stkutil")
 
+    # Optional dep conflicts: can't enable without the subpackage
+    conflicts("+seacasaprepro-lib", when="~stkutil")
+    conflicts("+intrepid2", when="~stksearchutil")
+
     # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
-    conflicts("+kokkos", when="+all-optional-packages")
-    conflicts("+shards", when="+all-optional-packages")
-    conflicts("+seacasioss", when="+all-optional-packages")
-    conflicts("+seacas", when="+all-optional-packages")
-    conflicts("+seacasexodus", when="+all-optional-packages")
-    conflicts("+teuchoscore", when="+all-optional-packages")
-    conflicts("+teuchos", when="+all-optional-packages")
-    conflicts("+teuchosparameterlist", when="+all-optional-packages")
-    conflicts("+seacasnemesis", when="+all-optional-packages")
-    conflicts("+zoltan2core", when="+all-optional-packages")
-    conflicts("+tpetra", when="+all-optional-packages")
-    conflicts("+zoltan", when="+all-optional-packages")
     conflicts("+seacasaprepro-lib", when="+all-optional-packages")
     conflicts("+intrepid2", when="+all-optional-packages")
     conflicts("+boost", when="+all-optional-packages")
@@ -213,40 +202,40 @@ class TrilinosStk(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_LAPACK", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+kokkos"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkutil") or self.spec.satisfies("+stkmath") or self.spec.satisfies("+stksimd") or self.spec.satisfies("+stkngp-test") or self.spec.satisfies("+stkexpreval") or self.spec.satisfies("+stksearch") or self.spec.satisfies("+stkmesh") or self.spec.satisfies("+stksearchutil") or self.spec.satisfies("+stktools") or self.spec.satisfies("+stkbalance") or self.spec.satisfies("+stkunit-test-utils") or self.spec.satisfies("+stkdoc-tests") or self.spec.satisfies("+stkintegration-tests") or self.spec.satisfies("+stkperformance-tests"):
             args.append(self.define("TPL_ENABLE_Kokkos", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+shards"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkmesh"):
             args.append(self.define("TPL_ENABLE_Shards", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasioss"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_SEACASIoss", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacas"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_SEACAS", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasexodus"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkio") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_SEACASExodus", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchoscore"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_TeuchosCore", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchos"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_Teuchos", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+teuchosparameterlist"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasnemesis"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_SEACASNemesis", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan2core"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+tpetra"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_Tpetra", True))
 
-        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+zoltan"):
+        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+stkbalance"):
             args.append(self.define("TPL_ENABLE_Zoltan", True))
 
         if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+seacasaprepro-lib"):

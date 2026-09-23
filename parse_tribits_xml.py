@@ -38,6 +38,7 @@ import re
 class TrilinosPackage:
     name: str
     subpackages:              list[str] = field(default_factory=list)
+    required_subpackages:     list[str] = field(default_factory=list)
     required_tpl_deps:        list[str] = field(default_factory=list)
     optional_tpl_deps:        list[str] = field(default_factory=list)
     # Maps optional TPL name → list of subpackage names that introduced it.
@@ -45,7 +46,11 @@ class TrilinosPackage:
     required_package_deps:    list[str] = field(default_factory=list)
     optional_package_deps:    list[str] = field(default_factory=list)
     # Maps optional package dep name → list of subpackage names that introduced it.
+    # Only populated for required deps of optional subpackages (subpkg-gated deps).
     optional_package_sources: dict[str, list[str]] = field(default_factory=dict)
+    # Maps optional dep name → list of optional subpackage names it comes from.
+    # Used to generate conflicts: can't enable dep without the subpackage.
+    optional_dep_subpkg_gate: dict[str, list[str]] = field(default_factory=dict)
     # Test-only dependencies (needed when tests are enabled)
     test_required_package_deps: list[str] = field(default_factory=list)
     test_required_tpl_deps:     list[str] = field(default_factory=list)
@@ -261,21 +266,36 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
                     names.append(top)
             return names
 
-        # Maps optional package dep → list of subpackage names that introduced it
+        # Determine which subpackages are required vs optional.
+        # A subpackage is required if the parent lists it in LIB_REQUIRED_DEP_PACKAGES.
+        required_subpkg_set: set[str] = set()
+        for dep in r.lib_req_pkgs:
+            if dep in set(subpackage_names_ordered):
+                required_subpkg_set.add(dep)
+        required_subpkg_list: list[str] = [
+            sp for sp in subpackage_names_ordered if sp in required_subpkg_set
+        ]
+
+        # Maps optional package dep → list of optional subpackage names that
+        # introduced it as a required dep (subpkg-gated: no own variant).
         opt_pkg_sources: dict[str, list[str]] = {}
 
-        # Collect all required first across all members so required wins dedup.
-        # NOTE: required deps from a subpackage are only needed when that
-        # subpackage is enabled, so they are collected as optional with the
-        # subpackage as source rather than unconditionally required.
+        # Maps optional dep → list of optional subpackage names it comes from
+        # as an optional dep (generates conflicts: can't enable without subpackage).
+        opt_dep_gate: dict[str, list[str]] = {}
+
+        # Pass 1: collect required deps from parent and required subpackages
+        # as unconditional required deps.  Required deps from optional
+        # subpackages are gated on the subpackage variant (optional).
         for m in members:
             is_subpkg = (m.name != name)
+            is_optional_subpkg = is_subpkg and m.name not in required_subpkg_set
             for dep in m.lib_req_pkgs:
                 for n in _dep_names(dep):
                     if n == name:
                         continue
-                    if is_subpkg:
-                        # treat as optional, gated on the subpackage variant
+                    if is_optional_subpkg:
+                        # Optional subpackage's required dep → optional, gated on subpackage
                         if n not in seen_req_pkg:
                             if n not in seen_opt_pkg:
                                 seen_opt_pkg.add(n)
@@ -284,19 +304,34 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
                             if m.name not in opt_pkg_sources[n]:
                                 opt_pkg_sources[n].append(m.name)
                     else:
+                        # Parent or required subpackage → unconditional required
                         if n not in seen_req_pkg:
                             seen_req_pkg.add(n)
                             req_pkgs.append(n)
+                            # Promote from optional if it was already there
+                            if n in seen_opt_pkg:
+                                seen_opt_pkg.discard(n)
+                                opt_pkgs[:] = [p for p in opt_pkgs if p != n]
+                                opt_pkg_sources.pop(n, None)
 
+        # Pass 2: collect optional deps from all members.
+        # These always get their own variant (not subpkg-gated).
+        # If from an optional subpackage, record gate for conflict generation.
         for m in members:
+            is_subpkg = (m.name != name)
+            is_optional_subpkg = is_subpkg and m.name not in required_subpkg_set
             for dep in m.lib_opt_pkgs:
                 for n in _dep_names(dep):
                     if n != name and n not in seen_req_pkg:
                         if n not in seen_opt_pkg:
                             seen_opt_pkg.add(n)
                             opt_pkgs.append(n)
-                        if m.name not in opt_pkg_sources.setdefault(n, []):
-                            opt_pkg_sources[n].append(m.name)
+                        # Don't add to opt_pkg_sources — these get own variant
+                        # But track gate for optional subpackage conflicts
+                        if is_optional_subpkg:
+                            opt_dep_gate.setdefault(n, [])
+                            if m.name not in opt_dep_gate[n]:
+                                opt_dep_gate[n].append(m.name)
 
         # Collect test-required dependencies (packages and TPLs)
         test_req_pkgs: list[str] = []
@@ -322,12 +357,14 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
         packages.append(TrilinosPackage(
             name=name,
             subpackages=subpackage_names_ordered,
+            required_subpackages=required_subpkg_list,
             required_tpl_deps=req_tpls,
             optional_tpl_deps=opt_tpls,
             optional_tpl_sources=opt_tpl_sources,
             required_package_deps=req_pkgs,
             optional_package_deps=opt_pkgs,
             optional_package_sources=opt_pkg_sources,
+            optional_dep_subpkg_gate=opt_dep_gate,
             test_required_package_deps=test_req_pkgs,
             test_required_tpl_deps=test_req_tpls,
         ))

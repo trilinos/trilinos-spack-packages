@@ -106,12 +106,10 @@ BASE_TRILINOS_VARIANTS: set[str] = {
     "explicit-instantiation",
     "all-optional-packages",
     "tests",
-    "double",
     "float",
     "complex-double",
     "complex-float",
     "disable-deprecated-code",
-    "gotype",
     "rocm",
 }
 
@@ -150,7 +148,6 @@ EXCLUDE_SCRAPED_OPTIONS: dict[str, set[str]] = {
 # Types: "internal" (conflicts in same package), "external" (depends_on other package)
 SCALAR_SYNC_MAP: dict[str, list[tuple[str, str, str]]] = {
     "complex-double": [
-        ("internal", "double", "conflict"),
         ("external", "trilinos-teuchos", "complex"),
     ],
     "complex-float": [
@@ -229,6 +226,26 @@ def _spack_pkg_name(tribits_name: str) -> str:
 def _dir_name(tribits_name: str) -> str:
     """Return the output directory name: trilinos_<lower> (underscore)."""
     return f"trilinos_{tribits_name.lower()}"
+
+
+def _is_subpkg_gated(dep: str, pkg: TrilinosPackage) -> bool:
+    """True if dep's optional sources are ALL subpackages (none from the parent).
+
+    Such deps don't need their own variant — they are controlled by the
+    subpackage variant(s) that require them.
+    """
+    sources = pkg.optional_package_sources.get(dep, [])
+    if not sources:
+        return False
+    sp_names = set(pkg.subpackages)
+    return all(src in sp_names for src in sources)
+
+
+def _subpkg_source_variants(dep: str, pkg: TrilinosPackage) -> list[str]:
+    """Return the subpackage variant names that introduce this dep."""
+    sources = pkg.optional_package_sources.get(dep, [])
+    sp_names = set(pkg.subpackages)
+    return [_variant_name(src) for src in sources if src in sp_names]
 
 
 def _variant_name(subpackage_name: str) -> str:
@@ -428,10 +445,11 @@ def _header(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
         "",
     ]
 
-    # One variant per subpackage — local only, not propagated across packages
-    if pkg.subpackages:
+    # One variant per optional subpackage — required subpackages are always enabled
+    optional_subpkgs = [sp for sp in pkg.subpackages if sp not in pkg.required_subpackages]
+    if optional_subpkgs:
         lines.append("    # Subpackage variants")
-        for sp in pkg.subpackages:
+        for sp in optional_subpkgs:
             vname = _variant_name(sp)
             lines.append(
                 f'    variant("{vname}", default=True,'
@@ -460,9 +478,13 @@ def _header(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
 
     # One variant per optional package dependency — package-local, plain variant().
     # These control whether the optional dependency is pulled into the build.
+    # Skip deps that are only introduced by subpackages — those are controlled
+    # by the subpackage variant(s) and don't need their own variant.
     visible_opt_pkgs = []
     seen_opt_vnames = set()
     for dep in pkg.optional_package_deps:
+        if _is_subpkg_gated(dep, pkg):
+            continue
         vname = _variant_name(dep)
         if vname not in BASE_TRILINOS_VARIANTS and vname not in seen_opt_vnames:
             visible_opt_pkgs.append((dep, vname))
@@ -583,18 +605,26 @@ def _optional_package_deps(pkg: TrilinosPackage, scraped_options: dict = None) -
 
         spack_name, dep_variant = _pkg_dep_spec(dep)
         fn = _dep_call(dep)
-        vname = _variant_name(dep)
 
-        # We use the control variant vname as the 'when' condition
-        key = (fn, spack_name, vname)
-        if key not in seen_keys:
-            seen_keys.add(key)
-            order.append(key)
-
-        # The dependency itself might require a specific variant (e.g. +tpetracore)
-        if dep_variant and dep_variant not in variants[key]:
-            variants[key].append(dep_variant)
-            bare_parents.add(spack_name)
+        if _is_subpkg_gated(dep, pkg):
+            # Dep is required by subpackage(s) — gate on each subpackage variant
+            for sp_vname in _subpkg_source_variants(dep, pkg):
+                key = (fn, spack_name, sp_vname)
+                if key not in seen_keys:
+                    seen_keys.add(key)
+                    order.append(key)
+                if dep_variant and dep_variant not in variants[key]:
+                    variants[key].append(dep_variant)
+                    bare_parents.add(spack_name)
+        else:
+            vname = _variant_name(dep)
+            key = (fn, spack_name, vname)
+            if key not in seen_keys:
+                seen_keys.add(key)
+                order.append(key)
+            if dep_variant and dep_variant not in variants[key]:
+                variants[key].append(dep_variant)
+                bare_parents.add(spack_name)
 
     # Handle cross-package synchronized variants (from SCALAR_SYNC_MAP)
     # This adds depends_on requirements to other packages based on variants enabled in this one.
@@ -734,7 +764,10 @@ def _conflicts(pkg: TrilinosPackage) -> list[str]:
     if not pkg.optional_tpl_deps:
         return []
 
-    sp_variant_names: set[str] = {_variant_name(sp) for sp in pkg.subpackages}
+    # Only optional subpackages have variants — required ones are always enabled
+    optional_sp_names: set[str] = {
+        _variant_name(sp) for sp in pkg.subpackages if sp not in pkg.required_subpackages
+    }
 
     lines = ["    # TPL conflicts: subpackages that require an optional TPL"]
     any_written = False
@@ -744,8 +777,8 @@ def _conflicts(pkg: TrilinosPackage) -> list[str]:
 
         tpl_vname = _tpl_variant_name(tpl)
         sources: list[str] = pkg.optional_tpl_sources.get(tpl, [])
-        sp_sources = [sp for sp in sources if _variant_name(sp) in sp_variant_names]
-        non_sp_sources = [sp for sp in sources if _variant_name(sp) not in sp_variant_names]
+        sp_sources = [sp for sp in sources if _variant_name(sp) in optional_sp_names]
+        non_sp_sources = [sp for sp in sources if _variant_name(sp) not in optional_sp_names]
 
         if not sp_sources or non_sp_sources:
             continue
@@ -767,10 +800,12 @@ def _all_optional_conflicts(pkg: TrilinosPackage) -> list[str]:
     lines = []
     seen_vnames = set()
 
-    # Optional package dep variants
+    # Optional package dep variants (skip subpackage-gated deps — no standalone variant)
     for dep in pkg.optional_package_deps:
         effective = _SUBPKG_PARENT.get(dep, dep)
         if effective in EXCLUDE_OPTIONAL_PACKAGES or dep in EXCLUDE_OPTIONAL_PACKAGES:
+            continue
+        if _is_subpkg_gated(dep, pkg):
             continue
         vname = _variant_name(dep)
         if vname not in BASE_TRILINOS_VARIANTS and vname not in seen_vnames:
@@ -790,6 +825,34 @@ def _all_optional_conflicts(pkg: TrilinosPackage) -> list[str]:
         lines.insert(0, "    # all-optional-packages conflicts: cannot cherry-pick when all-optional is on")
         lines.append("")
 
+    return lines
+
+
+def _optional_dep_gate_conflicts(pkg: TrilinosPackage) -> list[str]:
+    """Render conflicts preventing optional deps from being enabled without
+    the optional subpackage they belong to.
+
+        conflicts("+magistrate", when="~teuchoscomm")
+    """
+    if not pkg.optional_dep_subpkg_gate:
+        return []
+
+    lines = ["    # Optional dep conflicts: can't enable without the subpackage"]
+    for dep, sp_sources in pkg.optional_dep_subpkg_gate.items():
+        effective = _SUBPKG_PARENT.get(dep, dep)
+        if effective in EXCLUDE_OPTIONAL_PACKAGES or dep in EXCLUDE_OPTIONAL_PACKAGES:
+            continue
+        if _is_subpkg_gated(dep, pkg):
+            continue
+        dep_vname = _variant_name(dep)
+        if dep_vname in BASE_TRILINOS_VARIANTS:
+            continue
+        for sp in sp_sources:
+            sp_vname = _variant_name(sp)
+            lines.append(f'    conflicts("+{dep_vname}", when="~{sp_vname}")')
+    if len(lines) == 1:
+        return []
+    lines.append("")
     return lines
 
 
@@ -827,8 +890,15 @@ def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
         "",
     ]
 
-    # ---- Subpackage enables — conditional on each subpackage variant ---------
-    for sp in pkg.subpackages:
+    # ---- Required subpackage enables — unconditional ---------------------------
+    for sp in pkg.required_subpackages:
+        lines.append(f'        args.append(self.define("Trilinos_ENABLE_{sp}", True))')
+    if pkg.required_subpackages:
+        lines.append('')
+
+    # ---- Optional subpackage enables — conditional on variant -----------------
+    optional_subpkgs = [sp for sp in pkg.subpackages if sp not in pkg.required_subpackages]
+    for sp in optional_subpkgs:
         vname = _variant_name(sp)
         lines += [
             f'        if self.spec.satisfies("+{vname}"):',
@@ -878,13 +948,25 @@ def _footer(pkg: TrilinosPackage, scraped_options: dict[str, tuple[str, bool]] =
         if cmake_name in seen:
             continue
 
-        vname = _variant_name(dep)
         seen.add(cmake_name)
-        lines += [
-            f'        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+{vname}"):',
-            f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
-            '',
-        ]
+        if _is_subpkg_gated(dep, pkg):
+            # Dep is required by subpackage(s) — gate on subpackage variant(s)
+            sp_vnames = _subpkg_source_variants(dep, pkg)
+            conds = " or ".join(
+                f'self.spec.satisfies("+{sv}")' for sv in sp_vnames
+            )
+            lines += [
+                f'        if self.spec.satisfies("+all-optional-packages") or {conds}:',
+                f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                '',
+            ]
+        else:
+            vname = _variant_name(dep)
+            lines += [
+                f'        if self.spec.satisfies("+all-optional-packages") or self.spec.satisfies("+{vname}"):',
+                f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+                '',
+            ]
 
     # ---- Optional TPL deps — conditional TPL_ENABLE_ ----------------
     for tpl in pkg.optional_tpl_deps:
@@ -958,6 +1040,7 @@ def generate_package_py(pkg: TrilinosPackage, existing_file_path: str = None) ->
         lines += _manual_section()
 
     lines += _conflicts(pkg)
+    lines += _optional_dep_gate_conflicts(pkg)
     lines += _all_optional_conflicts(pkg)
 
     # For cmake_args, we need to preserve the manual CMAKE args section

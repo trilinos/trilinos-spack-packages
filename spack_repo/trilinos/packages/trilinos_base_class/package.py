@@ -380,6 +380,13 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
                     f.write("# Without this, Teuchos::MpiComm class is not visible in dependent packages\n")
                     f.write("add_compile_definitions(HAVE_TEUCHOS_MPI)\n\n")
 
+                if "+float" in self.spec and "blas" in self.spec:
+                    f.write("# Set HAVE_TEUCHOS_BLASFLOAT when float scalars are enabled\n")
+                    f.write("# Normally Teuchos detects this via CHECK_BLAS_FLOAT, but when Teuchos\n")
+                    f.write("# is an external package the check doesn't run in downstream builds.\n")
+                    f.write("# OpenBLAS and most BLAS implementations support single-precision.\n")
+                    f.write("set(HAVE_TEUCHOS_BLASFLOAT ON CACHE BOOL \"\" FORCE)\n\n")
+
             args.append(f"-DCMAKE_PROJECT_INCLUDE={include_file}")
 
         return args
