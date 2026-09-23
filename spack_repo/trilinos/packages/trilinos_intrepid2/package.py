@@ -38,6 +38,9 @@ class TrilinosIntrepid2(TrilinosBaseClass):
     depends_on("kokkos-kernels", when="+all-optional-packages")
 
     # BEGIN MANUAL SECTION
+    # Intrepid2 source unconditionally calls Sacado::dimension_scalar (Intrepid2_Utils.hpp:327)
+    # despite Sacado being listed as optional in TriBITS XML — force it as required.
+    depends_on_trilinos_package("trilinos-sacado")
     # END MANUAL SECTION
 
     # all-optional-packages conflicts: cannot cherry-pick when all-optional is on
@@ -62,6 +65,7 @@ class TrilinosIntrepid2(TrilinosBaseClass):
 
 
     # BEGIN MANUAL CMAKE ARGS
+        args.append(self.define("TPL_ENABLE_Sacado", True))
     # END MANUAL CMAKE ARGS
 
         return args
