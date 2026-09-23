@@ -182,6 +182,7 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
         _arch = f"+rocm amdgpu_target={_a}"
         depends_on(f"kokkos {_arch}", when=_arch)
 
+    depends_on("mpi", when="+mpi")
     depends_on("blas")
     depends_on("lapack")
     depends_on("rocblas", when="+rocm")
