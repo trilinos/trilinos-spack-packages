@@ -194,9 +194,6 @@ class TrilinosBaseClass(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("kokkos-nvcc-wrapper", when="+wrapper")
     depends_on("ninja", type="build")
 
-    
-    generator = "Ninja"
-
     git_sparse_paths = []
         
 
