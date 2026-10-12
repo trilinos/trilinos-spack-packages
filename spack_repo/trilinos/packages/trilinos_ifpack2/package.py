@@ -30,7 +30,6 @@ class TrilinosIfpack2(TrilinosBaseClass):
     depends_on("kokkos-kernels")
 
     # Optional package dependencies
-    depends_on_trilinos_package("trilinos-xpetra")
     depends_on_trilinos_package("trilinos-zoltan2core")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
     depends_on_trilinos_package("trilinos-amesos2")
@@ -51,8 +50,6 @@ class TrilinosIfpack2(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
-        args.append(self.define("TPL_ENABLE_Xpetra", True))
-
         args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
 
         args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
@@ -66,6 +63,12 @@ class TrilinosIfpack2(TrilinosBaseClass):
 
         if self.spec.satisfies("+mpi"):
             args.append(self.define("TPL_ENABLE_MPI", True))
+
+        if "^trilinos-belos" in self.spec:
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if "^trilinos-galeri" in self.spec:
+            args.append(self.define("TPL_ENABLE_Galeri", True))
 
 
     # BEGIN MANUAL CMAKE ARGS

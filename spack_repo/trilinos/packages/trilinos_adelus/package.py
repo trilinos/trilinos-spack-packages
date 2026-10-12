@@ -22,6 +22,7 @@ class TrilinosAdelus(TrilinosBaseClass):
     # Required package dependencies
     depends_on("kokkos")
     depends_on("kokkos-kernels")
+    depends_on_trilinos_package("trilinos-teuchos")
 
     # Required external (TPL) dependencies
     depends_on("blas")
@@ -35,6 +36,7 @@ class TrilinosAdelus(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Kokkos", True))
         args.append(self.define("TPL_ENABLE_KokkosKernels", True))
+        args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_BLAS", True))
 
 

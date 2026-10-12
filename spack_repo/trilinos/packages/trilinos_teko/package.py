@@ -25,6 +25,7 @@ class TrilinosTeko(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-stratimikos")
     depends_on_trilinos_package("trilinos-anasazi")
     depends_on_trilinos_package("trilinos-tpetra")
+    depends_on("kokkos-kernels")
 
     # Optional package dependencies
     depends_on_trilinos_package("trilinos-ifpack2")
@@ -44,12 +45,16 @@ class TrilinosTeko(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Anasazi", True))
         args.append(self.define("TPL_ENABLE_Tpetra", True))
         args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
+        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
 
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
         args.append(self.define("TPL_ENABLE_Amesos2", True))
 
         args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if "^trilinos-galeri" in self.spec:
+            args.append(self.define("TPL_ENABLE_Galeri", True))
 
 
     # BEGIN MANUAL CMAKE ARGS

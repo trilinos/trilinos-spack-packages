@@ -84,6 +84,9 @@ class TrilinosMuelu(TrilinosBaseClass):
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
+        if "^trilinos-galeri" in self.spec:
+            args.append(self.define("TPL_ENABLE_Galeri", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

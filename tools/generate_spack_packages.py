@@ -666,6 +666,35 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             '',
         ]
 
+    # ---- Test-required Trilinos package deps — TPL_ENABLE_ only if present in spec ----
+    # A test-required Trilinos package (e.g. Galeri for ShyLU_DDFROSch) is not a
+    # Spack dependency, but an installed copy can still land in CMAKE_PREFIX_PATH
+    # transitively (e.g. via Zoltan2Sphynx -> Galeri). When that happens, TriBITS
+    # treats the package as INTERNAL, configures it from source, and collides with
+    # the variables already set by the installed <Pkg>Config.cmake:
+    #   "ERROR: The option Galeri_ENABLE_DEBUG='OFF' is already defined as a
+    #    non-cache variable!"
+    # Marking it as an external TPL when it is in the spec prevents this, without
+    # adding a hard dependency just for tests.
+    for dep in pkg.test_required_package_deps:
+        effective = _SUBPKG_PARENT.get(dep, dep)
+        if effective in EXTERNAL_PACKAGES:
+            continue  # handled unconditionally above
+        if effective in EXCLUDE_OPTIONAL_PACKAGES or dep in EXCLUDE_OPTIONAL_PACKAGES:
+            continue
+        if effective == pkg.name or dep in pkg.subpackages:
+            continue  # part of this package, not an upstream dep
+        cmake_name = _pkg_cmake_name(dep)
+        if cmake_name in seen:
+            continue
+        seen.add(cmake_name)
+        spack_name, _ = _pkg_dep_spec(dep)
+        lines += [
+            f'        if "^{spack_name}" in self.spec:',
+            f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
+            '',
+        ]
+
     lines += [
         "",
         f"        {MANUAL_CMAKE_BEGIN}",

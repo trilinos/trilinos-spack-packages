@@ -20,9 +20,7 @@ class TrilinosMinitensor(TrilinosBaseClass):
     """
 
     # Required package dependencies
-    depends_on_trilinos_package("trilinos-teuchos +teuchoscore")
     depends_on("kokkos")
-    depends_on("kokkos-kernels")
     depends_on_trilinos_package("trilinos-sacado")
 
     # BEGIN MANUAL SECTION
@@ -32,10 +30,7 @@ class TrilinosMinitensor(TrilinosBaseClass):
         args = super().cmake_args()
         args.append(self.define("Trilinos_ENABLE_MiniTensor", True))
 
-        args.append(self.define("TPL_ENABLE_TeuchosCore", True))
-        args.append(self.define("TPL_ENABLE_Teuchos", True))
         args.append(self.define("TPL_ENABLE_Kokkos", True))
-        args.append(self.define("TPL_ENABLE_KokkosKernels", True))
         args.append(self.define("TPL_ENABLE_Sacado", True))
 
 

@@ -91,6 +91,9 @@ class TrilinosShyluDd(TrilinosBaseClass):
         if self.spec.satisfies("+shylu-ddfrosch"):
             args.append(self.define("TPL_ENABLE_Zoltan2", True))
 
+        if "^trilinos-galeri" in self.spec:
+            args.append(self.define("TPL_ENABLE_Galeri", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

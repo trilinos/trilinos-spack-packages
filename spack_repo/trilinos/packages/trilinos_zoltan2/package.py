@@ -36,6 +36,27 @@ class TrilinosZoltan2(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Zoltan2Sphynx", True))
 
+        if "^trilinos-tpetra" in self.spec:
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if "^trilinos-teuchos" in self.spec:
+            args.append(self.define("TPL_ENABLE_TeuchosCore", True))
+
+        if "^trilinos-teuchos" in self.spec:
+            args.append(self.define("TPL_ENABLE_Teuchos", True))
+
+        if "^trilinos-teuchos" in self.spec:
+            args.append(self.define("TPL_ENABLE_TeuchosComm", True))
+
+        if "^trilinos-teuchos" in self.spec:
+            args.append(self.define("TPL_ENABLE_TeuchosParameterList", True))
+
+        if "^trilinos-xpetra" in self.spec:
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if "^trilinos-zoltan" in self.spec:
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

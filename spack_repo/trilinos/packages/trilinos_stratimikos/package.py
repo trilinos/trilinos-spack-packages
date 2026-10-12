@@ -26,6 +26,7 @@ class TrilinosStratimikos(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-amesos2")
     depends_on_trilinos_package("trilinos-belos")
     depends_on_trilinos_package("trilinos-ifpack2")
+    depends_on_trilinos_package("trilinos-tpetra")
     depends_on_trilinos_package("trilinos-thyra +thyratpetraadapters")
 
     # BEGIN MANUAL SECTION
@@ -43,6 +44,8 @@ class TrilinosStratimikos(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Belos", True))
 
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        args.append(self.define("TPL_ENABLE_Tpetra", True))
 
         args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))
 
