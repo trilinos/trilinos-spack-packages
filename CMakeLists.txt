@@ -64,6 +64,14 @@ foreach(package IN LISTS spack_package_names_list)
     add_pytest_test("spack_spec[${package}]")
 endforeach()
 
+# Packages whose install test is skipped (info/spec tests still run)
+set(skip_install_packages
+  trilinos-pytrilinos2   # Needs LLVM/clang tooling (find_package(LLVM)); not set up yet
+)
+
 foreach(package IN LISTS spack_package_names_list)
+    if(package IN_LIST skip_install_packages)
+        continue()
+    endif()
     add_pytest_test("spack_install[${package}]")
 endforeach()
