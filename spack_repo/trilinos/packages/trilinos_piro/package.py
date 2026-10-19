@@ -58,6 +58,7 @@ class TrilinosPiro(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_MueLu", True))
 
+        args.append(self.define("Trilinos_ENABLE_HdsaLib", True))
         args.append(self.define("TPL_ENABLE_HdsaLib", True))
 
         if "^trilinos-thyra" in self.spec:

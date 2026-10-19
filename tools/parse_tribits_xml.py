@@ -335,6 +335,25 @@ def parse_xml(xml_path: str, extra_subpackages: dict | None = None) -> tuple:
     return packages, dict(parent_of)
 
 
+def parse_experimental_packages(xml_path: str) -> set[str]:
+    """
+    Return the names of all packages/subpackages classified as EX
+    (experimental) in the XML, i.e. <Package ... type="EX">.
+
+    TriBITS defaults ${PROJECT_NAME}_ENABLE_<pkg>=OFF for EX packages (PT/ST
+    default to empty), so a consumer that sets TPL_ENABLE_<pkg>=ON for one of
+    these trips TriBITS' consistency assert:
+        Error, Trilinos_ENABLE_<pkg>='OFF' != TPL_ENABLE_<pkg> = 'ON'
+    The generator uses this set to also emit Trilinos_ENABLE_<pkg>=ON.
+    """
+    root = ET.parse(xml_path).getroot()
+    return {
+        el.get("name", "").strip()
+        for el in root.findall("Package")
+        if el.get("type", "").strip() == "EX" and el.get("name", "").strip()
+    }
+
+
 # ---------------------------------------------------------------------------
 # Main (for quick inspection / debugging)
 # ---------------------------------------------------------------------------

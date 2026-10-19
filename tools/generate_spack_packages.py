@@ -27,11 +27,32 @@ import argparse
 import os
 import sys
 
-from parse_tribits_xml import parse_xml, TrilinosPackage
+from parse_tribits_xml import parse_xml, parse_experimental_packages, TrilinosPackage
 
 # Populated in main() after parsing — maps subpackage name → parent package name
 # e.g. {"TeuchosCore": "Teuchos", "TpetraCore": "Tpetra", ...}
 _SUBPKG_PARENT: dict[str, str] = {}
+
+# Populated in main() after parsing — names of packages/subpackages classified
+# as EX (experimental) in the XML, e.g. {"magistrate", "HdsaLib", ...}.
+# TriBITS defaults Trilinos_ENABLE_<EX pkg>=OFF, so when we set
+# TPL_ENABLE_<EX pkg>=ON we must also set Trilinos_ENABLE_<EX pkg>=ON or
+# TriBITS errors: "Trilinos_ENABLE_X='OFF' != TPL_ENABLE_X = 'ON'".
+_EXPERIMENTAL_PACKAGES: set[str] = set()
+
+
+def _dep_enable_stmts(cmake_name: str, indent: str) -> list[str]:
+    """Return the cmake_args lines that enable an upstream package dep as a TPL.
+
+    Always TPL_ENABLE_<dep>=ON. For EX (experimental) packages, also
+    Trilinos_ENABLE_<dep>=ON so it matches TriBITS' OFF default (see
+    _EXPERIMENTAL_PACKAGES).
+    """
+    stmts = []
+    if cmake_name in _EXPERIMENTAL_PACKAGES:
+        stmts.append(f'{indent}args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))')
+    stmts.append(f'{indent}args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
+    return stmts
 
 
 def _pkg_dep_spec(dep_name: str) -> tuple[str, str | None]:
@@ -594,7 +615,8 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             seen.add(cmake_name)
             # All dependencies (whether external like Kokkos or already-built Trilinos packages)
             # are treated as TPLs - only the current package gets Trilinos_ENABLE_
-            lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
+            # (plus EX packages, see _dep_enable_stmts)
+            lines += _dep_enable_stmts(cmake_name, "        ")
 
     # ---- Test-required external package deps — TPL_ENABLE_ to prevent internal build ----
     # When test dependencies are external packages (Kokkos, KokkosKernels), TriBITS
@@ -606,7 +628,7 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             cmake_name = _pkg_cmake_name(dep)
             if cmake_name not in seen:
                 seen.add(cmake_name)
-                lines.append(f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
+                lines += _dep_enable_stmts(cmake_name, "        ")
 
     # ---- Required TPL deps — unconditional TPL_ENABLE_ --------------
     for tpl in pkg.required_tpl_deps:
@@ -636,20 +658,14 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         # All dependencies are treated as TPLs
         seen.add(cmake_name)
         if not sp_sources or non_sp_sources:
-            lines += [
-                f'        args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
-                '',
-            ]
+            lines += _dep_enable_stmts(cmake_name, "        ") + ['']
         else:
             condition = " or ".join(
                 f'self.spec.satisfies("+{_variant_name(sp)}")'
                 for sp in sp_sources
             )
-            lines += [
-                f'        if {condition}:',
-                f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
-                '',
-            ]
+            lines += [f'        if {condition}:']
+            lines += _dep_enable_stmts(cmake_name, "            ") + ['']
 
     # ---- Optional TPL deps — conditional TPL_ENABLE_ ----------------
     for tpl in pkg.optional_tpl_deps:
@@ -689,11 +705,8 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
             continue
         seen.add(cmake_name)
         spack_name, _ = _pkg_dep_spec(dep)
-        lines += [
-            f'        if "^{spack_name}" in self.spec:',
-            f'            args.append(self.define("TPL_ENABLE_{cmake_name}", True))',
-            '',
-        ]
+        lines += [f'        if "^{spack_name}" in self.spec:']
+        lines += _dep_enable_stmts(cmake_name, "            ") + ['']
 
     lines += [
         "",
@@ -841,6 +854,9 @@ def main():
     # Populate the global subpackage→parent map used by dep rendering
     _SUBPKG_PARENT.update(subpkg_parent)
     _SUBPKG_PARENT.update(EXTRA_SUBPACKAGES)
+
+    # Record EX (experimental) packages — they need Trilinos_ENABLE_ too
+    _EXPERIMENTAL_PACKAGES.update(parse_experimental_packages(args.xml))
 
     # Filter out external packages – they already exist in Spack
     packages = [p for p in packages if p.name not in _EXTERNAL_NAMES]
