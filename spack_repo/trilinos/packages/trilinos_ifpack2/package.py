@@ -70,6 +70,22 @@ class TrilinosIfpack2(TrilinosBaseClass):
         if "^trilinos-galeri" in self.spec:
             args.append(self.define("TPL_ENABLE_Galeri", True))
 
+        if "^trilinos-rtop" in self.spec:
+            args.append(self.define("TPL_ENABLE_RTOp", True))
+
+        if "^trilinos-trilinosss" in self.spec:
+            args.append(self.define("TPL_ENABLE_TrilinosSS", True))
+
+        if "^trilinos-xpetra" in self.spec:
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if "^trilinos-zoltan" in self.spec:
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
+
+        if "^trilinos-magistrate" in self.spec:
+            args.append(self.define("Trilinos_ENABLE_magistrate", True))
+            args.append(self.define("TPL_ENABLE_magistrate", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

@@ -35,6 +35,46 @@ class TrilinosTempus(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Thyra", True))
         args.append(self.define("TPL_ENABLE_NOX", True))
 
+        if "^trilinos-amesos2" in self.spec:
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
+
+        if "^trilinos-anasazi" in self.spec:
+            args.append(self.define("TPL_ENABLE_Anasazi", True))
+
+        if "^trilinos-belos" in self.spec:
+            args.append(self.define("TPL_ENABLE_Belos", True))
+
+        if "^trilinos-ifpack2" in self.spec:
+            args.append(self.define("TPL_ENABLE_Ifpack2", True))
+
+        if "^trilinos-rtop" in self.spec:
+            args.append(self.define("TPL_ENABLE_RTOp", True))
+
+        if "^trilinos-stratimikos" in self.spec:
+            args.append(self.define("TPL_ENABLE_Stratimikos", True))
+
+        if "^trilinos-teko" in self.spec:
+            args.append(self.define("TPL_ENABLE_Teko", True))
+
+        if "^trilinos-tpetra" in self.spec:
+            args.append(self.define("TPL_ENABLE_Tpetra", True))
+
+        if "^trilinos-trilinosss" in self.spec:
+            args.append(self.define("TPL_ENABLE_TrilinosSS", True))
+
+        if "^trilinos-xpetra" in self.spec:
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if "^trilinos-zoltan" in self.spec:
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
+
+        if "^trilinos-zoltan2core" in self.spec:
+            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+
+        if "^trilinos-magistrate" in self.spec:
+            args.append(self.define("Trilinos_ENABLE_magistrate", True))
+            args.append(self.define("TPL_ENABLE_magistrate", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

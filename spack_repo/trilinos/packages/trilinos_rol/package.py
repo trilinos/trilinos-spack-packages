@@ -76,6 +76,37 @@ class TrilinosRol(TrilinosBaseClass):
         if self.spec.satisfies("+boost"):
             args.append(self.define("TPL_ENABLE_Boost", True))
 
+        if "^trilinos-anasazi" in self.spec:
+            args.append(self.define("TPL_ENABLE_Anasazi", True))
+
+        if "^trilinos-nox" in self.spec:
+            args.append(self.define("TPL_ENABLE_NOX", True))
+
+        if "^trilinos-rtop" in self.spec:
+            args.append(self.define("TPL_ENABLE_RTOp", True))
+
+        if "^trilinos-stratimikos" in self.spec:
+            args.append(self.define("TPL_ENABLE_Stratimikos", True))
+
+        if "^trilinos-teko" in self.spec:
+            args.append(self.define("TPL_ENABLE_Teko", True))
+
+        if "^trilinos-trilinosss" in self.spec:
+            args.append(self.define("TPL_ENABLE_TrilinosSS", True))
+
+        if "^trilinos-xpetra" in self.spec:
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if "^trilinos-zoltan" in self.spec:
+            args.append(self.define("TPL_ENABLE_Zoltan", True))
+
+        if "^trilinos-zoltan2core" in self.spec:
+            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+
+        if "^trilinos-magistrate" in self.spec:
+            args.append(self.define("Trilinos_ENABLE_magistrate", True))
+            args.append(self.define("TPL_ENABLE_magistrate", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

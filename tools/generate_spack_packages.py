@@ -55,6 +55,43 @@ def _dep_enable_stmts(cmake_name: str, indent: str) -> list[str]:
     return stmts
 
 
+# Populated in main() after cycle removal — TriBITS top-level name → package,
+# for every package we generate. Used to walk the dependency graph.
+_PKG_BY_NAME: dict[str, TrilinosPackage] = {}
+
+
+def _lib_package_deps(pkg: TrilinosPackage) -> list[str]:
+    """Top-level Trilinos packages that `pkg` puts in its Spack spec
+    (required + optional package deps, i.e. those that become depends_on),
+    skipping externals and excluded optional deps."""
+    out: list[str] = []
+    for dep in list(pkg.required_package_deps) + list(pkg.optional_package_deps):
+        effective = _SUBPKG_PARENT.get(dep, dep)
+        if effective in _EXTERNAL_NAMES:
+            continue
+        if effective in EXCLUDE_OPTIONAL_PACKAGES or dep in EXCLUDE_OPTIONAL_PACKAGES:
+            continue
+        if effective == pkg.name or effective not in _PKG_BY_NAME:
+            continue
+        if effective not in out:
+            out.append(effective)
+    return out
+
+
+def _transitive_trilinos_deps(pkg: TrilinosPackage) -> list[str]:
+    """All top-level Trilinos packages reachable from `pkg` through upstream
+    deps of its deps (excluding `pkg` itself), sorted for stable output."""
+    reachable: set[str] = set()
+    stack = _lib_package_deps(pkg)
+    while stack:
+        name = stack.pop()
+        if name in reachable or name == pkg.name:
+            continue
+        reachable.add(name)
+        stack.extend(_lib_package_deps(_PKG_BY_NAME[name]))
+    return sorted(reachable)
+
+
 def _pkg_dep_spec(dep_name: str) -> tuple[str, str | None]:
     """Return (spack_package_name, variant_condition) for a package dep.
 
@@ -708,6 +745,21 @@ def _footer(pkg: TrilinosPackage) -> list[str]:
         lines += [f'        if "^{spack_name}" in self.spec:']
         lines += _dep_enable_stmts(cmake_name, "            ") + ['']
 
+    # ---- Transitive Trilinos package deps — TPL_ENABLE_ only if present in spec ----
+    # Same problem as above, but for Trilinos packages that are NOT a direct
+    # dep of this package and only land in the spec (and CMAKE_PREFIX_PATH)
+    # through upstream packages, e.g. ShyLU -> ShyLU_DD -> Zoltan2 ->
+    # Zoltan2Sphynx -> Galeri. Without TPL_ENABLE_<dep>, TriBITS configures the
+    # dep from source and collides with the installed <Dep>Config.cmake.
+    for dep in _transitive_trilinos_deps(pkg):
+        cmake_name = _pkg_cmake_name(dep)
+        if cmake_name in seen:
+            continue
+        seen.add(cmake_name)
+        spack_name, _ = _pkg_dep_spec(dep)
+        lines += [f'        if "^{spack_name}" in self.spec:']
+        lines += _dep_enable_stmts(cmake_name, "            ") + ['']
+
     lines += [
         "",
         f"        {MANUAL_CMAKE_BEGIN}",
@@ -871,6 +923,9 @@ def main():
 
     # Remove optional deps that would create cycles
     packages = _remove_cyclic_optional_deps(packages)
+
+    # Index packages for transitive dependency walks
+    _PKG_BY_NAME.update({p.name: p for p in packages})
 
     if args.dry_run:
         for p in packages:

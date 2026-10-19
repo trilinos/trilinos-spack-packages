@@ -87,6 +87,25 @@ class TrilinosMuelu(TrilinosBaseClass):
         if "^trilinos-galeri" in self.spec:
             args.append(self.define("TPL_ENABLE_Galeri", True))
 
+        if "^trilinos-anasazi" in self.spec:
+            args.append(self.define("TPL_ENABLE_Anasazi", True))
+
+        if "^trilinos-rtop" in self.spec:
+            args.append(self.define("TPL_ENABLE_RTOp", True))
+
+        if "^trilinos-sacado" in self.spec:
+            args.append(self.define("TPL_ENABLE_Sacado", True))
+
+        if "^trilinos-shards" in self.spec:
+            args.append(self.define("TPL_ENABLE_Shards", True))
+
+        if "^trilinos-trilinosss" in self.spec:
+            args.append(self.define("TPL_ENABLE_TrilinosSS", True))
+
+        if "^trilinos-magistrate" in self.spec:
+            args.append(self.define("Trilinos_ENABLE_magistrate", True))
+            args.append(self.define("TPL_ENABLE_magistrate", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

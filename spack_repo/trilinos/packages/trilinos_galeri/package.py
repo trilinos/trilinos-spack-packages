@@ -42,6 +42,16 @@ class TrilinosGaleri(TrilinosBaseClass):
 
         args.append(self.define("TPL_ENABLE_Xpetra", True))
 
+        if "^trilinos-rtop" in self.spec:
+            args.append(self.define("TPL_ENABLE_RTOp", True))
+
+        if "^trilinos-thyra" in self.spec:
+            args.append(self.define("TPL_ENABLE_Thyra", True))
+
+        if "^trilinos-magistrate" in self.spec:
+            args.append(self.define("Trilinos_ENABLE_magistrate", True))
+            args.append(self.define("TPL_ENABLE_magistrate", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS

@@ -201,6 +201,38 @@ class TrilinosPanzer(TrilinosBaseClass):
         if self.spec.satisfies("+panzerminiem"):
             args.append(self.define("TPL_ENABLE_Pamgen", True))
 
+        if "^trilinos-amesos2" in self.spec:
+            args.append(self.define("TPL_ENABLE_Amesos2", True))
+
+        if "^trilinos-anasazi" in self.spec:
+            args.append(self.define("TPL_ENABLE_Anasazi", True))
+
+        if "^trilinos-hdsalib" in self.spec:
+            args.append(self.define("Trilinos_ENABLE_HdsaLib", True))
+            args.append(self.define("TPL_ENABLE_HdsaLib", True))
+
+        if "^trilinos-minitensor" in self.spec:
+            args.append(self.define("TPL_ENABLE_MiniTensor", True))
+
+        if "^trilinos-rol" in self.spec:
+            args.append(self.define("TPL_ENABLE_ROL", True))
+
+        if "^trilinos-rtop" in self.spec:
+            args.append(self.define("TPL_ENABLE_RTOp", True))
+
+        if "^trilinos-trilinosss" in self.spec:
+            args.append(self.define("TPL_ENABLE_TrilinosSS", True))
+
+        if "^trilinos-xpetra" in self.spec:
+            args.append(self.define("TPL_ENABLE_Xpetra", True))
+
+        if "^trilinos-zoltan2core" in self.spec:
+            args.append(self.define("TPL_ENABLE_Zoltan2Core", True))
+
+        if "^trilinos-magistrate" in self.spec:
+            args.append(self.define("Trilinos_ENABLE_magistrate", True))
+            args.append(self.define("TPL_ENABLE_magistrate", True))
+
 
     # BEGIN MANUAL CMAKE ARGS
     # END MANUAL CMAKE ARGS
