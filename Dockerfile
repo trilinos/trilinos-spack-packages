@@ -74,6 +74,18 @@ RUN mkdir -p /root/.spack /opt/spack-src/opt/bootstrap && \
 # container's system gcc/gfortran (11.x), which breaks Fortran builds
 # (e.g. superlu-dist's FORTRAN examples failing on incompatible .mod files).
 # All packages are built from source in this container.
+# Recent Spack ships binaries.spack.io as a *default* mirror, so we must
+# override the mirrors scope (note the '::') to drop it, keeping only the
+# source-tarball mirror.
+RUN echo 'mirrors::' > /root/.spack/mirrors.yaml && \
+    echo '  spack-public:' >> /root/.spack/mirrors.yaml && \
+    echo '    binary: false' >> /root/.spack/mirrors.yaml && \
+    echo '    url: https://mirror.spack.io' >> /root/.spack/mirrors.yaml && \
+    bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
+    spack mirror list && \
+    if spack mirror list | grep -q binaries.spack.io; then \
+        echo 'ERROR: binary mirror still configured' && exit 1; \
+    fi"
 
 # Initialize spack shell support
 RUN echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /root/.bashrc
