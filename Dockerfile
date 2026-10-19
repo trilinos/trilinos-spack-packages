@@ -69,10 +69,11 @@ RUN mkdir -p /root/.spack /opt/spack-src/opt/bootstrap && \
     echo '    github-actions-v0.6: false' >> /root/.spack/bootstrap.yaml && \
     echo '    spack-install: true' >> /root/.spack/bootstrap.yaml
 
-# Add spack build cache for binary packages
-RUN bash -c "source /opt/spack-src/share/spack/setup-env.sh && \
-    spack mirror add binary_mirror https://binaries.spack.io/develop && \
-    spack buildcache keys --install --trust || true"
+# Do NOT use the public Spack binary cache (binaries.spack.io).
+# Prebuilt binaries there may be compiled with a different compiler than the
+# container's system gcc/gfortran (11.x), which breaks Fortran builds
+# (e.g. superlu-dist's FORTRAN examples failing on incompatible .mod files).
+# All packages are built from source in this container.
 
 # Initialize spack shell support
 RUN echo 'source /opt/spack-src/share/spack/setup-env.sh' >> /root/.bashrc
