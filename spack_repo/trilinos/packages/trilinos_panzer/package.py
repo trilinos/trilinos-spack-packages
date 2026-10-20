@@ -208,7 +208,6 @@ class TrilinosPanzer(TrilinosBaseClass):
             args.append(self.define("TPL_ENABLE_Anasazi", True))
 
         if "^trilinos-hdsalib" in self.spec:
-            args.append(self.define("Trilinos_ENABLE_HdsaLib", True))
             args.append(self.define("TPL_ENABLE_HdsaLib", True))
 
         if "^trilinos-minitensor" in self.spec:

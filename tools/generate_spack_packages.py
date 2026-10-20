@@ -40,16 +40,25 @@ _SUBPKG_PARENT: dict[str, str] = {}
 # TriBITS errors: "Trilinos_ENABLE_X='OFF' != TPL_ENABLE_X = 'ON'".
 _EXPERIMENTAL_PACKAGES: set[str] = set()
 
+# EX packages that must NOT get Trilinos_ENABLE_<pkg>=ON in downstream
+# packages. HdsaLib is a FetchContent source-only wrapper: consumers (e.g.
+# Piro) find its headers via HDSALIB_REPO_SOURCE_DIR, which only exists in a
+# monolithic build. Enabling it in a per-package build turns on
+# HAVE_<PKG>_HDSALIB and the HDSA code then fails to find its headers
+# (e.g. "HDSA_MD_Data_Interface.hpp: No such file or directory" in Piro).
+_EXPERIMENTAL_ENABLE_EXCLUDE: set[str] = {"HdsaLib"}
+
 
 def _dep_enable_stmts(cmake_name: str, indent: str) -> list[str]:
     """Return the cmake_args lines that enable an upstream package dep as a TPL.
 
     Always TPL_ENABLE_<dep>=ON. For EX (experimental) packages, also
     Trilinos_ENABLE_<dep>=ON so it matches TriBITS' OFF default (see
-    _EXPERIMENTAL_PACKAGES).
+    _EXPERIMENTAL_PACKAGES), unless listed in _EXPERIMENTAL_ENABLE_EXCLUDE.
     """
     stmts = []
-    if cmake_name in _EXPERIMENTAL_PACKAGES:
+    if (cmake_name in _EXPERIMENTAL_PACKAGES
+            and cmake_name not in _EXPERIMENTAL_ENABLE_EXCLUDE):
         stmts.append(f'{indent}args.append(self.define("Trilinos_ENABLE_{cmake_name}", True))')
     stmts.append(f'{indent}args.append(self.define("TPL_ENABLE_{cmake_name}", True))')
     return stmts
