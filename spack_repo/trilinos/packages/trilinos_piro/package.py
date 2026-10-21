@@ -32,8 +32,6 @@ class TrilinosPiro(TrilinosBaseClass):
     depends_on_trilinos_package("trilinos-rol")
     depends_on_trilinos_package("trilinos-ifpack2")
     depends_on_trilinos_package("trilinos-muelu")
-    depends_on_trilinos_package("trilinos-hdsalib")
-
     # BEGIN MANUAL SECTION
     # END MANUAL SECTION
 
@@ -57,8 +55,6 @@ class TrilinosPiro(TrilinosBaseClass):
         args.append(self.define("TPL_ENABLE_Ifpack2", True))
 
         args.append(self.define("TPL_ENABLE_MueLu", True))
-
-        args.append(self.define("TPL_ENABLE_HdsaLib", True))
 
         if "^trilinos-thyra" in self.spec:
             args.append(self.define("TPL_ENABLE_ThyraTpetraAdapters", True))

@@ -222,6 +222,7 @@ EXCLUDE_OPTIONAL_PACKAGES: set[str] = {
     "ShyLU_Node",        # Disabled - header bugs in shylubasker_order_scotch.hpp (line 1225, 1254, 1259, 1283)
     "ShyLU_NodeBasker",  # Part of ShyLU_Node
     "ShyLU_NodeTacho",   # Part of ShyLU_Node
+    "HdsaLib",           # Disabled in modular builds - source-tree FetchContent integration is monolithic-only
 }
 
 
